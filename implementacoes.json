@@ -1,0 +1,114 @@
+[
+    {
+        "nome": "FW0",
+        "CLBs": 1150,
+        "BRAM": 5,
+        "DSPs": 0,
+        "Lat": 4.2,
+        "Throughput": 2.9
+    },
+    {
+        "nome": "FW1",
+        "CLBs": 8537,
+        "BRAM": 1,
+        "DSPs": 0,
+        "Lat": 23,
+        "Throughput": 2
+    },
+    {
+        "nome": "FW2",
+        "CLBs": 10153,
+        "BRAM": 241,
+        "DSPs": 0,
+        "Lat": 73,
+        "Throughput": 92.16
+    },
+    {
+        "nome": "DPI0",
+        "CLBs": 10471,
+        "BRAM": 37,
+        "DSPs": 0,
+        "Lat": 278,
+        "Throughput": 0.8
+    },
+    {
+        "nome": "DPI1",
+        "CLBs": 8612,
+        "BRAM": 438,
+        "DSPs": 0,
+        "Lat": 2778,
+        "Throughput": 0.8
+    },
+    {
+        "nome": "DPI2",
+        "CLBs": 19007,
+        "BRAM": 36,
+        "DSPs": 0,
+        "Lat": 626,
+        "Throughput": 14.4
+    },
+    {
+        "nome": "DPI3",
+        "CLBs": 8052,
+        "BRAM": 407,
+        "DSPs": 0,
+        "Lat": 1695,
+        "Throughput": 40
+    },
+    {
+        "nome": "DPI4",
+        "CLBs": 891,
+        "BRAM": 96,
+        "DSPs": 0,
+        "Lat": 1754,
+        "Throughput": 40
+    },
+    {
+        "nome": "DPI5",
+        "CLBs": 6048,
+        "BRAM": 399,
+        "DSPs": 0,
+        "Lat": 1437,
+        "Throughput": 102.6
+    },
+    {
+        "nome": "AES0",
+        "CLBs": 3956,
+        "BRAM": 4,
+        "DSPs": 0,
+        "Lat": 11,
+        "Throughput": 49.38
+    },
+    {
+        "nome": "AES1",
+        "CLBs": 2937,
+        "BRAM": 2,
+        "DSPs": 0,
+        "Lat": 21,
+        "Throughput": 1.054
+    },
+    {
+        "nome": "AES2",
+        "CLBs": 5118,
+        "BRAM": 2,
+        "DSPs": 0,
+        "Lat": 2,
+        "Throughput": 59.3
+    },
+    {
+        "nome": "AES3",
+        "CLBs": 2034,
+        "BRAM": 1,
+        "DSPs": 0,
+        "Lat": 2,
+        "Throughput": 45
+    },
+    {
+        "nome": "AES4",
+        "CLBs": 9561,
+        "BRAM": 450,
+        "DSPs": 0,
+        "Lat": 4,
+        "Throughput": 119.3
+    }
+]
