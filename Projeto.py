@@ -9,7 +9,41 @@ import copy
 import numpy as np
 
 
+@dataclass
+class Function:
+    name_func:str
+    name_imp:str
+    clb:int
+    bram:int
+    dsp:int
 
+@dataclass
+class Req:
+    id:int
+    init_node:int
+    out_node:int
+    max_Lat:int
+    min_T:int
+    func:Function
+    price:float
+
+@dataclass
+class Partition:
+    clb:int
+    bram:int
+    dsp:int
+
+@dataclass
+class Link:
+    nodo_d: str
+    min_Lat: int
+    max_T: int
+
+@dataclass
+class Node:
+    id:str
+    fpga:Partition
+    link: Link
 
 def gerador_Topologia(nro_Nodos, nro_Links):
     
@@ -326,7 +360,7 @@ def gerador_Req(nro_Nodos,nro_Req):
     ] #descricao de valores de diferentes implementacoes de funcoes
 
 
-    nro_Func=random.randint(9,12)
+    nro_Func=random.randint(9,12) #Restringe numero de funcoes na simulacao
     
     for func in range (nro_Func):
         sort_Func=random.randint(0,len(implementacoes)-1)
@@ -340,10 +374,23 @@ def gerador_Req(nro_Nodos,nro_Req):
             "Nome": nome,
             "implementacao": implementacoes[sort_Func]
             }
-        implementacoes[sort_Func]["CLBs"]=int(implementacoes[sort_Func]["CLBs"]*1.25) #considera que apenas 80% das clb são de fato utilizadas
+        implementacoes[sort_Func]["CLBs"]=int(implementacoes[sort_Func]["CLBs"]*1.25) 
+        #considera que apenas 80% das clb são de fato utilizadas
     
     for index in range (nro_Req):
-        rand_fun=random.randint(0,nro_Func-1)
+        
+        rand_nro_fun=random.randint(1,3) #tamanho da SFC
+        func_list=[]
+        while rand_nro_fun != 0:
+            rand_nro_fun -= 1
+            rand_fun=random.randint(0,nro_Func-1)
+            if not func_list:
+                func_list.append(funcao[rand_fun])
+            else:
+                while func_list[-1]["Nome"]==funcao[rand_fun]["Nome"]:
+                    rand_fun=random.randint(0,nro_Func-1)
+                func_list.append(funcao[rand_fun])
+        
         rand_nodo_S=random.randint(0,(nro_Nodos-1))
         rand_nodo_D=random.randint(0,(nro_Nodos-1))
         
@@ -352,7 +399,7 @@ def gerador_Req(nro_Nodos,nro_Req):
         
         aux=funcao[rand_fun]["implementacao"]
         valor=(aux['CLBs']+(aux['BRAM']*10))/50
-        valor=int(valor*random.uniform(0.9,1.1))
+        valor=int(valor*random.uniform(0.9,1.1)) #Futura modelagem de princing
         
 
         lat=check_Lat(rand_nodo_S,rand_nodo_D,lista_Caminhos, lista_Nodos)            
@@ -363,7 +410,7 @@ def gerador_Req(nro_Nodos,nro_Req):
             "Nodo_D": rand_nodo_D,
             "max_Lat": int(lat*1.3),
             "min_T": aux["Throughput"],
-            "funcao": funcao[rand_fun],
+            "function_chain": func_list,
             "valor": valor
             }
 
@@ -387,42 +434,6 @@ def dfs_caminhos(grafo, inicio, fim):
             else:
                 pilha.append((proximo, caminho + [proximo]))
 
-@dataclass
-class Function:
-    name_func:str
-    name_imp:str
-    clb:int
-    bram:int
-    dsp:int
-
-@dataclass
-class Req:
-    id:int
-    init_node:int
-    out_node:int
-    max_Lat:int
-    min_T:int
-    func:Function
-    price:float
-
-@dataclass
-class Partition:
-    clb:int
-    bram:int
-    dsp:int
-
-@dataclass
-class Link:
-    nodo_d: str
-    min_Lat: int
-    max_T: int
-
-@dataclass
-class Node:
-    id:str
-    fpga:Partition
-    link: Link
-
 
 def ler_Requisicoes():
     
@@ -439,14 +450,16 @@ def ler_Requisicoes():
         nodo_D=val["Nodo_D"]
         lat=val["max_Lat"]
         thro=val["min_T"]
-        nome_F=val["funcao"]["Nome"]
-        imp=val["funcao"]["implementacao"]
         valor=val["valor"]
-        nome_I=imp["nome"]
-        clb=imp["CLBs"]
-        bram=imp["BRAM"]
-        dsp=imp["DSPs"]
-        c_Func=Function(nome_F,nome_I,clb,bram,dsp)
+        c_Func=[]
+        for fun in val["function_chain"]:
+            nome_F=fun["Nome"]
+            imp=fun["implementacao"]
+            nome_I=imp["nome"]
+            clb=imp["CLBs"]
+            bram=imp["BRAM"]
+            dsp=imp["DSPs"]
+            c_Func.append(Function(nome_F,nome_I,clb,bram,dsp))
         c_Req=Req(Id,nodo_S,nodo_D,lat,thro,c_Func,valor)
         lista_Req.append(c_Req)
         
@@ -554,17 +567,29 @@ def wrong_Run(lista_Req,lista_Paths,lista_Nodos):
             check_Node=False
             check_Link=1
             for nodo in caminho:
-                
-                for i,device in enumerate(lista_Fpga):
-                    if device[0]=='Nodo'+str(nodo):
-                        if device[2]>=req.func.clb:
-                            if device[3]>=req.func.bram:
-                                if device[4]>=req.func.dsp:
-                                    check_Node=True
-                                    device_id=i  
+                device_id=[]
+                total_utilizado=[]
+                total_restante=[]
+                for i_func in range(len(req.func)):
+                    for i_device,device in enumerate(lista_Fpga):
+                        if device[0]=='Nodo'+str(nodo):
+
+                            if not total_utilizado:
+                                for i_equipament in range(len(lista_Fpga)):
+                                    total_utilizado.append([0,0,0])
+                                    total_restante.append([0,0,0])
+                            
+                            if device[2]>=total_utilizado[i_device][0]and device[3]>=total_utilizado[i_device][1]and device[4]>=total_utilizado[i_device][2]:
+                                total_restante[i_device]=[device[2]-total_utilizado[i_device][0],device[3]-total_utilizado[i_device][1],device[4]-total_utilizado[i_device][2]]
+                                if total_restante[i_device][0]>=req.func[i_func].clb and total_restante[i_device][1]>=req.func[i_func].bram and total_restante[i_device][2]>=req.func[i_func].dsp:
+                                    device_id.append([i_device,i_func])  
+                                    total_utilizado[i_device][0]+=req.func[i_func].clb
+                                    total_utilizado[i_device][1]+=req.func[i_func].bram
+                                    total_utilizado[i_device][2]+=req.func[i_func].dsp
                                     break            
                                 #checa se fpga tem recursos para alocar requisicao
-                if check_Node==True:
+                if len(device_id)==len(req.func):
+                    check_Node=True
                     break
         
             for b,c in zip(caminho,caminho[1:]):
@@ -581,10 +606,11 @@ def wrong_Run(lista_Req,lista_Paths,lista_Nodos):
         
         if check_Link and check_Node:
             
-            aloc_Req.append([req,device[1],i])
-            lista_Fpga[device_id][2]=lista_Fpga[device_id][2]-req.func.clb
-            lista_Fpga[device_id][3]=lista_Fpga[device_id][3]-req.func.bram
-            lista_Fpga[device_id][4]=lista_Fpga[device_id][4]-req.func.dsp
+            aloc_Req.append([req,device[1],i_device])
+            for func in range(len(req.func)):
+                lista_Fpga[device_id[func][0]][2]=lista_Fpga[device_id[func][0]][2]-req.func[func].clb
+                lista_Fpga[device_id[func][0]][3]=lista_Fpga[device_id[func][0]][3]-req.func[func].bram
+                lista_Fpga[device_id[func][0]][4]=lista_Fpga[device_id[func][0]][4]-req.func[func].dsp
             
             
             
@@ -617,7 +643,7 @@ def check_Path(node_D,nodos,req):
     return [valid_Path,node_D,new_Thro]
 #checa se o caminho do nodo inicial ate o final eh valido em relacao a latencia e vazio
 
-def check_Parts(devices, requisition):
+def check_Parts(devices, function, part_allocated,nodo):
     
     
     pesos=[]
@@ -631,17 +657,25 @@ def check_Parts(devices, requisition):
             return False
         for index_part,part in enumerate(partitions):
             total_weight=0
-            
-            if part.clb-requisition.func.clb<0:
+            allocated = False
+            for cont in range(len(part_allocated)):
+                if part_allocated[cont] == False:
+                    continue
+                if index_part == part_allocated[cont][3] and fpga == part_allocated[cont][2]:
+                    allocated =True
+                
+            if allocated:
                 continue
-            if part.bram-requisition.func.bram<0:
+            if part.clb-function.clb<0:
                 continue
-            if part.bram-requisition.func.bram<0:
+            if part.bram-function.bram<0:
                 continue
-            total_weight=(part.clb-requisition.func.clb)*weight_clb
-            total_weight+=(part.bram-requisition.func.bram)*weight_bram
-            total_weight+=(part.dsp-requisition.func.dsp)*weight_dsp
-            pesos.append([total_weight,fpga,index_part])
+            if part.bram-function.bram<0:
+                continue
+            total_weight=(part.clb-function.clb)*weight_clb
+            total_weight+=(part.bram-function.bram)*weight_bram
+            total_weight+=(part.dsp-function.dsp)*weight_dsp
+            pesos.append([total_weight,nodo,fpga,index_part])
             
     if len(pesos)==0: 
             return False    
@@ -667,107 +701,114 @@ def check_Wrong(aloc_Req,lista_Paths):
         path_Ord=sorted(path,key=len)
         
         not_valid=True
-        min_Tile_clb=math.ceil(req[0].func.clb/60)
-        min_Tile_bram=math.ceil(req[0].func.bram/12)
         
-        for id,device in enumerate(topologia):
-            
-            for path in path_Ord:
-                for nodo in path:
-                    
-                    if device[0]!="Nodo"+str(nodo) or device[1]==0:
-                        continue
-
-                    dispositivo=device
-                    
-                    min_Clb=0
-                    min_Bram=0
+        for i_func in range(len(req[0].func)):
+            func_valid=[]
+            for id,device in enumerate(topologia):
+                
+                for path in path_Ord:
+                    for nodo in path:
                         
-                    if dispositivo[1]==1:
-                        divisor=5
-                        min_Tile=5
-                    elif dispositivo[1]==2:
-                        divisor=8
-                        min_Tile=3
-                    elif dispositivo[1]==3:
-                        divisor=15
-                        min_Tile=2
-                        
-                    comparador=0
-                    
-                    #checa por numero de CLB
-                    for linha in range(divisor,0,-1):
-                        if min_Tile_clb%linha == 0 and min_Tile_clb<(dispositivo[2]*(linha/divisor)):
-                            for index in range(0,int(min_Tile_clb/linha),10):            
-                                min_Bram+=linha
-                            melhor=0
-                            break
-                        else:
-                            if comparador==0:
-                                comparador=(min_Tile_clb%linha) / linha
-                                
-                            else:
-                                if comparador>((min_Tile_clb%linha) / linha):
-                                    comparador=(min_Tile_clb%linha) / linha
-                                    melhor=linha              #checa por menor ratio entre coluna/linha, priorizando colunas maiores
-                    if melhor!=0:
-                        for index in range(0,int(min_Tile_clb/melhor),10):            
-                            min_Bram+=melhor
-                        linha=melhor
-                    
-                    part=[linha,math.ceil(min_Tile_clb/linha)]
-                    
-                    comparador=0
-                    #checa por numero de BRAM
-                    for linha in range(divisor,0,-1):
-                        
-                        if min_Tile_bram%linha == 0 and min_Tile_bram<(dispositivo[3]*(linha/divisor)):
-                            for index in range(0,int(min_Tile_bram/linha),min_Tile):            
-                                min_Clb+=linha
-                            melhor=0
-                            break
-                        else:
-                            if comparador==0:
-                                comparador=(min_Tile_bram%linha) / linha
-                                
-                            else:
-                                if comparador>((min_Tile_bram%linha) / linha):
-                                    comparador=(min_Tile_bram%linha) / linha
-                                    melhor=linha              #checa por menor ratio entre coluna/linha, priorizando colunas maiores
-                    if melhor!=0:
-                        for index in range(0,int(min_Tile_bram/melhor),min_Tile):            
-                            min_Clb+=melhor
-                        linha=melhor
+                        if device[0]!="Nodo"+str(nodo) or device[1]==0:
+                            continue
                     
                     
-                    if dispositivo[2]-min_Tile_bram<0 or dispositivo[3]-min_Tile_bram<0:
-                        continue
+                        min_Tile_clb=math.ceil(req[0].func[i_func].clb/60)
+                        min_Tile_bram=math.ceil(req[0].func[i_func].bram/12)
                     
-                    else:
-                        if min_Bram>=min_Tile_bram or min_Clb>=min_Tile_clb:
-                            if part[0]>=linha: 
-                                min_Clb=part[0]*math.ceil(min_Tile_clb/part[0])*60
-                                min_Bram=part[0]*math.ceil(min_Tile_bram/part[0])*12
-                                topologia[id][2]=topologia[id][2]-min_Clb
-                                topologia[id][3]=topologia[id][3]-min_Bram
-                                not_valid = False
-                                break
-                            else:
-                                min_Clb=linha*math.ceil(min_Tile_clb/linha)*60
-                                min_Bram=linha*math.ceil(min_Tile_bram/linha)*12
-                                topologia[id][2]=topologia[id][2]-min_Clb
-                                topologia[id][3]=topologia[id][3]-min_Bram
-                                not_valid = False
-                                break
+                    
+                        min_Clb=0
+                        min_Bram=0
                             
+                        if device[1]==1:
+                            divisor=5
+                            min_Tile=5
+                        elif device[1]==2:
+                            divisor=8
+                            min_Tile=3
+                        elif device[1]==3:
+                            divisor=15
+                            min_Tile=2
+                            
+                        comparador=0
+                        
+                        #checa por numero de CLB
+                        for linha in range(divisor,0,-1):
+                            if min_Tile_clb%linha == 0 and min_Tile_clb<(device[2]*(linha/divisor)):
+                                for index in range(0,int(min_Tile_clb/linha),10):            
+                                    min_Bram+=linha
+                                melhor=0
+                                break
+                            else:
+                                if comparador==0:
+                                    comparador=(min_Tile_clb%linha) / linha
+                                    
+                                else:
+                                    if comparador>((min_Tile_clb%linha) / linha):
+                                        comparador=(min_Tile_clb%linha) / linha
+                                        melhor=linha              #checa por menor ratio entre coluna/linha, priorizando colunas maiores
+                        if melhor!=0:
+                            for index in range(0,int(min_Tile_clb/melhor),10):            
+                                min_Bram+=melhor
+                            linha=melhor
+                        
+                        part=[linha,math.ceil(min_Tile_clb/linha)]
+                        
+                        comparador=0
+                        #checa por numero de BRAM
+                        for linha in range(divisor,0,-1):
+                            
+                            if min_Tile_bram%linha == 0 and min_Tile_bram<(device[3]*(linha/divisor)):
+                                for index in range(0,int(min_Tile_bram/linha),min_Tile):            
+                                    min_Clb+=linha
+                                melhor=0
+                                break
+                            else:
+                                if comparador==0:
+                                    comparador=(min_Tile_bram%linha) / linha
+                                    
+                                else:
+                                    if comparador>((min_Tile_bram%linha) / linha):
+                                        comparador=(min_Tile_bram%linha) / linha
+                                        melhor=linha              #checa por menor ratio entre coluna/linha, priorizando colunas maiores
+                        if melhor!=0:
+                            for index in range(0,int(min_Tile_bram/melhor),min_Tile):            
+                                min_Clb+=melhor
+                            linha=melhor
+                        
+                        
+                        if device[2]-min_Tile_bram<0 or device[3]-min_Tile_bram<0:
+                            continue
+                        
+                        else:
+                            if min_Bram>=min_Tile_bram or min_Clb>=min_Tile_clb:
+                                if part[0]>=linha: 
+                                    min_Clb=part[0]*math.ceil(min_Tile_clb/part[0])*60
+                                    min_Bram=part[0]*math.ceil(min_Tile_bram/part[0])*12
+                                    topologia[id][2]=topologia[id][2]-min_Clb
+                                    topologia[id][3]=topologia[id][3]-min_Bram
+                                    not_valid = False
+                                    func_valid.append(True)
+                                    break
+                                else:
+                                    min_Clb=linha*math.ceil(min_Tile_clb/linha)*60
+                                    min_Bram=linha*math.ceil(min_Tile_bram/linha)*12
+                                    topologia[id][2]=topologia[id][2]-min_Clb
+                                    topologia[id][3]=topologia[id][3]-min_Bram
+                                    not_valid = False
+                                    func_valid.append(True)
+                                    break
+                        
+                        
+                            
+                    if not_valid == False:
+                        break
                 if not_valid == False:
-                    break
-            if not_valid == False:
                     break
                                                
                     
                             
-        if not_valid == True: 
+        if len(func_valid) != len(req[0].func): 
             aloc_W.append([req])
     return aloc_W
                  
@@ -785,31 +826,38 @@ def greedy(lista_Req,lista_Paths,node_List):
         
         for caminho in path_Ord:
             
-            if check_Link == True:
+            if check_Link == "True":
                 break
             check_Node=False
             check_Link=1
-            
+            best_part=[]
             for nodo in caminho:
+                
                 if len(node_List[nodo].fpga)==0:
                     continue
-    
-                best_part=check_Parts(node_List[nodo].fpga,req)
-                if best_part==False:
+                
+                if len(best_part)==0:
+                    
+                    for func in req.func:
+                        best_part.append(check_Parts(node_List[nodo].fpga,func,best_part,nodo))
+                elif False in best_part:
+                    indices = [i for i, x in enumerate(best_part) if x == False]
+                    for i in indices:
+                        valid_part = check_Parts(node_List[nodo].fpga,req.func[i],best_part,nodo)
+                        if valid_part:
+                            best_part[i]=valid_part
+                    
+                    
+                if False in best_part:
                     continue
                 else:
                     check_Node=True
+                    index = 3
+                    best_part = sorted(best_part, key=lambda sublist: sublist[index], reverse=True)
+                    #organiza a lista em ordem decrescente para o pop() funcionar corretamente
                     break
-                '''
-                if parts[best_part].clb>=req.func.clb:
-                    if parts[best_part].bram>=req.func.bram:
-                        if parts[best_part].dsp>=req.func.dsp:
-                            check_Node=True
-                            fpga_num=a
-                            break
-                            '''
-            
-    #for p in path_Ord:
+          
+    
             if check_Node==False:
                 continue
             
@@ -819,7 +867,7 @@ def greedy(lista_Req,lista_Paths,node_List):
                 aux_Lista=b,lista_Check[1],lista_Check[2]
                 refresh_Links.append(aux_Lista)
             if check_Link==len(caminho):
-                check_Link=True
+                check_Link="True"
                 break
             else:
                 check_Link=False
@@ -828,7 +876,9 @@ def greedy(lista_Req,lista_Paths,node_List):
         if check_Link and check_Node:
             
             aloc_Req.append(req)
-            node_List[nodo].fpga[best_part[1]].pop(best_part[2])
+            
+            for func in range(len(req.func)):
+                node_List[best_part[func][1]].fpga[best_part[func][2]].pop(best_part[func][3])
             for nodo_I,nodo_F,thro in refresh_Links:
                 for l in (node_List[nodo_I].link):
                     if int(l.nodo_d)==nodo_F:
@@ -1085,7 +1135,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=50
+            nr_Repeat=200
 
             print('Executando...')
             lista_Results_g=[]
