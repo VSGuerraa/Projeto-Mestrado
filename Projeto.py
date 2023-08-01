@@ -4,9 +4,9 @@ import random
 import statistics as stats
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
-import networkx as nx
 import copy
 import numpy as np
+import subprocess
 
 
 @dataclass
@@ -44,186 +44,15 @@ class Node:
     id:str
     fpga:Partition
     link: Link
+    
 
 def gerador_Topologia(nro_Nodos, nro_Links):
-    
-    G = nx.gnm_random_graph(nro_Nodos, nro_Links)
-    
-    while not(nx.is_connected(G)):
-        G = nx.gnm_random_graph(nro_Nodos, nro_Links)
-    
-    #visualiza grafico em tela
-    
-    subax1 = plt.subplot(121)
-    nx.draw_circular(G, with_labels=True, font_weight='bold')
-    
-    plt.savefig('Grafo.png')
-    #plt.show() 
-    subax1.clear()
-    
-    lista=list(G.edges)
-
-    topologia_rede=[]
-    fpga=[]
-    
-
-
-    fpga=[[30300,600,1920],[67200,1680,768],[134280,3780,1800]]
-    list_thro=[40,100,200,400]
-    
-    fpga_P=[
-                {   "Modelo": 'P',
-                    
-                    "Part0": {
-                        "CLBs": 22200,
-                        "BRAM": 480,
-                        "DSP": 1560
-                    }
-                },
-                {   "Modelo": 'P',   
-                 
-                    "Part0": {
-                        "CLBs": 10800,
-                        "BRAM": 300,
-                        "DSP": 600
-                    },
-                    "Part1": {
-                        "CLBs": 10800,
-                        "BRAM": 180,
-                        "DSP": 600
-                    },
-                    "Part2": {
-                        "CLBs": 2958,
-                        "BRAM": 40,
-                        "DSP": 240
-                    }
-                } 
-            ]  
-    fpga_M=[
-            {       "Modelo": 'M',
-             
-                    "Part0": {
-                        "CLBs": 19200,
-                        "BRAM": 480,
-                        "DSP": 192
-                    },
-                    "Part1": {
-                        "CLBs": 20160,
-                        "BRAM": 480,
-                        "DSP": 192
-                    },
-                    "Part2": {
-                        "CLBs": 10440,
-                        "BRAM": 288,
-                        "DSP": 144
-                    },
-                    
-                    "Part3": {
-                        "CLBs": 3060,
-                        "BRAM": 108,
-                        "DSP": 0
-                    },
-                    "Part4": {
-                        "CLBs": 3060,
-                        "BRAM": 144,
-                        "DSP": 72
-                    },
-                    "Part5": {
-                        "CLBs": 3060,
-                        "BRAM": 72,
-                        "DSP": 72
-                    }
-            }             
-            ]
-    fpga_G=[
-        {           "Modelo": 'G',
-         
-                    "Part0": {
-                        "CLBs": 19800,
-                        "BRAM": 504,
-                        "DSP": 288
-                    },
-                    "Part1": {
-                        "CLBs": 19080,
-                        "BRAM": 576,
-                        "DSP": 288
-                    },
-                    "Part2": {
-                        "CLBs": 22140,
-                        "BRAM": 540,
-                        "DSP": 216
-                    },
-                    
-                    "Part3": {
-                        "CLBs": 19440,
-                        "BRAM": 540,
-                        "DSP": 216
-                    },
-                    "Part4": {
-                        "CLBs": 10980,
-                        "BRAM": 288,
-                        "DSP": 144
-                    },
-                    "Part5": {
-                        "CLBs": 10800,
-                        "BRAM": 360,
-                        "DSP": 144
-                    },
-                    "Part6": {
-                        "CLBs": 2940,
-                        "BRAM": 72,
-                        "DSP": 0
-                    },
-                    "Part7": {
-                        "CLBs": 2940,
-                        "BRAM": 72,
-                        "DSP": 0
-                    },
-                    "Part8": {
-                        "CLBs": 2940,
-                        "BRAM": 84,
-                        "DSP": 24
-                    }
+    data = {
+        'nodos':nro_Nodos,
+        'links':nro_Links
             }
-        ]
-                
-    size_Fgpa=[fpga_P,fpga_M,fpga_G]
-
-    for a in range(nro_Nodos):
-        lista_Fpga=[]
-        lista_Links=[]
-        
-        for b in lista:
-            nodoS = b[0]
-            nodoD = b[1]
-            if nodoD == a:
-                lista_Links.append(nodoS)
-            if nodoS == a:
-                lista_Links.append(nodoD)
-
-        for c in range(len(lista_Links)):
-            thro=random.choice(list_thro)
-            lat= random.randint(20,200)
-            lista_Links[c]={lista_Links[c]: {"Lat": lat, "Throughput": thro}}
-       
-
-        nro_fpga=random.randint(0,3)
-        
-        if nro_fpga!=0:
-            lista_Part=[]
-            for device in range(nro_fpga):
-                
-                
-                sort_Fpga=random.choice(range(len(fpga)))
-                
-                lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
-                
-            lista_Fpga.append(lista_Part)
-           
-        topologia_rede.append({"Nodo"+str(a): {"FPGA": lista_Fpga, "Links": lista_Links}})
-        
-    with open ("topologia.json","w") as outfile:
-        json.dump(topologia_rede, outfile, indent=4)
+    args = ['python', 'gerador_topologia.py', 'top_data.json', json.dumps(data)]
+    subprocess.run(args)
 
 
 def check_Lat(nodo_S,nodo_D,lista_Paths,lista_Nodos): #checa menor lat dentre os caminhos possiveis
@@ -809,7 +638,7 @@ def check_Wrong(aloc_Req,lista_Paths):
                     
                             
         if len(func_valid) != len(req[0].func): 
-            aloc_W.append([req])
+            aloc_W.append(req)
     return aloc_W
                  
                                      
@@ -1121,12 +950,12 @@ def main():
             b=[]
             c=[]
             for i in res_w[1]:
-                a.append(i.id)
+                a.append(i[0].id)
             print("W:",a)
             for j in res_g[1]:
                 b.append(j.id)
             print("G:",b)
-            j=check_Wrong(res_w[1])
+            j=check_Wrong(res_w[1],lista_Paths)
             for i in j:
                 c.append(i[0].id)
             print("WW:",c)
@@ -1135,7 +964,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=200
+            nr_Repeat=50
 
             print('Executando...')
             lista_Results_g=[]
@@ -1151,6 +980,7 @@ def main():
             lista_Nodos_W=[]
             
             for index in range (5,45,5):
+                
                 req_Aloc_g=[]
                 req_Aloc_w=[]
                 nr_req_Aloc_W=[]

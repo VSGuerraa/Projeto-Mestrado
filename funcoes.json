@@ -2,12 +2,12 @@
     "0": {
         "Nome": "Advanced Encryption Standard",
         "implementacao": {
-            "nome": "AES4",
-            "CLBs": 14938,
-            "BRAM": 450,
+            "nome": "AES1",
+            "CLBs": 3543,
+            "BRAM": 2,
             "DSPs": 0,
-            "Lat": 20,
-            "Throughput": 119.3
+            "Lat": 21,
+            "Throughput": 1.054
         }
     },
     "1": {
@@ -17,85 +17,118 @@
             "CLBs": 19007,
             "BRAM": 36,
             "DSPs": 0,
-            "Lat": 1013,
+            "Lat": 2249,
             "Throughput": 14.4
         }
     },
     "2": {
-        "Nome": "Firewall",
+        "Nome": "Advanced Encryption Standard",
         "implementacao": {
-            "nome": "FW0",
-            "CLBs": 1796,
-            "BRAM": 5,
+            "nome": "AES0",
+            "CLBs": 3165,
+            "BRAM": 1,
             "DSPs": 0,
-            "Lat": 4.2,
-            "Throughput": 2.9
+            "Lat": 16,
+            "Throughput": 49.38
         }
     },
     "3": {
+        "Nome": "Deep Packet Inspection",
+        "implementacao": {
+            "nome": "DPI4",
+            "CLBs": 891,
+            "BRAM": 96,
+            "DSPs": 0,
+            "Lat": 2019,
+            "Throughput": 40
+        }
+    },
+    "4": {
         "Nome": "Advanced Encryption Standard",
         "implementacao": {
             "nome": "AES4",
             "CLBs": 14938,
             "BRAM": 450,
             "DSPs": 0,
-            "Lat": 20,
+            "Lat": 16,
             "Throughput": 119.3
         }
     },
-    "4": {
+    "5": {
         "Nome": "Advanced Encryption Standard",
         "implementacao": {
-            "nome": "AES2",
-            "CLBs": 6397,
-            "BRAM": 4,
+            "nome": "AES4",
+            "CLBs": 14938,
+            "BRAM": 450,
             "DSPs": 0,
-            "Lat": 2,
-            "Throughput": 59.3
+            "Lat": 16,
+            "Throughput": 119.3
         }
     },
-    "5": {
+    "6": {
         "Nome": "Deep Packet Inspection",
         "implementacao": {
             "nome": "DPI1",
-            "CLBs": 10765,
+            "CLBs": 13456,
             "BRAM": 438,
             "DSPs": 0,
             "Lat": 2778,
             "Throughput": 0.8
         }
     },
-    "6": {
-        "Nome": "Advanced Encryption Standard",
-        "implementacao": {
-            "nome": "AES3",
-            "CLBs": 2542,
-            "BRAM": 2,
-            "DSPs": 0,
-            "Lat": 18,
-            "Throughput": 45
-        }
-    },
     "7": {
-        "Nome": "Firewall",
+        "Nome": "Deep Packet Inspection",
         "implementacao": {
-            "nome": "FW0",
-            "CLBs": 1796,
-            "BRAM": 5,
+            "nome": "DPI1",
+            "CLBs": 13456,
+            "BRAM": 438,
             "DSPs": 0,
-            "Lat": 4.2,
-            "Throughput": 2.9
+            "Lat": 2778,
+            "Throughput": 0.8
         }
     },
     "8": {
         "Nome": "Advanced Encryption Standard",
         "implementacao": {
+            "nome": "AES3",
+            "CLBs": 2542,
+            "BRAM": 1,
+            "DSPs": 0,
+            "Lat": 13,
+            "Throughput": 45
+        }
+    },
+    "9": {
+        "Nome": "Firewall",
+        "implementacao": {
+            "nome": "FW2",
+            "CLBs": 10153,
+            "BRAM": 241,
+            "DSPs": 0,
+            "Lat": 73,
+            "Throughput": 92.16
+        }
+    },
+    "10": {
+        "Nome": "Advanced Encryption Standard",
+        "implementacao": {
             "nome": "AES2",
-            "CLBs": 6397,
-            "BRAM": 4,
+            "CLBs": 5118,
+            "BRAM": 5,
             "DSPs": 0,
             "Lat": 2,
             "Throughput": 59.3
+        }
+    },
+    "11": {
+        "Nome": "Firewall",
+        "implementacao": {
+            "nome": "FW1",
+            "CLBs": 10671,
+            "BRAM": 1,
+            "DSPs": 0,
+            "Lat": 23,
+            "Throughput": 2
         }
     }
 }
