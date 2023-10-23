@@ -210,4 +210,4 @@ if __name__ == "__main__":
         nro_Nodos = obter_entrada_dentro_intervalo("Número de nodos: ", 5, 40)
         nro_Links = obter_entrada_dentro_intervalo(f"Número de links: ", int(nro_Nodos*1.2), int(nro_Nodos*1.3))
         gerador_Topologia(nro_Nodos,nro_Links)
-        print("Não devia estar printando")
+        

@@ -9,7 +9,7 @@
     },
     {
         "nome": "FW1",
-        "CLBs": 10671,
+        "CLBs": 8537,
         "BRAM": 1,
         "DSPs": 0,
         "Lat": 23,
@@ -25,7 +25,7 @@
     },
     {
         "nome": "DPI0",
-        "CLBs": 8377,
+        "CLBs": 10471,
         "BRAM": 37,
         "DSPs": 0,
         "Lat": 278,
@@ -44,23 +44,23 @@
         "CLBs": 19007,
         "BRAM": 36,
         "DSPs": 0,
-        "Lat": 2249,
+        "Lat": 380,
         "Throughput": 14.4
     },
     {
         "nome": "DPI3",
-        "CLBs": 5154,
+        "CLBs": 6442,
         "BRAM": 407,
         "DSPs": 0,
-        "Lat": 636,
+        "Lat": 980,
         "Throughput": 40
     },
     {
         "nome": "DPI4",
-        "CLBs": 891,
+        "CLBs": 713,
         "BRAM": 96,
         "DSPs": 0,
-        "Lat": 2019,
+        "Lat": 669,
         "Throughput": 40
     },
     {
@@ -68,20 +68,20 @@
         "CLBs": 6048,
         "BRAM": 399,
         "DSPs": 0,
-        "Lat": 2355,
+        "Lat": 2588,
         "Throughput": 102.6
     },
     {
         "nome": "AES0",
         "CLBs": 3165,
-        "BRAM": 1,
+        "BRAM": 2,
         "DSPs": 0,
-        "Lat": 16,
+        "Lat": 19,
         "Throughput": 49.38
     },
     {
         "nome": "AES1",
-        "CLBs": 3543,
+        "CLBs": 2945,
         "BRAM": 2,
         "DSPs": 0,
         "Lat": 21,
@@ -97,18 +97,18 @@
     },
     {
         "nome": "AES3",
-        "CLBs": 2542,
-        "BRAM": 1,
+        "CLBs": 2034,
+        "BRAM": 4,
         "DSPs": 0,
-        "Lat": 13,
+        "Lat": 5,
         "Throughput": 45
     },
     {
         "nome": "AES4",
-        "CLBs": 14938,
+        "CLBs": 11951,
         "BRAM": 450,
         "DSPs": 0,
-        "Lat": 16,
+        "Lat": 15,
         "Throughput": 119.3
     }
 ]

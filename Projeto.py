@@ -298,9 +298,9 @@ def ler_Requisicoes():
 def ler_Topologia():
     
 
-
-    with open("topologia.json") as file2:
-        topologia = json.load(file2)
+    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
+    with open(file_path) as file:
+        topologia = json.load(file)
     
 
     nodos=[]
