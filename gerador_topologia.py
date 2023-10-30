@@ -20,9 +20,9 @@ def gerador_Topologia(nro_Nodos, nro_Links):
     #plt.show() 
     subax1.clear()
     
-    lista=list(G.edges)
+    list_edges=list(G.edges)
 
-    topologia_rede=[]
+    topologia_rede={}
     fpga=[]
     
 
@@ -152,7 +152,7 @@ def gerador_Topologia(nro_Nodos, nro_Links):
         lista_Fpga=[]
         lista_Links=[]
         
-        for b in lista:
+        for b in list_edges:
             nodoS = b[0]
             nodoD = b[1]
             if nodoD == a:
@@ -160,10 +160,17 @@ def gerador_Topologia(nro_Nodos, nro_Links):
             if nodoS == a:
                 lista_Links.append(nodoD)
 
-        for c in range(len(lista_Links)):
+        for index in range(len(lista_Links)):
             thro=random.choice(list_thro)
             lat= random.randint(20,200)
-            lista_Links[c]={lista_Links[c]: {"Lat": lat, "Throughput": thro}}
+            if lista_Links[index] < a:
+                for links in topologia_rede[f"Nodo{lista_Links[index]}"]["Links"]:
+                    nodo_D=next(iter(links))
+                    if nodo_D == a:
+                        lat= links[nodo_D]["Lat"]    
+                        thro= links[nodo_D]["Throughput"]
+                        break
+            lista_Links[index]={lista_Links[index]: {"Lat": lat, "Throughput": thro}}
        
 
         nro_fpga=random.randint(0,3)
@@ -179,7 +186,15 @@ def gerador_Topologia(nro_Nodos, nro_Links):
                 
             lista_Fpga.append(lista_Part)
            
-        topologia_rede.append({"Nodo"+str(a): {"FPGA": lista_Fpga, "Links": lista_Links}})
+        topologia_rede.update({"Nodo"+str(a): {"FPGA": lista_Fpga, "Links": lista_Links}})
+        
+    '''for nodo_S in topologia_rede.keys():
+        for index,link in enumerate(topologia_rede[nodo_S]["Links"]):
+            nodo_D=next(iter(link))
+            if int(nodo_D) < int(nodo_S.replace("Nodo","")): 
+                topologia_rede[nodo_S]["Links"][index]["Lat"] = topologia_rede[f"Nodo{nodo_D}"]["Links"][nodo_S]["Lat"] 
+                topologia_rede[nodo_S]["Links"][index]["Throughput"] = topologia_rede[f"Nodo{nodo_D}"]["Links"][nodo_S]["Throughput"]'''
+            
         
     with open ("topologia.json","w") as outfile:
         json.dump(topologia_rede, outfile, indent=4)

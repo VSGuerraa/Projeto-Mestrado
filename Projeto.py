@@ -298,8 +298,8 @@ def ler_Requisicoes():
 def ler_Topologia():
     
 
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
-    with open(file_path) as file:
+    #file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
+    with open("topologia.json") as file:
         topologia = json.load(file)
     
 
@@ -310,12 +310,13 @@ def ler_Topologia():
     lista_Nodos=[]
 
 
-    for i,v in enumerate(topologia):
+    for index,values in enumerate(topologia.values()):
         
-        nodos.append(str(*v.keys()))
-        nodo_id=nodos[i]
-        fpgas=(v[nodos[i]]["FPGA"])
-        links=(v[nodos[i]]["Links"])
+        nodos=topologia.keys()
+        nodos = [str(key) for key in nodos]
+        nodo_id=nodos[index]
+        fpgas=(values["FPGA"])
+        links=(values["Links"])
         caminhos=[]
         lista_Links=[]
         lista_Fpga=[]
@@ -964,7 +965,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=50
+            nr_Repeat=10
 
             print('Executando...')
             lista_Results_g=[]
@@ -988,7 +989,7 @@ def main():
                 for cont in range(nr_Repeat):
                     size=index
                     nodos_G=size
-                    links_G=int(size*1.2)
+                    links_G=int(size*1.3)
                     req=random.randint(int(size*1.5),int(size*3))
                     gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
