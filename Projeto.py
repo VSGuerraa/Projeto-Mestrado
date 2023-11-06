@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import copy
 import numpy as np
 import subprocess
+import ILP_ciente
 
 
 @dataclass
@@ -45,7 +46,6 @@ class Node:
     fpga:Partition
     link: Link
     
-
 def gerador_Topologia(nro_Nodos, nro_Links):
     data = {
         'nodos':nro_Nodos,
@@ -53,7 +53,6 @@ def gerador_Topologia(nro_Nodos, nro_Links):
             }
     args = ['python', 'gerador_topologia.py', 'top_data.json', json.dumps(data)]
     subprocess.run(args)
-
 
 def check_Lat(nodo_S,nodo_D,lista_Paths,lista_Nodos): #checa menor lat dentre os caminhos possiveis
     
@@ -77,8 +76,7 @@ def check_Lat(nodo_S,nodo_D,lista_Paths,lista_Nodos): #checa menor lat dentre os
         if lat<menor_Lat:
             menor_Lat=lat
         
-    return menor_Lat         
-    
+    return menor_Lat          
 
 def gerador_Req(nro_Nodos,nro_Req):
 
@@ -251,7 +249,6 @@ def gerador_Req(nro_Nodos,nro_Req):
 
     with open ("implementacoes.json","w") as outfile:
         json.dump(implementacoes, outfile, indent=4)
-
     
 def dfs_caminhos(grafo, inicio, fim):
     pilha = [(inicio, [inicio])]
@@ -262,7 +259,6 @@ def dfs_caminhos(grafo, inicio, fim):
                 yield caminho + [proximo]
             else:
                 pilha.append((proximo, caminho + [proximo]))
-
 
 def ler_Requisicoes():
     
@@ -293,7 +289,6 @@ def ler_Requisicoes():
         lista_Req.append(c_Req)
         
     return lista_Req
-
 
 def ler_Topologia():
     
@@ -353,7 +348,6 @@ def ler_Topologia():
     
 
     return lista_Caminhos,lista_Nodos
-
 
 def wrong_Run(lista_Req,lista_Paths,lista_Nodos):
     
@@ -640,8 +634,7 @@ def check_Wrong(aloc_Req,lista_Paths):
                             
         if len(func_valid) != len(req[0].func): 
             aloc_W.append(req)
-    return aloc_W
-                 
+    return aloc_W               
                                      
 def greedy(lista_Req,lista_Paths,node_List):
     aloc_Req=[]
@@ -719,7 +712,6 @@ def greedy(lista_Req,lista_Paths,node_List):
     
 
     return(len(aloc_Req), aloc_Req, cash)
-    
 
 def plot_Func(aloc_Desv,valor_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun):
     
@@ -738,7 +730,6 @@ def plot_Func(aloc_Desv,valor_Desv,dataset_index,dataset_req_Aloc,dataset_wrongr
     plt.legend(loc=2)
     plt.savefig('Grafico_Func.png')
     plt.show()
-
 
 def plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all, nr_Simul,lista_Wrong_run):
     
@@ -898,7 +889,6 @@ def plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all, nr_Simul,lista_Wrong_ru
     plt.savefig('Grafico_FPGA.png')
     plt.show()
     
-
 def plot_Solutions_inv(nr_Simul,lista_Invalidos):
     
     
@@ -920,11 +910,22 @@ def plot_Solutions_inv(nr_Simul,lista_Invalidos):
         
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
-    ax.plot([5,10,15,20,25,30,35,40], total_Inv,color='tab:green')
+    ax.plot([5,10,15,20], total_Inv,color='tab:green')
     ax.grid() 
     ax.set_xlabel("Número de Nodos") 
     ax.set_ylabel("Fração de soluções inválidas") 
     plt.savefig('Grafico_Func_invalido.png')
+    plt.show()
+
+def plot_ILP(dataset_ILP):
+    
+    fig = plt.figure() 
+    ax = fig.add_subplot(111) 
+    ax.plot([5,10,15,20], dataset_ILP,color='tab:green')
+    ax.grid() 
+    ax.set_xlabel("Número de Nodos") 
+    ax.set_ylabel("Funções Alocadas") 
+    plt.savefig('Grafico_ILP.png')
     plt.show()
     
 
@@ -935,7 +936,8 @@ def main():
         
         modo=input("1- Testar unitario\n2- Teste em escala\n")
 
-        if modo == '1':
+        if modo == '1': #serve para debug ou analise de requisicoes especificas
+            
             nodos_G=int(input("Numero de nodos da rede:\n"))
             links_G=int(input("Numero de links da rede:\n"))
             req=int(input("Numero de requisicoes:\n"))
@@ -945,6 +947,9 @@ def main():
             lista_Req=ler_Requisicoes()
             res_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
             res_g=greedy(lista_Req,lista_Paths,lista_Nodos)
+            
+            result_ILP_ciente = ILP_ciente.main()
+            print("ILP ciente:",result_ILP_ciente)
             
             #visualização apenas
             a=[]
@@ -961,7 +966,6 @@ def main():
                 c.append(i[0].id)
             print("WW:",c)
             
-
         elif modo=='2':
             
             
@@ -973,6 +977,7 @@ def main():
             dataset_index=[]
             dataset_req_Aloc=[]
             dataset_wrongrun=[]
+            dataset_ILP_ciente=[]
             aloc_Desv=[]
             #valor_Desv=[]
             wrong_Desv=[]
@@ -980,27 +985,36 @@ def main():
             lista_Nodos_all=[]
             lista_Nodos_W=[]
             
-            for index in range (5,45,5):
+            
+            for index in range (5,25,5):
                 
                 req_Aloc_g=[]
                 req_Aloc_w=[]
                 nr_req_Aloc_W=[]
-                #valor_Final=[]
+                lista_result_ILP_ciente=[]
+                lista_result_ILP_nao_ciente=[]
+                
                 for cont in range(nr_Repeat):
                     size=index
                     nodos_G=size
                     links_G=int(size*1.3)
-                    req=random.randint(int(size*1.5),int(size*3))
+                    req=random.randint(int(size*2),int(size*3))
+                    
                     gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
+                    
                     lista_Paths,lista_Nodos=ler_Topologia()
                     lista_Nodos_aux=copy.deepcopy(lista_Nodos)
+                    
                     lista_Req=ler_Requisicoes()
                     results_g=greedy(lista_Req,lista_Paths,lista_Nodos)
                     lista_Nodos=copy.deepcopy(lista_Nodos_aux)
+                    
                     results_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
                     lista_Nodos=copy.deepcopy(lista_Nodos_aux)
+                    
                     aux=check_Wrong(results_w[1],lista_Paths)
+    
                     if len(aux)==0:
                         aux=[0,0,0]
                     lista_Invalidos.append(aux)
@@ -1026,17 +1040,26 @@ def main():
                     
                     nr_req_Aloc_W.append(results_w[0])
                     lista_Nodos_W.append(results_w[1])
+                    
+                    result_ILP_ciente = ILP_ciente.main()
+                    #print("ILP ciente:",result_ILP_ciente)
+                    lista_result_ILP_ciente.append(result_ILP_ciente)
+                     
                 aloc_Desv.append(stats.pstdev(req_Aloc_g))
                 #valor_Desv.append(stats.pstdev(valor_Final))
                 wrong_Desv.append(stats.pstdev(nr_req_Aloc_W))
                 dataset_index.append(index)
                 dataset_req_Aloc.append(stats.mean(req_Aloc_g))
                 dataset_wrongrun.append(stats.mean(nr_req_Aloc_W))
+                dataset_ILP_ciente.append(stats.mean(lista_result_ILP_ciente))
+                
+                
                 
                
-            plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
+            #plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
             plot_Solutions_inv(nr_Repeat, lista_Invalidos)
             plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
+            plot_ILP(dataset_ILP_ciente)
             
 
             with open("Req_Alocadas.txt","w") as outfile:
