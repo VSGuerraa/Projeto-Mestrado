@@ -8,6 +8,7 @@ import copy
 import numpy as np
 import subprocess
 import ILP_ciente
+import ILP_nao_ciente
 
 
 @dataclass
@@ -910,7 +911,7 @@ def plot_Solutions_inv(nr_Simul,lista_Invalidos):
         
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
-    ax.plot([5,10,15,20], total_Inv,color='tab:green')
+    ax.plot([5,10,15,20,25,30,35,40], total_Inv,color='tab:green')
     ax.grid() 
     ax.set_xlabel("Número de Nodos") 
     ax.set_ylabel("Fração de soluções inválidas") 
@@ -921,13 +922,23 @@ def plot_ILP(dataset_ILP):
     
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
-    ax.plot([5,10,15,20], dataset_ILP,color='tab:green')
+    ax.plot([5,10,15,20,25,30,35,40], dataset_ILP,color='tab:green')
     ax.grid() 
     ax.set_xlabel("Número de Nodos") 
     ax.set_ylabel("Funções Alocadas") 
     plt.savefig('Grafico_ILP.png')
     plt.show()
     
+def plot_ILP_naociente(dataset_ILP):
+    
+    fig = plt.figure() 
+    ax = fig.add_subplot(111) 
+    ax.plot([5,10,15,20,25,30,35,40], dataset_ILP,color='tab:green')
+    ax.grid() 
+    ax.set_xlabel("Número de Nodos") 
+    ax.set_ylabel("Funções Alocadas") 
+    plt.savefig('Grafico_ILP.png')
+    plt.show()
 
 def main():
 
@@ -978,6 +989,7 @@ def main():
             dataset_req_Aloc=[]
             dataset_wrongrun=[]
             dataset_ILP_ciente=[]
+            dataset_ILP_nao_ciente=[]
             aloc_Desv=[]
             #valor_Desv=[]
             wrong_Desv=[]
@@ -993,6 +1005,7 @@ def main():
                 nr_req_Aloc_W=[]
                 lista_result_ILP_ciente=[]
                 lista_result_ILP_nao_ciente=[]
+                
                 
                 for cont in range(nr_Repeat):
                     size=index
@@ -1042,16 +1055,19 @@ def main():
                     lista_Nodos_W.append(results_w[1])
                     
                     result_ILP_ciente = ILP_ciente.main()
-                    #print("ILP ciente:",result_ILP_ciente)
                     lista_result_ILP_ciente.append(result_ILP_ciente)
+                    
+                    result_ILP_nao_ciente = ILP_nao_ciente.main()
+                    lista_result_ILP_nao_ciente.append(result_ILP_nao_ciente)
                      
-                aloc_Desv.append(stats.pstdev(req_Aloc_g))
+                aloc_Desv.append(stats.stdev(req_Aloc_g))
                 #valor_Desv.append(stats.pstdev(valor_Final))
-                wrong_Desv.append(stats.pstdev(nr_req_Aloc_W))
+                wrong_Desv.append(stats.stdev(nr_req_Aloc_W))
                 dataset_index.append(index)
                 dataset_req_Aloc.append(stats.mean(req_Aloc_g))
                 dataset_wrongrun.append(stats.mean(nr_req_Aloc_W))
                 dataset_ILP_ciente.append(stats.mean(lista_result_ILP_ciente))
+                dataset_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
                 
                 
                 
@@ -1060,6 +1076,7 @@ def main():
             plot_Solutions_inv(nr_Repeat, lista_Invalidos)
             plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
             plot_ILP(dataset_ILP_ciente)
+            plot_ILP_naociente(dataset_ILP_nao_ciente)
             
 
             with open("Req_Alocadas.txt","w") as outfile:
