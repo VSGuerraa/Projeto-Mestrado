@@ -9,6 +9,7 @@ import numpy as np
 import subprocess
 import ILP_ciente
 import ILP_nao_ciente
+import gerador_topologia
 
 
 @dataclass
@@ -47,13 +48,13 @@ class Node:
     fpga:Partition
     link: Link
     
-def gerador_Topologia(nro_Nodos, nro_Links):
+'''def gerador_Topologia(nro_Nodos, nro_Links):
     data = {
         'nodos':nro_Nodos,
         'links':nro_Links
             }
     args = ['python', 'gerador_topologia.py', 'top_data.json', json.dumps(data)]
-    subprocess.run(args)
+    subprocess.run(args)'''
 
 def check_Lat(nodo_S,nodo_D,lista_Paths,lista_Nodos): #checa menor lat dentre os caminhos possiveis
     
@@ -940,6 +941,30 @@ def plot_ILP_naociente(dataset_ILP):
     plt.savefig('Grafico_ILP.png')
     plt.show()
 
+def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
+    
+    # Plot for dataset_ILP_time
+    fig1 = plt.figure() 
+    ax1 = fig1.add_subplot(111) 
+    ax1.plot([5,10,15,20,25,30,35,40], dataset_ILP_time, color='tab:green', label='Abordagem Ciente de Partições')
+    ax1.grid() 
+    ax1.set_xlabel("Número de Nodos") 
+    ax1.set_ylabel("Tempo de Execução (s)") 
+    plt.legend(loc=2)
+    plt.savefig('Grafico_Time_Ciente.png')
+    plt.show()
+
+    '''# Plot for dataset_ILP_time_nao_ciente
+    fig2 = plt.figure() 
+    ax2 = fig2.add_subplot(111) 
+    ax2.plot([5,10,15,20,25,30,35,40], dataset_ILP_time_nao_ciente, color='tab:red', label='Abordagem Não Ciente de Partições')
+    ax2.grid() 
+    ax2.set_xlabel("Número de Nodos") 
+    ax2.set_ylabel("Tempo de Execução (s)") 
+    plt.legend(loc=2)
+    plt.savefig('Grafico_Time_Nao_Ciente.png')
+    plt.show()'''
+
 def main():
 
     modo=None
@@ -952,14 +977,14 @@ def main():
             nodos_G=int(input("Numero de nodos da rede:\n"))
             links_G=int(input("Numero de links da rede:\n"))
             req=int(input("Numero de requisicoes:\n"))
-            gerador_Topologia(nodos_G,links_G)
+            gerador_topologia.gerador_Topologia(nodos_G,links_G)
             gerador_Req(nodos_G,req)
             lista_Paths,lista_Nodos=ler_Topologia()
             lista_Req=ler_Requisicoes()
             res_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
             res_g=greedy(lista_Req,lista_Paths,lista_Nodos)
             
-            result_ILP_ciente = ILP_ciente.main()
+            result_ILP_ciente,time_ILP_ciente = ILP_ciente.main()
             print("ILP ciente:",result_ILP_ciente)
             
             #visualização apenas
@@ -990,6 +1015,8 @@ def main():
             dataset_wrongrun=[]
             dataset_ILP_ciente=[]
             dataset_ILP_nao_ciente=[]
+            dataset_ILP_time_ciente=[]
+            dataset_ILP_time_nao_ciente=[]
             aloc_Desv=[]
             #valor_Desv=[]
             wrong_Desv=[]
@@ -998,13 +1025,15 @@ def main():
             lista_Nodos_W=[]
             
             
-            for index in range (5,25,5):
+            for index in range (5,45,5):
                 
                 req_Aloc_g=[]
                 req_Aloc_w=[]
                 nr_req_Aloc_W=[]
                 lista_result_ILP_ciente=[]
+                lista_time_ILP_ciente=[]
                 lista_result_ILP_nao_ciente=[]
+                lista_time_ILP_nao_ciente=[]
                 
                 
                 for cont in range(nr_Repeat):
@@ -1013,7 +1042,7 @@ def main():
                     links_G=int(size*1.3)
                     req=random.randint(int(size*2),int(size*3))
                     
-                    gerador_Topologia(nodos_G, links_G)
+                    gerador_topologia.gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
                     
                     lista_Paths,lista_Nodos=ler_Topologia()
@@ -1054,8 +1083,9 @@ def main():
                     nr_req_Aloc_W.append(results_w[0])
                     lista_Nodos_W.append(results_w[1])
                     
-                    result_ILP_ciente = ILP_ciente.main()
+                    result_ILP_ciente,time_ILP_ciente = ILP_ciente.main()
                     lista_result_ILP_ciente.append(result_ILP_ciente)
+                    lista_time_ILP_ciente.append(time_ILP_ciente)
                     
                     result_ILP_nao_ciente = ILP_nao_ciente.main()
                     lista_result_ILP_nao_ciente.append(result_ILP_nao_ciente)
@@ -1067,7 +1097,9 @@ def main():
                 dataset_req_Aloc.append(stats.mean(req_Aloc_g))
                 dataset_wrongrun.append(stats.mean(nr_req_Aloc_W))
                 dataset_ILP_ciente.append(stats.mean(lista_result_ILP_ciente))
-                dataset_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
+                dataset_ILP_time_ciente.append(stats.mean(lista_time_ILP_ciente))
+                #dataset_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
+                #dataset_ILP_time_nao_ciente.append(stats.mean(lista_time_ILP_nao_ciente))
                 
                 
                 
@@ -1076,7 +1108,8 @@ def main():
             plot_Solutions_inv(nr_Repeat, lista_Invalidos)
             plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
             plot_ILP(dataset_ILP_ciente)
-            plot_ILP_naociente(dataset_ILP_nao_ciente)
+            plot_time_ILP(dataset_ILP_time_ciente)
+            #plot_ILP_naociente(dataset_ILP_nao_ciente)
             
 
             with open("Req_Alocadas.txt","w") as outfile:

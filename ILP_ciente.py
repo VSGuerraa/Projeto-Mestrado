@@ -2,6 +2,7 @@
 import gurobipy as gp
 from gurobipy import GRB
 import json
+import time
 
 def dfs_caminhos(grafo, inicio, fim):
     inicio = int(inicio.replace("Nodo_", ""))
@@ -122,13 +123,14 @@ def monta_modelo(graph, requisitions, paths):
 
     # Decision variables
     x = {}
-    for node in graph:
-        for set_idx, resources in enumerate(graph[node]["Resources"]):
-            for req_idx, req in enumerate(requisitions):
-                path=list(dfs_caminhos(paths,req[0],req[1]))
-                path_Ord=sorted(path,key=len)
-                for path in path_Ord:
-                    for func in range(len(req[4])):
+
+    for req_idx, req in enumerate(requisitions):
+        path=list(dfs_caminhos(paths,req[0],req[1]))
+        path_Ord=sorted(path,key=len)
+        for path in path_Ord:
+            for func in range(len(req[4])):
+                for node in path:
+                    for set_idx, resources in enumerate(graph[f"Nodo_{node}"]["Resources"]):
                         x[(node, set_idx, req_idx, func, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"x_{node}_{set_idx}_{req_idx}_{func}_{path}")
 
     # Decision variables to indicate whether a path is chosen for each requisition
@@ -140,45 +142,23 @@ def monta_modelo(graph, requisitions, paths):
             
 
     # Objective function: Maximize the number of allocated requisitions with chosen paths
-    model.setObjective(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] for node in graph 
-                                for set_idx, resources in enumerate(graph[node]["Resources"]) 
+    model.setObjective(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] 
                                 for req_idx, req in enumerate(requisitions) 
                                 for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len) 
-                                for func in range(len(req[4])) ), GRB.MAXIMIZE)
+                                for func in range(len(req[4])) 
+                                for node in path 
+                                for set_idx, resources in enumerate(graph[f"Nodo_{node}"]["Resources"])), GRB.MAXIMIZE)
+
     
     return model,path_chosen,x
     
 def set_constraints(graph, requisitions, paths, model, x, path_chosen):
     
-    '''    # Constraint: Each requisition must be allocated to exactly one path
-    for req_idx, req in enumerate(requisitions):
-        model.addConstr(gp.quicksum(path_chosen[(req_idx, tuple(path))] for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)) == 1, f"ReqAllocation_{req_idx}")
-        
-    # Constraint: Each requisition must be allocated to exactly one set of resources
-    for req_idx, req in enumerate(requisitions):
-        model.addConstr(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] for node in graph 
-                                for set_idx, resources in enumerate(graph[node]["Resources"]) 
-                                for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len) 
-                                for func in range(len(req[4])) ) == 1, f"ReqAllocation_{req_idx}")
-    
-    # Constraint: Each requisition must be allocated to a set of resources that can support its function chain
-    for req_idx, req in enumerate(requisitions):
-        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):
-            for func in range(len(req[4])):
-                model.addConstr(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] for node in graph 
-                                for set_idx, resources in enumerate(graph[node]["Resources"])) <= 1, f"ReqAllocation_{req_idx}")'''
-                
-    
-    #ANALIZAR ESTAS RESTRIÇÕES
-    
     # Constraint: Resources
     for req_idx, req in enumerate(requisitions):
-        path=list(dfs_caminhos(paths,req[0],req[1]))
-        path_Ord=sorted(path,key=len)
-        for path in path_Ord:   
+        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):    
             for node in path:
-                node = f"Nodo_{node}"
-                for set_idx, resources in enumerate(graph[node]['Resources']):
+                for set_idx, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
                     for func in range(len(req[4])):
                         for resource_idx in range(3):  
                             if (req[4][func][resource_idx]>resources[resource_idx]):
@@ -196,64 +176,69 @@ def set_constraints(graph, requisitions, paths, model, x, path_chosen):
 
     # Constraint: Maximum Latency and Minimum Throughput Constraints
             
-                for func in range(len(req[4])):
-                    total_latency = 0
-                    total_throughput = float('inf') 
-                    
-                    for i in range(len(path) - 1):
-                        total_latency += graph[f"Nodo_{path[i]}"]['Latency'][f"Nodo_{path[i+1]}"]
-                        link_throughput = graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
-                        if link_throughput < total_throughput:
-                            total_throughput = link_throughput
+                #for func in range(len(req[4])):
+                        total_latency = 0
+                        total_throughput = float('inf') 
+                        
+                        for i in range(len(path) - 1):
+                            total_latency += graph[f"Nodo_{path[i]}"]['Latency'][f"Nodo_{path[i+1]}"]
+                            link_throughput = graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
+                            if link_throughput < total_throughput:
+                                total_throughput = link_throughput
 
-                    if total_latency > req[2] or total_throughput < req[3]:
-                        model.addConstr(gp.quicksum(x[(node,set_idx, req_idx, func,tuple(path))] for node in graph for set_idx,resources in enumerate(graph[node]["Resources"])) == 0, f"LatencyThroughputViolation_{req_idx}_{func}")
-
-    # Constraint: Throughput > 0
-                
-                    [model.addConstr(gp.quicksum( req[3] * x[(f"Nodo_{path[i]}", set_idx, req_idx, func, tuple(path))] for i in range(len(path) - 1) 
-                                                    for set_idx,_ in enumerate(graph[f"Nodo_{path[i]}"]["Resources"]))
-                        <= graph[f"Nodo_{path[i]}"]["Throughput"][f"Nodo_{path[i + 1]}"]) for i in range(len(path) - 1)]  
-                    
+                        if total_latency > req[2] or total_throughput < req[3]:
+                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
+                            
     # Constraint: Only one path is chosen for each requisition
     for req_idx, req in enumerate(requisitions):
         model.addConstr(gp.quicksum(path_chosen[(req_idx, tuple(path))] for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)) == 1,
                         f"PathSelection_{req_idx}")
         
-    
-    #Constraint: Req is allocated at most once
+        
+    #Constraint: a partition can only be used once:
+    for node in graph:
+        for set_idx, resources in enumerate(graph[node]["Resources"]):
+            model.addConstr(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] 
+                                            for func in range(len(req[4]))
+                                            for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)
+                                            for node in path
+                                            for set_idx,_ in enumerate(graph[f"Nodo_{node}"]["Resources"]))<= 1, f"PartitionLimit_{node}_{set_idx}")
 
     for req_idx, req in enumerate(requisitions):
-        model.addConstr(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] for node in graph
-                                    for set_idx,_ in enumerate(graph[node]["Resources"])
+        model.addConstr(gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))] 
                                     for func in range(len(req[4]))
-                                    for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)) <= 1,
-                        f"AllocationLimit_{req_idx}")
-        
+                                    for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)
+                                    for node in path
+                                    for set_idx,_ in enumerate(graph[f"Nodo_{node}"]["Resources"])) <= 1, f"AllocationLimit_{req_idx}")
+       
 def main():
         
+        init_time=time.time()
         graph,paths=monta_grafo()
         requisitions=monta_req()
-        link_throughput=throughput_capacity(graph)
-        model, path_chosen, x =monta_modelo(graph, requisitions, paths)
+        #link_throughput=throughput_capacity(graph)
+        model, path_chosen, x = monta_modelo(graph, requisitions, paths)
         set_constraints(graph, requisitions, paths, model, x, path_chosen)
         
         # Optimize model
         model.optimize()
+        end_time=time.time()
+        time_elapsed=end_time-init_time
         
         
-        '''# Print solution
-        if model.status == GRB.OPTIMAL:
+        
+        # Print solution
+        '''if model.status == GRB.OPTIMAL:
             print('\nOptimal allocation:')
             for v in model.getVars():
                 if v.x > 0:
                     print(f"{v.varName} = {v.x}")
             print(f"\nOptimal objective value: {model.objVal}")
         else:
-            print('No solution found.')   '''        
+            print('No solution found.')   '''      
        
        
-        return model.objVal
+        return model.objVal,time_elapsed
 
 if __name__ == '__main__':
     main()
