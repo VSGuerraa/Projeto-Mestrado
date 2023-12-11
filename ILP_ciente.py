@@ -21,8 +21,8 @@ def monta_grafo():
     
     #Nodos
 
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
-    with open(file_path) as file:
+    #file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
+    with open("topologia.json") as file:
         topologia = json.load(file)
 
 
@@ -78,8 +78,8 @@ def monta_grafo():
 def monta_req():
     #Requisições
     
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\requisicoes.json"
-    with open(file_path) as file:
+    #file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\requisicoes.json"
+    with open("requisicoes.json") as file:
         requisicoes = json.load(file)
         
         
@@ -226,17 +226,6 @@ def main():
         time_elapsed=end_time-init_time
         
         
-        
-        # Print solution
-        '''if model.status == GRB.OPTIMAL:
-            print('\nOptimal allocation:')
-            for v in model.getVars():
-                if v.x > 0:
-                    print(f"{v.varName} = {v.x}")
-            print(f"\nOptimal objective value: {model.objVal}")
-        else:
-            print('No solution found.')   '''      
-       
        
         return model.objVal,time_elapsed
 
