@@ -940,7 +940,7 @@ def plot_ILP_naociente(dataset_ILP):
     ax.grid() 
     ax.set_xlabel("Nodes") 
     ax.set_ylabel("Allocated Requisitions") 
-    plt.savefig('Grafico_ILP.png')
+    plt.savefig('Grafico_ILP_nao_ciente.png')
     plt.show()
 
 def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
@@ -956,7 +956,7 @@ def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
     plt.savefig('Grafico_Time_Ciente.png')
     plt.show()
 
-    '''# Plot for dataset_ILP_time_nao_ciente
+    # Plot for dataset_ILP_time_nao_ciente
     fig2 = plt.figure() 
     ax2 = fig2.add_subplot(111) 
     ax2.plot([5,10,15,20,25,30,35,40], dataset_ILP_time_nao_ciente, color='tab:red', label='Partition Unawareness')
@@ -965,7 +965,7 @@ def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
     ax2.set_ylabel("Execution Time (s)") 
     plt.legend(loc=2)
     plt.savefig('Grafico_Time_Nao_Ciente.png')
-    plt.show()'''
+    plt.show()
 
 def main():
 
@@ -1007,7 +1007,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=10
+            nr_Repeat=25
 
             print('Executando...')
             lista_Results_g=[]
@@ -1020,7 +1020,7 @@ def main():
             dataset_ILP_time_ciente=[]
             dataset_ILP_time_nao_ciente=[]
             aloc_Desv=[]
-            #valor_Desv=[]
+            valor_Desv=[]
             wrong_Desv=[]
             lista_Invalidos=[]
             lista_Nodos_all=[]
@@ -1036,6 +1036,7 @@ def main():
                 lista_time_ILP_ciente=[]
                 lista_result_ILP_nao_ciente=[]
                 lista_time_ILP_nao_ciente=[]
+                valor_Final = []
                 
                 
                 for cont in range(nr_Repeat):
@@ -1069,11 +1070,11 @@ def main():
                         "Lista Requisicoes": len(lista_Req),
                         "Requiscoes alocadas": results_g[0]},
                         "Nodos": len(lista_Nodos),
-                        #"Valor": results_g[2]
+                        "Valor": results_g[2]
                         })
 
                     req_Aloc_g.append(results_g[0])
-                    #valor_Final.append(results[2])
+                    valor_Final.append(results_g[2])
 
                     lista_Results_w.append({
                         "Teste"+str(index):{ 
@@ -1089,29 +1090,64 @@ def main():
                     lista_result_ILP_ciente.append(result_ILP_ciente)
                     lista_time_ILP_ciente.append(time_ILP_ciente)
                     
-                    result_ILP_nao_ciente = ILP_nao_ciente.main()
+                    result_ILP_nao_ciente, time_ILP_nao_ciente = ILP_nao_ciente.main()
                     lista_result_ILP_nao_ciente.append(result_ILP_nao_ciente)
+                    lista_time_ILP_nao_ciente.append(time_ILP_nao_ciente)
                      
                 aloc_Desv.append(stats.stdev(req_Aloc_g))
-                #valor_Desv.append(stats.pstdev(valor_Final))
+                valor_Desv.append(stats.pstdev(valor_Final))
                 wrong_Desv.append(stats.stdev(nr_req_Aloc_W))
                 dataset_index.append(index)
                 dataset_req_Aloc.append(stats.mean(req_Aloc_g))
                 dataset_wrongrun.append(stats.mean(nr_req_Aloc_W))
                 dataset_ILP_ciente.append(stats.mean(lista_result_ILP_ciente))
                 dataset_ILP_time_ciente.append(stats.mean(lista_time_ILP_ciente))
-                #dataset_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
-                #dataset_ILP_time_nao_ciente.append(stats.mean(lista_time_ILP_nao_ciente))
+                dataset_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
+                dataset_ILP_time_nao_ciente.append(stats.mean(lista_time_ILP_nao_ciente))
                 
-                
+                #Salva dados dataset em txt
+                with open("results.txt","w") as outfile:
+                    for result in dataset_index:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in dataset_req_Aloc:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in dataset_wrongrun:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in dataset_ILP_ciente:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in dataset_ILP_time_ciente:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in dataset_ILP_nao_ciente:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in dataset_ILP_time_nao_ciente:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in aloc_Desv:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in valor_Desv:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    for result in wrong_Desv:
+                        outfile.write(str(result))
+                        outfile.write('\n')
+                    
+
+
                 
                
-            #plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
+            plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
             plot_Solutions_inv(nr_Repeat, lista_Invalidos)
             plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
             plot_ILP(dataset_ILP_ciente)
-            plot_time_ILP(dataset_ILP_time_ciente)
-            #plot_ILP_naociente(dataset_ILP_nao_ciente)
+            plot_time_ILP(dataset_ILP_time_ciente, dataset_ILP_time_nao_ciente)
+            plot_ILP_naociente(dataset_ILP_nao_ciente)
             
 
             with open("Req_Alocadas.txt","w") as outfile:
