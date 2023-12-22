@@ -17,7 +17,7 @@
     },
     {
         "nome": "FW2",
-        "CLBs": 10153,
+        "CLBs": 8123,
         "BRAM": 241,
         "DSPs": 0,
         "Lat": 73,
@@ -33,7 +33,7 @@
     },
     {
         "nome": "DPI1",
-        "CLBs": 16820,
+        "CLBs": 10765,
         "BRAM": 438,
         "DSPs": 0,
         "Lat": 2778,
@@ -41,10 +41,10 @@
     },
     {
         "nome": "DPI2",
-        "CLBs": 19007,
+        "CLBs": 15206,
         "BRAM": 36,
         "DSPs": 0,
-        "Lat": 331,
+        "Lat": 1115,
         "Throughput": 14.4
     },
     {
@@ -52,15 +52,15 @@
         "CLBs": 5154,
         "BRAM": 407,
         "DSPs": 0,
-        "Lat": 1183,
+        "Lat": 943,
         "Throughput": 40
     },
     {
         "nome": "DPI4",
-        "CLBs": 891,
+        "CLBs": 1113,
         "BRAM": 96,
         "DSPs": 0,
-        "Lat": 2563,
+        "Lat": 1014,
         "Throughput": 40
     },
     {
@@ -68,20 +68,20 @@
         "CLBs": 6048,
         "BRAM": 399,
         "DSPs": 0,
-        "Lat": 726,
+        "Lat": 1293,
         "Throughput": 102.6
     },
     {
         "nome": "AES0",
-        "CLBs": 3956,
-        "BRAM": 1,
+        "CLBs": 3165,
+        "BRAM": 2,
         "DSPs": 0,
-        "Lat": 18,
+        "Lat": 21,
         "Throughput": 49.38
     },
     {
         "nome": "AES1",
-        "CLBs": 2732,
+        "CLBs": 3327,
         "BRAM": 2,
         "DSPs": 0,
         "Lat": 21,
@@ -89,26 +89,26 @@
     },
     {
         "nome": "AES2",
-        "CLBs": 5118,
-        "BRAM": 2,
+        "CLBs": 6397,
+        "BRAM": 1,
         "DSPs": 0,
         "Lat": 2,
         "Throughput": 59.3
     },
     {
         "nome": "AES3",
-        "CLBs": 2542,
+        "CLBs": 3177,
         "BRAM": 3,
         "DSPs": 0,
-        "Lat": 5,
+        "Lat": 16,
         "Throughput": 45
     },
     {
         "nome": "AES4",
-        "CLBs": 11951,
+        "CLBs": 9561,
         "BRAM": 450,
         "DSPs": 0,
-        "Lat": 16,
+        "Lat": 5,
         "Throughput": 119.3
     }
 ]

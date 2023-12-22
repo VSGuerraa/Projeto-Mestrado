@@ -6,7 +6,6 @@ from dataclasses import dataclass
 import matplotlib.pyplot as plt
 import copy
 import numpy as np
-import subprocess
 import ILP_ciente
 import ILP_nao_ciente
 import gerador_topologia
@@ -47,14 +46,6 @@ class Node:
     id:str
     fpga:Partition
     link: Link
-    
-'''def gerador_Topologia(nro_Nodos, nro_Links):
-    data = {
-        'nodos':nro_Nodos,
-        'links':nro_Links
-            }
-    args = ['python', 'gerador_topologia.py', 'top_data.json', json.dumps(data)]
-    subprocess.run(args)'''
 
 def check_Lat(nodo_S,nodo_D,lista_Paths,lista_Nodos): #checa menor lat dentre os caminhos possiveis
     
@@ -227,8 +218,7 @@ def gerador_Req(nro_Nodos,nro_Req):
             rand_nodo_D=random.randint(0,nro_Nodos-1)
         
         aux=funcao[rand_fun]["implementacao"]
-        valor=(aux['CLBs']+(aux['BRAM']*10))/50
-        valor=int(valor*random.uniform(0.9,1.1)) #Futura modelagem de princing
+        valor=set_value(func_list)
         
 
         lat=check_Lat(rand_nodo_S,rand_nodo_D,lista_Caminhos, lista_Nodos)            
@@ -350,6 +340,18 @@ def ler_Topologia():
     
 
     return lista_Caminhos,lista_Nodos
+
+def set_value(func_list):
+    total_value=0
+    for func in func_list:
+        if func["implementacao"]["CLBs"]>10000 or func["implementacao"]["BRAM"]>240:
+            total_value+=20
+        elif func["implementacao"]["CLBs"]>5000 or func["implementacao"]["BRAM"]>120:
+            total_value+=10
+        elif func["implementacao"]["CLBs"]>3000 or func["implementacao"]["BRAM"]>20:
+            total_value+=6
+            
+    return total_value
 
 def wrong_Run(lista_Req,lista_Paths,lista_Nodos):
     
