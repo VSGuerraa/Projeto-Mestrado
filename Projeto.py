@@ -921,25 +921,27 @@ def plot_Solutions_inv(nr_Simul,lista_Invalidos):
     plt.savefig('Grafico_Func_invalido.png')
     plt.show()
 
-def plot_ILP(dataset_ILP):
+def plot_ILP(dataset_ILP, dataset_std_ILP_ciente):
     
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
-    ax.plot([5,10,15,20,25,30,35,40], dataset_ILP,color='tab:green')
+    nodes = [5,10,15,20,25,30,35,40]
+    ax.errorbar(nodes, dataset_ILP, yerr=dataset_std_ILP_ciente, fmt='-o', color='tab:green')
     ax.grid() 
     ax.set_xlabel("Nodes") 
-    ax.set_ylabel("Allocated Requisitions") 
+    ax.set_ylabel("Mean Value") 
     plt.savefig('Grafico_ILP.png')
     plt.show()
     
-def plot_ILP_naociente(dataset_ILP):
+def plot_ILP_naociente(dataset_ILP, dataset_std_ILP_naociente):
     
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
-    ax.plot([5,10,15,20,25,30,35,40], dataset_ILP,color='tab:green')
+    nodes = [5,10,15,20,25,30,35,40]
+    ax.errorbar(nodes, dataset_ILP, yerr=dataset_std_ILP_naociente, fmt='-o', color='tab:red')
     ax.grid() 
     ax.set_xlabel("Nodes") 
-    ax.set_ylabel("Allocated Requisitions") 
+    ax.set_ylabel("Mean Value") 
     plt.savefig('Grafico_ILP_nao_ciente.png')
     plt.show()
 
@@ -965,6 +967,22 @@ def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
     ax2.set_ylabel("Execution Time (s)") 
     plt.legend(loc=2)
     plt.savefig('Grafico_Time_Nao_Ciente.png')
+    plt.show()
+
+def compare_datasets(dataset_ILP, dataset_ILP_nao_ciente, dataset_total):
+    # Calculate the sum and max of values in each dataset
+    sum_ILP = sum(dataset_ILP)
+    sum_ILP_nao_ciente = sum(dataset_ILP_nao_ciente)
+    sum_total = sum(dataset_total)
+
+    # Create a bar chart to compare the total amounts and max values
+    labels = ['Awareness', 'Unawareness', 'Total']
+    totals = [sum_ILP, sum_ILP_nao_ciente, sum_total]
+
+    plt.bar(labels, totals)
+    plt.title('Comparison Between Models')
+    plt.xlabel('Dataset')
+    plt.ylabel('Value')
     plt.show()
 
 def main():
@@ -1007,7 +1025,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=25
+            nr_Repeat=2
 
             print('Executando...')
             lista_Results_g=[]
@@ -1015,16 +1033,19 @@ def main():
             dataset_index=[]
             dataset_req_Aloc=[]
             dataset_wrongrun=[]
-            dataset_ILP_ciente=[]
-            dataset_ILP_nao_ciente=[]
+            dataset_mean_ILP_ciente=[]
+            dataset_mean_ILP_nao_ciente=[]
             dataset_ILP_time_ciente=[]
             dataset_ILP_time_nao_ciente=[]
+            dataset_std_ILP_ciente=[]
+            dataset_std_ILP_nao_ciente=[]
             aloc_Desv=[]
             valor_Desv=[]
             wrong_Desv=[]
             lista_Invalidos=[]
             lista_Nodos_all=[]
             lista_Nodos_W=[]
+            total_value=[]
             
             
             for index in range (5,45,5):
@@ -1037,9 +1058,12 @@ def main():
                 lista_result_ILP_nao_ciente=[]
                 lista_time_ILP_nao_ciente=[]
                 valor_Final = []
-                
+                total_value_inst=[]
                 
                 for cont in range(nr_Repeat):
+
+                    total_value_req=0
+
                     size=index
                     nodos_G=size
                     links_G=int(size*1.3)
@@ -1086,6 +1110,10 @@ def main():
                     nr_req_Aloc_W.append(results_w[0])
                     lista_Nodos_W.append(results_w[1])
                     
+                    for req in lista_Req:
+                        total_value_req+=req.price
+                    total_value_inst.append(total_value_req)
+
                     result_ILP_ciente,time_ILP_ciente = ILP_ciente.main()
                     lista_result_ILP_ciente.append(result_ILP_ciente)
                     lista_time_ILP_ciente.append(time_ILP_ciente)
@@ -1097,12 +1125,15 @@ def main():
                 aloc_Desv.append(stats.stdev(req_Aloc_g))
                 valor_Desv.append(stats.pstdev(valor_Final))
                 wrong_Desv.append(stats.stdev(nr_req_Aloc_W))
+                total_value.append(stats.mean(total_value_inst))
                 dataset_index.append(index)
                 dataset_req_Aloc.append(stats.mean(req_Aloc_g))
                 dataset_wrongrun.append(stats.mean(nr_req_Aloc_W))
-                dataset_ILP_ciente.append(stats.mean(lista_result_ILP_ciente))
+                dataset_mean_ILP_ciente.append(stats.mean(lista_result_ILP_ciente))
+                dataset_mean_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
+                dataset_std_ILP_ciente.append(stats.pstdev(lista_result_ILP_ciente))
+                dataset_std_ILP_nao_ciente.append(stats.pstdev(lista_result_ILP_nao_ciente))
                 dataset_ILP_time_ciente.append(stats.mean(lista_time_ILP_ciente))
-                dataset_ILP_nao_ciente.append(stats.mean(lista_result_ILP_nao_ciente))
                 dataset_ILP_time_nao_ciente.append(stats.mean(lista_time_ILP_nao_ciente))
                 
                 #Salva dados dataset em txt
@@ -1116,13 +1147,13 @@ def main():
                     for result in dataset_wrongrun:
                         outfile.write(str(result))
                         outfile.write('\n')
-                    for result in dataset_ILP_ciente:
+                    for result in dataset_mean_ILP_ciente:
                         outfile.write(str(result))
                         outfile.write('\n')
                     for result in dataset_ILP_time_ciente:
                         outfile.write(str(result))
                         outfile.write('\n')
-                    for result in dataset_ILP_nao_ciente:
+                    for result in dataset_mean_ILP_nao_ciente:
                         outfile.write(str(result))
                         outfile.write('\n')
                     for result in dataset_ILP_time_nao_ciente:
@@ -1145,9 +1176,10 @@ def main():
             plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
             plot_Solutions_inv(nr_Repeat, lista_Invalidos)
             plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
-            plot_ILP(dataset_ILP_ciente)
+            plot_ILP(dataset_mean_ILP_ciente,dataset_std_ILP_ciente)
             plot_time_ILP(dataset_ILP_time_ciente, dataset_ILP_time_nao_ciente)
-            plot_ILP_naociente(dataset_ILP_nao_ciente)
+            plot_ILP_naociente(dataset_mean_ILP_nao_ciente,dataset_std_ILP_nao_ciente)
+            compare_datasets(dataset_mean_ILP_ciente, dataset_mean_ILP_nao_ciente,total_value)
             
 
             with open("Req_Alocadas.txt","w") as outfile:
