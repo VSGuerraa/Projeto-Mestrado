@@ -983,6 +983,7 @@ def compare_datasets(dataset_ILP, dataset_ILP_nao_ciente, dataset_total):
     plt.title('Comparison Between Models')
     plt.xlabel('Dataset')
     plt.ylabel('Value')
+    plt.savefig('Grafico_Comparacao.png')
     plt.show()
 
 def main():
@@ -1025,7 +1026,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=2
+            nr_Repeat=5
 
             print('Executando...')
             lista_Results_g=[]
