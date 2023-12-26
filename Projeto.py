@@ -986,6 +986,58 @@ def compare_datasets(dataset_ILP, dataset_ILP_nao_ciente, dataset_total):
     plt.savefig('Grafico_Comparacao.png')
     plt.show()
 
+def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp):
+    # Calculate mean and standard deviation
+    mean_values = [np.mean(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
+    std_values = [np.std(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
+
+    # Create bar chart
+    labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width/2, mean_values, width, yerr=std_values, label='Mean')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Values')
+    ax.set_title('Resources comparison')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    fig.tight_layout()
+
+    plt.savefig('Resources_Comparison_ILP_aware.png')
+    plt.show()
+
+def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp):
+    # Calculate mean and standard deviation
+    mean_values = [np.mean(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
+    std_values = [np.std(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
+
+    # Create bar chart
+    labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
+
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(x - width/2, mean_values, width, yerr=std_values, label='Mean')
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Values')
+    ax.set_title('Resources comparison')
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels)
+    ax.legend()
+
+    fig.tight_layout()
+
+    plt.savefig('Resources_Comparison_ILP_unaware.png')
+    plt.show()
+
 def main():
 
     modo=None
@@ -1026,9 +1078,10 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=5
+            nr_Repeat=2
 
             print('Executando...')
+
             lista_Results_g=[]
             lista_Results_w=[]
             dataset_index=[]
@@ -1040,6 +1093,23 @@ def main():
             dataset_ILP_time_nao_ciente=[]
             dataset_std_ILP_ciente=[]
             dataset_std_ILP_nao_ciente=[]
+            dataset_ILP_used_throughput_ciente=[]
+            dataset_ILP_total_throughput_ciente=[]
+            dataset_ILP_used_clb_ciente=[]
+            dataset_ILP_total_clb_ciente=[]
+            dataset_ILP_used_bram_ciente=[]
+            dataset_ILP_total_bram_ciente=[]
+            dataset_ILP_used_dsp_ciente=[]
+            dataset_ILP_total_dsp_ciente=[]
+            dataset_ILP_used_throughput_nao_ciente=[]
+            dataset_ILP_total_throughput_nao_ciente=[]
+            dataset_ILP_used_clb_nao_ciente=[]
+            dataset_ILP_total_clb_nao_ciente=[]
+            dataset_ILP_used_bram_nao_ciente=[]
+            dataset_ILP_total_bram_nao_ciente=[]
+            dataset_ILP_used_dsp_nao_ciente=[]
+            dataset_ILP_total_dsp_nao_ciente=[]
+
             aloc_Desv=[]
             valor_Desv=[]
             wrong_Desv=[]
@@ -1058,6 +1128,22 @@ def main():
                 lista_time_ILP_ciente=[]
                 lista_result_ILP_nao_ciente=[]
                 lista_time_ILP_nao_ciente=[]
+                lista_used_throughput_ILP_ciente=[]
+                lista_total_throghput_ILP_ciente=[]
+                lista_used_clb_ILP_ciente=[]
+                lista_total_clb_ILP_ciente=[]
+                lista_used_bram_ILP_ciente=[]
+                lista_total_bram_ILP_ciente=[]
+                lista_used_dsp_ILP_ciente=[]
+                lista_total_dsp_ILP_ciente=[]
+                lista_used_throughput_ILP_nao_ciente=[]
+                lista_total_throghput_ILP_nao_ciente=[]
+                lista_used_clb_ILP_nao_ciente=[]
+                lista_total_clb_ILP_nao_ciente=[]
+                lista_used_bram_ILP_nao_ciente=[]
+                lista_total_bram_ILP_nao_ciente=[]
+                lista_used_dsp_ILP_nao_ciente=[]
+                lista_total_dsp_ILP_nao_ciente=[]
                 valor_Final = []
                 total_value_inst=[]
                 
@@ -1115,13 +1201,29 @@ def main():
                         total_value_req+=req.price
                     total_value_inst.append(total_value_req)
 
-                    result_ILP_ciente,time_ILP_ciente = ILP_ciente.main()
+                    result_ILP_ciente,time_ILP_ciente, resources_model_ILP = ILP_ciente.main()
                     lista_result_ILP_ciente.append(result_ILP_ciente)
                     lista_time_ILP_ciente.append(time_ILP_ciente)
-                    
-                    result_ILP_nao_ciente, time_ILP_nao_ciente = ILP_nao_ciente.main()
+                    lista_used_throughput_ILP_ciente.append(resources_model_ILP[0])
+                    lista_total_throghput_ILP_ciente.append(resources_model_ILP[1])
+                    lista_used_clb_ILP_ciente.append(resources_model_ILP[2])
+                    lista_total_clb_ILP_ciente.append(resources_model_ILP[3])
+                    lista_used_bram_ILP_ciente.append(resources_model_ILP[4])
+                    lista_total_bram_ILP_ciente.append(resources_model_ILP[5])
+                    lista_used_dsp_ILP_ciente.append(resources_model_ILP[6])
+                    lista_total_dsp_ILP_ciente.append(resources_model_ILP[7])
+
+                    result_ILP_nao_ciente, time_ILP_nao_ciente, resources_model_ILP_nao_ciente = ILP_nao_ciente.main()
                     lista_result_ILP_nao_ciente.append(result_ILP_nao_ciente)
                     lista_time_ILP_nao_ciente.append(time_ILP_nao_ciente)
+                    lista_used_throughput_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[0])
+                    lista_total_throghput_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[1])
+                    lista_used_clb_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[2])
+                    lista_total_clb_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[3])
+                    lista_used_bram_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[4])
+                    lista_total_bram_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[5])
+                    lista_used_dsp_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[6])
+                    lista_total_dsp_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[7])
                      
                 aloc_Desv.append(stats.stdev(req_Aloc_g))
                 valor_Desv.append(stats.pstdev(valor_Final))
@@ -1136,6 +1238,22 @@ def main():
                 dataset_std_ILP_nao_ciente.append(stats.pstdev(lista_result_ILP_nao_ciente))
                 dataset_ILP_time_ciente.append(stats.mean(lista_time_ILP_ciente))
                 dataset_ILP_time_nao_ciente.append(stats.mean(lista_time_ILP_nao_ciente))
+                dataset_ILP_used_throughput_ciente.append(lista_used_throughput_ILP_ciente)
+                dataset_ILP_total_throughput_ciente.append(lista_total_throghput_ILP_ciente)
+                dataset_ILP_used_clb_ciente.append(lista_used_clb_ILP_ciente)
+                dataset_ILP_total_clb_ciente.append(lista_total_clb_ILP_ciente)
+                dataset_ILP_used_bram_ciente.append(lista_used_bram_ILP_ciente)
+                dataset_ILP_total_bram_ciente.append(lista_total_bram_ILP_ciente)
+                dataset_ILP_used_dsp_ciente.append(lista_used_dsp_ILP_ciente)
+                dataset_ILP_total_dsp_ciente.append(lista_total_dsp_ILP_ciente)
+                dataset_ILP_used_throughput_nao_ciente.append(lista_used_throughput_ILP_nao_ciente)
+                dataset_ILP_total_throughput_nao_ciente.append(lista_total_throghput_ILP_nao_ciente)
+                dataset_ILP_used_clb_nao_ciente.append(lista_used_clb_ILP_nao_ciente)
+                dataset_ILP_total_clb_nao_ciente.append(lista_total_clb_ILP_nao_ciente)
+                dataset_ILP_used_bram_nao_ciente.append(lista_used_bram_ILP_nao_ciente)
+                dataset_ILP_total_bram_nao_ciente.append(lista_total_bram_ILP_nao_ciente)
+                dataset_ILP_used_dsp_nao_ciente.append(lista_used_dsp_ILP_nao_ciente)
+                dataset_ILP_total_dsp_nao_ciente.append(lista_total_dsp_ILP_nao_ciente)
                 
                 #Salva dados dataset em txt
                 with open("results.txt","w") as outfile:
@@ -1181,7 +1299,8 @@ def main():
             plot_time_ILP(dataset_ILP_time_ciente, dataset_ILP_time_nao_ciente)
             plot_ILP_naociente(dataset_mean_ILP_nao_ciente,dataset_std_ILP_nao_ciente)
             compare_datasets(dataset_mean_ILP_ciente, dataset_mean_ILP_nao_ciente,total_value)
-            
+            plot_resource_comparison_ILP(dataset_ILP_used_throughput_ciente, dataset_ILP_total_throughput_ciente, dataset_ILP_used_clb_ciente, dataset_ILP_total_clb_ciente, dataset_ILP_used_bram_ciente, dataset_ILP_total_bram_ciente, dataset_ILP_used_dsp_ciente, dataset_ILP_total_dsp_ciente)
+            plot_resource_comparison_ILP_nao_ciente(dataset_ILP_used_throughput_nao_ciente, dataset_ILP_total_throughput_nao_ciente, dataset_ILP_used_clb_nao_ciente, dataset_ILP_total_clb_nao_ciente, dataset_ILP_used_bram_nao_ciente, dataset_ILP_total_bram_nao_ciente, dataset_ILP_used_dsp_nao_ciente, dataset_ILP_total_dsp_nao_ciente)    
 
             with open("Req_Alocadas.txt","w") as outfile:
                 for result in results_g[1]:
@@ -1196,7 +1315,6 @@ def main():
         
         else:
             print("Modo inválido")
-
 
 if __name__ == "__main__":
     main()
