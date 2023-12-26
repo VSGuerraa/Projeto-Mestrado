@@ -987,56 +987,72 @@ def compare_datasets(dataset_ILP, dataset_ILP_nao_ciente, dataset_total):
     plt.show()
 
 def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp):
-    # Calculate mean and standard deviation
-    mean_values = [np.mean(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
-    std_values = [np.std(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
+    
+    datasets = [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]
+    dataset_labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
 
-    # Create bar chart
-    labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
+    for i in range(0, len(datasets), 2):
+        # Calculate mean and standard deviation for each dataset
+        means = [np.mean(datasets[i]), np.mean(datasets[i + 1])]
+        std_devs = [np.std(datasets[i]), np.std(datasets[i + 1])]
 
-    x = np.arange(len(labels))  # the label locations
-    width = 0.35  # the width of the bars
+        # Set up the labels for the current pair of datasets
+        labels = [dataset_labels[i], dataset_labels[i + 1]]
 
-    fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width/2, mean_values, width, yerr=std_values, label='Mean')
+        # Plotting
+        x = np.arange(len(labels))  # Label locations
+        width = 0.35  # Width of the bars
 
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Values')
-    ax.set_title('Resources comparison')
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.legend()
+        fig, ax = plt.subplots()
+        rects1 = ax.bar(x - width/2, means, width, yerr=std_devs, label=labels[0])
+        rects2 = ax.bar(x + width/2, std_devs, width, label=labels[1])
 
-    fig.tight_layout()
+        # Add some text for labels, title and custom x-axis tick labels, etc.
+        ax.set_ylabel('Values')
+        ax.set_title(f'Comparison of {labels[0]} and {labels[1]}')
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels)
+        ax.legend()
 
-    plt.savefig('Resources_Comparison_ILP_aware.png')
-    plt.show()
+        fig.tight_layout()
+
+        # Save and show the figure
+        plt.savefig(f'Resources_Comparison_ILP_aware_{labels[0]}_{labels[1]}.png')
+        plt.show()
 
 def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp):
-    # Calculate mean and standard deviation
-    mean_values = [np.mean(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
-    std_values = [np.std(dataset) for dataset in [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]]
+    
+    datasets = [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]
+    dataset_labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
 
-    # Create bar chart
-    labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
+    for i in range(0, len(datasets), 2):
+        # Calculate mean and standard deviation for each dataset
+        means = [np.mean(datasets[i]), np.mean(datasets[i + 1])]
+        std_devs = [np.std(datasets[i]), np.std(datasets[i + 1])]
 
-    x = np.arange(len(labels))  # the label locations
-    width = 0.35  # the width of the bars
+        # Set up the labels for the current pair of datasets
+        labels = [dataset_labels[i], dataset_labels[i + 1]]
 
-    fig, ax = plt.subplots()
-    rects1 = ax.bar(x - width/2, mean_values, width, yerr=std_values, label='Mean')
+        # Plotting
+        x = np.arange(len(labels))  # Label locations
+        width = 0.35  # Width of the bars
 
-    # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Values')
-    ax.set_title('Resources comparison')
-    ax.set_xticks(x)
-    ax.set_xticklabels(labels)
-    ax.legend()
+        fig, ax = plt.subplots()
+        rects1 = ax.bar(x - width/2, means, width, yerr=std_devs, label=labels[0])
+        rects2 = ax.bar(x + width/2, std_devs, width, label=labels[1])
 
-    fig.tight_layout()
+        # Add some text for labels, title and custom x-axis tick labels, etc.
+        ax.set_ylabel('Values')
+        ax.set_title(f'Comparison of {labels[0]} and {labels[1]}')
+        ax.set_xticks(x)
+        ax.set_xticklabels(labels)
+        ax.legend()
 
-    plt.savefig('Resources_Comparison_ILP_unaware.png')
-    plt.show()
+        fig.tight_layout()
+
+        # Save and show the figure
+        plt.savefig(f'Resources_Comparison_ILP_unaware_{labels[0]}_{labels[1]}.png')
+        plt.show()
 
 def main():
 
@@ -1154,7 +1170,7 @@ def main():
                     size=index
                     nodos_G=size
                     links_G=int(size*1.3)
-                    req=random.randint(int(size*2),int(size*3))
+                    req=random.randint(int(size*1),int(size*2))
                     
                     gerador_topologia.gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
