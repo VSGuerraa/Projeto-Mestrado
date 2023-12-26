@@ -1004,10 +1004,11 @@ def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, use
         width = 0.35  # Width of the bars
 
         fig, ax = plt.subplots()
-        rects1 = ax.bar(x - width/2, means, width, yerr=std_devs, label=labels[0])
-        rects2 = ax.bar(x + width/2, std_devs, width, label=labels[1])
+        
+        # Plot bars with mean values
+        rects1 = ax.bar(x, means, width, label='Mean Values', yerr=std_devs, capsize=5)
 
-        # Add some text for labels, title and custom x-axis tick labels, etc.
+        # Add some text for labels, title, and custom x-axis tick labels, etc.
         ax.set_ylabel('Values')
         ax.set_title(f'Comparison of {labels[0]} and {labels[1]}')
         ax.set_xticks(x)
@@ -1038,10 +1039,11 @@ def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, tot
         width = 0.35  # Width of the bars
 
         fig, ax = plt.subplots()
-        rects1 = ax.bar(x - width/2, means, width, yerr=std_devs, label=labels[0])
-        rects2 = ax.bar(x + width/2, std_devs, width, label=labels[1])
+        
+        # Plot bars with mean values
+        rects1 = ax.bar(x, means, width, label='Mean Values', yerr=std_devs, capsize=5)
 
-        # Add some text for labels, title and custom x-axis tick labels, etc.
+        # Add some text for labels, title, and custom x-axis tick labels, etc.
         ax.set_ylabel('Values')
         ax.set_title(f'Comparison of {labels[0]} and {labels[1]}')
         ax.set_xticks(x)
