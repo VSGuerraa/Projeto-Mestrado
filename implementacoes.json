@@ -9,7 +9,7 @@
     },
     {
         "nome": "FW1",
-        "CLBs": 10671,
+        "CLBs": 8537,
         "BRAM": 1,
         "DSPs": 0,
         "Lat": 23,
@@ -17,7 +17,7 @@
     },
     {
         "nome": "FW2",
-        "CLBs": 8123,
+        "CLBs": 15863,
         "BRAM": 241,
         "DSPs": 0,
         "Lat": 73,
@@ -25,7 +25,7 @@
     },
     {
         "nome": "DPI0",
-        "CLBs": 10471,
+        "CLBs": 8377,
         "BRAM": 37,
         "DSPs": 0,
         "Lat": 278,
@@ -33,7 +33,7 @@
     },
     {
         "nome": "DPI1",
-        "CLBs": 13456,
+        "CLBs": 10765,
         "BRAM": 438,
         "DSPs": 0,
         "Lat": 2778,
@@ -41,47 +41,47 @@
     },
     {
         "nome": "DPI2",
-        "CLBs": 19007,
+        "CLBs": 23758,
         "BRAM": 36,
         "DSPs": 0,
-        "Lat": 1744,
+        "Lat": 2392,
         "Throughput": 14.4
     },
     {
         "nome": "DPI3",
-        "CLBs": 5154,
+        "CLBs": 6442,
         "BRAM": 407,
         "DSPs": 0,
-        "Lat": 2389,
+        "Lat": 1073,
         "Throughput": 40
     },
     {
         "nome": "DPI4",
-        "CLBs": 891,
+        "CLBs": 713,
         "BRAM": 96,
         "DSPs": 0,
-        "Lat": 2379,
+        "Lat": 2586,
         "Throughput": 40
     },
     {
         "nome": "DPI5",
-        "CLBs": 7560,
+        "CLBs": 6048,
         "BRAM": 399,
         "DSPs": 0,
-        "Lat": 1831,
+        "Lat": 1035,
         "Throughput": 102.6
     },
     {
         "nome": "AES0",
-        "CLBs": 3165,
-        "BRAM": 5,
+        "CLBs": 2532,
+        "BRAM": 1,
         "DSPs": 0,
-        "Lat": 2,
+        "Lat": 5,
         "Throughput": 49.38
     },
     {
         "nome": "AES1",
-        "CLBs": 3320,
+        "CLBs": 3311,
         "BRAM": 2,
         "DSPs": 0,
         "Lat": 21,
@@ -97,10 +97,10 @@
     },
     {
         "nome": "AES3",
-        "CLBs": 2034,
-        "BRAM": 4,
+        "CLBs": 2542,
+        "BRAM": 1,
         "DSPs": 0,
-        "Lat": 10,
+        "Lat": 9,
         "Throughput": 45
     },
     {
@@ -108,7 +108,7 @@
         "CLBs": 9561,
         "BRAM": 450,
         "DSPs": 0,
-        "Lat": 13,
+        "Lat": 2,
         "Throughput": 119.3
     }
 ]

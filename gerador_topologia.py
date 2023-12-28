@@ -173,7 +173,7 @@ def gerador_Topologia(nro_Nodos, nro_Links):
             lista_Links[index]={lista_Links[index]: {"Lat": lat, "Throughput": thro}}
        
 
-        nro_fpga=random.randint(0,3)
+        nro_fpga=random.randint(0,2)
         
         if nro_fpga!=0:
             lista_Part=[]

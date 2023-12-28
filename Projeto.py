@@ -987,73 +987,83 @@ def compare_datasets(dataset_ILP, dataset_ILP_nao_ciente, dataset_total):
     plt.show()
 
 def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp):
-    
+    # Tuple datasets [mean, std_dev] for each resource
     datasets = [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]
     dataset_labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
 
+    # Define topology sizes
+    topology_sizes = np.array([5, 10, 15, 20, 25, 30, 35, 40])
+
+    # Iterate through the datasets
     for i in range(0, len(datasets), 2):
-        # Calculate mean and standard deviation for each dataset
-        means = [np.mean(datasets[i]), np.mean(datasets[i + 1])]
-        std_devs = [np.std(datasets[i]), np.std(datasets[i + 1])]
+        # Extract mean and std_dev from tuples for each dataset
+        means1, std_devs1 = datasets[i]
+        means2, std_devs2 = datasets[i + 1]
 
         # Set up the labels for the current pair of datasets
         labels = [dataset_labels[i], dataset_labels[i + 1]]
 
         # Plotting
-        x = np.arange(len(labels))  # Label locations
-        width = 0.35  # Width of the bars
-
         fig, ax = plt.subplots()
-        
-        # Plot bars with mean values
-        rects1 = ax.bar(x, means, width, label='Mean Values', yerr=std_devs, capsize=5)
+
+        # Width of the bars
+        width = 1
+
+        # Plot bars for means and error bars for std_devs
+        ax.bar(topology_sizes - width/2, means1, width, label=labels[0], yerr=std_devs1, capsize=3)
+        ax.bar(topology_sizes + width/2, means2, width, label=labels[1], yerr=std_devs2, capsize=3)
 
         # Add some text for labels, title, and custom x-axis tick labels, etc.
+        ax.set_xlabel('Topology Size')
         ax.set_ylabel('Values')
         ax.set_title(f'Comparison of {labels[0]} and {labels[1]}')
-        ax.set_xticks(x)
-        ax.set_xticklabels(labels)
+        ax.set_xticks(topology_sizes)
         ax.legend()
 
         fig.tight_layout()
 
         # Save and show the figure
-        plt.savefig(f'Resources_Comparison_ILP_aware_{labels[0]}_{labels[1]}.png')
+        plt.savefig(f'Resources_Comparison_ILP_aware_Bars_{labels[0]}_{labels[1]}.png')
         plt.show()
 
 def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp):
-    
+    # Tuple datasets [mean, std_dev] for each resource
     datasets = [used_thro, total_thro, used_clb, total_clb, used_bram, total_bram, used_dsp, total_dsp]
     dataset_labels = ['Used Throughput', 'Total Throughput', 'Used CLBs', 'Total CLBs', 'Used BRAM', 'Total BRAM', 'Used DSPs', 'Total DSPs']
 
+    # Define topology sizes
+    topology_sizes = np.array([5, 10, 15, 20, 25, 30, 35, 40])
+
+    # Iterate through the datasets
     for i in range(0, len(datasets), 2):
-        # Calculate mean and standard deviation for each dataset
-        means = [np.mean(datasets[i]), np.mean(datasets[i + 1])]
-        std_devs = [np.std(datasets[i]), np.std(datasets[i + 1])]
+        # Extract mean and std_dev from tuples for each dataset
+        means1, std_devs1 = datasets[i]
+        means2, std_devs2 = datasets[i + 1]
 
         # Set up the labels for the current pair of datasets
         labels = [dataset_labels[i], dataset_labels[i + 1]]
 
         # Plotting
-        x = np.arange(len(labels))  # Label locations
-        width = 0.35  # Width of the bars
-
         fig, ax = plt.subplots()
-        
-        # Plot bars with mean values
-        rects1 = ax.bar(x, means, width, label='Mean Values', yerr=std_devs, capsize=5)
+
+        # Width of the bars
+        width = 1
+
+        # Plot bars for means and error bars for std_devs
+        ax.bar(topology_sizes - width/2, means1, width, label=labels[0], yerr=std_devs1, capsize=3)
+        ax.bar(topology_sizes + width/2, means2, width, label=labels[1], yerr=std_devs2, capsize=3)
 
         # Add some text for labels, title, and custom x-axis tick labels, etc.
+        ax.set_xlabel('Topology Size')
         ax.set_ylabel('Values')
         ax.set_title(f'Comparison of {labels[0]} and {labels[1]}')
-        ax.set_xticks(x)
-        ax.set_xticklabels(labels)
+        ax.set_xticks(topology_sizes)
         ax.legend()
 
         fig.tight_layout()
 
         # Save and show the figure
-        plt.savefig(f'Resources_Comparison_ILP_unaware_{labels[0]}_{labels[1]}.png')
+        plt.savefig(f'Resources_Comparison_ILP_unaware_Bars_{labels[0]}_{labels[1]}.png')
         plt.show()
 
 def main():
@@ -1075,7 +1085,7 @@ def main():
             res_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
             res_g=greedy(lista_Req,lista_Paths,lista_Nodos)
             
-            result_ILP_ciente,time_ILP_ciente = ILP_ciente.main()
+            result_ILP_ciente,time_ILP_ciente,values_ILP = ILP_ciente.main()
             print("ILP ciente:",result_ILP_ciente)
             
             #visualização apenas
@@ -1256,22 +1266,22 @@ def main():
                 dataset_std_ILP_nao_ciente.append(stats.pstdev(lista_result_ILP_nao_ciente))
                 dataset_ILP_time_ciente.append(stats.mean(lista_time_ILP_ciente))
                 dataset_ILP_time_nao_ciente.append(stats.mean(lista_time_ILP_nao_ciente))
-                dataset_ILP_used_throughput_ciente.append(lista_used_throughput_ILP_ciente)
-                dataset_ILP_total_throughput_ciente.append(lista_total_throghput_ILP_ciente)
-                dataset_ILP_used_clb_ciente.append(lista_used_clb_ILP_ciente)
-                dataset_ILP_total_clb_ciente.append(lista_total_clb_ILP_ciente)
-                dataset_ILP_used_bram_ciente.append(lista_used_bram_ILP_ciente)
-                dataset_ILP_total_bram_ciente.append(lista_total_bram_ILP_ciente)
-                dataset_ILP_used_dsp_ciente.append(lista_used_dsp_ILP_ciente)
-                dataset_ILP_total_dsp_ciente.append(lista_total_dsp_ILP_ciente)
-                dataset_ILP_used_throughput_nao_ciente.append(lista_used_throughput_ILP_nao_ciente)
-                dataset_ILP_total_throughput_nao_ciente.append(lista_total_throghput_ILP_nao_ciente)
-                dataset_ILP_used_clb_nao_ciente.append(lista_used_clb_ILP_nao_ciente)
-                dataset_ILP_total_clb_nao_ciente.append(lista_total_clb_ILP_nao_ciente)
-                dataset_ILP_used_bram_nao_ciente.append(lista_used_bram_ILP_nao_ciente)
-                dataset_ILP_total_bram_nao_ciente.append(lista_total_bram_ILP_nao_ciente)
-                dataset_ILP_used_dsp_nao_ciente.append(lista_used_dsp_ILP_nao_ciente)
-                dataset_ILP_total_dsp_nao_ciente.append(lista_total_dsp_ILP_nao_ciente)
+                dataset_ILP_used_throughput_ciente.append([stats.mean(lista_used_throughput_ILP_ciente),stats.pstdev(lista_used_throughput_ILP_ciente)])
+                dataset_ILP_total_throughput_ciente.append([stats.mean(lista_total_throghput_ILP_ciente),stats.pstdev(lista_total_throghput_ILP_ciente)])
+                dataset_ILP_used_clb_ciente.append([stats.mean(lista_used_clb_ILP_ciente),stats.pstdev(lista_used_clb_ILP_ciente)])
+                dataset_ILP_total_clb_ciente.append([stats.mean(lista_total_clb_ILP_ciente),stats.pstdev(lista_total_clb_ILP_ciente)])
+                dataset_ILP_used_bram_ciente.append([stats.mean(lista_used_bram_ILP_ciente),stats.pstdev(lista_used_bram_ILP_ciente)])
+                dataset_ILP_total_bram_ciente.append([stats.mean(lista_total_bram_ILP_ciente),stats.pstdev(lista_total_bram_ILP_ciente)])
+                dataset_ILP_used_dsp_ciente.append([stats.mean(lista_used_dsp_ILP_ciente),stats.pstdev(lista_used_dsp_ILP_ciente)])
+                dataset_ILP_total_dsp_ciente.append([stats.mean(lista_total_dsp_ILP_ciente),stats.pstdev(lista_total_dsp_ILP_ciente)])
+                dataset_ILP_used_throughput_nao_ciente.append([stats.mean(lista_used_throughput_ILP_nao_ciente),stats.pstdev(lista_used_throughput_ILP_nao_ciente)])
+                dataset_ILP_total_throughput_nao_ciente.append([stats.mean(lista_total_throghput_ILP_nao_ciente),stats.pstdev(lista_total_throghput_ILP_nao_ciente)])
+                dataset_ILP_used_clb_nao_ciente.append([stats.mean(lista_used_clb_ILP_nao_ciente),stats.pstdev(lista_used_clb_ILP_nao_ciente)])
+                dataset_ILP_total_clb_nao_ciente.append([stats.mean(lista_total_clb_ILP_nao_ciente),stats.pstdev(lista_total_clb_ILP_nao_ciente)])
+                dataset_ILP_used_bram_nao_ciente.append([stats.mean(lista_used_bram_ILP_nao_ciente),stats.pstdev(lista_used_bram_ILP_nao_ciente)])
+                dataset_ILP_total_bram_nao_ciente.append([stats.mean(lista_total_bram_ILP_nao_ciente),stats.pstdev(lista_total_bram_ILP_nao_ciente)])
+                dataset_ILP_used_dsp_nao_ciente.append([stats.mean(lista_used_dsp_ILP_nao_ciente),stats.pstdev(lista_used_dsp_ILP_nao_ciente)])
+                dataset_ILP_total_dsp_nao_ciente.append([stats.mean(lista_total_dsp_ILP_nao_ciente),stats.pstdev(lista_total_dsp_ILP_nao_ciente)])
                 
                 #Salva dados dataset em txt
                 with open("results.txt","w") as outfile:
