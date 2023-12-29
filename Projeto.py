@@ -997,8 +997,8 @@ def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, use
     # Iterate through the datasets
     for i in range(0, len(datasets), 2):
         # Extract mean and std_dev from tuples for each dataset
-        means1, std_devs1 = datasets[i]
-        means2, std_devs2 = datasets[i + 1]
+        tuples1 = datasets[i]
+        tuples2 = datasets[i + 1]
 
         # Set up the labels for the current pair of datasets
         labels = [dataset_labels[i], dataset_labels[i + 1]]
@@ -1009,9 +1009,14 @@ def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, use
         # Width of the bars
         width = 1
 
-        # Plot bars for means and error bars for std_devs
-        ax.bar(topology_sizes - width/2, means1, width, label=labels[0], yerr=std_devs1, capsize=3)
-        ax.bar(topology_sizes + width/2, means2, width, label=labels[1], yerr=std_devs2, capsize=3)
+        # Iterate over the tuples
+        for j in range(len(tuples1)):
+            means1, std_devs1 = tuples1[j]
+            means2, std_devs2 = tuples2[j]
+
+            # Plot bars for means and error bars for std_devs
+            ax.bar(topology_sizes[j] - width/2, means1, width, label=labels[0] if j == 0 else "", yerr=std_devs1, capsize=3)
+            ax.bar(topology_sizes[j] + width/2, means2, width, label=labels[1] if j == 0 else "", yerr=std_devs2, capsize=3)
 
         # Add some text for labels, title, and custom x-axis tick labels, etc.
         ax.set_xlabel('Topology Size')
@@ -1037,8 +1042,8 @@ def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, tot
     # Iterate through the datasets
     for i in range(0, len(datasets), 2):
         # Extract mean and std_dev from tuples for each dataset
-        means1, std_devs1 = datasets[i]
-        means2, std_devs2 = datasets[i + 1]
+        tuples1 = datasets[i]
+        tuples2 = datasets[i + 1]
 
         # Set up the labels for the current pair of datasets
         labels = [dataset_labels[i], dataset_labels[i + 1]]
@@ -1049,9 +1054,14 @@ def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, tot
         # Width of the bars
         width = 1
 
-        # Plot bars for means and error bars for std_devs
-        ax.bar(topology_sizes - width/2, means1, width, label=labels[0], yerr=std_devs1, capsize=3)
-        ax.bar(topology_sizes + width/2, means2, width, label=labels[1], yerr=std_devs2, capsize=3)
+        # Iterate over the tuples
+        for j in range(len(tuples1)):
+            means1, std_devs1 = tuples1[j]
+            means2, std_devs2 = tuples2[j]
+
+            # Plot bars for means and error bars for std_devs
+            ax.bar(topology_sizes[j] - width/2, means1, width, label=labels[0] if j == 0 else "", yerr=std_devs1, capsize=3)
+            ax.bar(topology_sizes[j] + width/2, means2, width, label=labels[1] if j == 0 else "", yerr=std_devs2, capsize=3)
 
         # Add some text for labels, title, and custom x-axis tick labels, etc.
         ax.set_xlabel('Topology Size')
@@ -1106,7 +1116,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=15
+            nr_Repeat=2
 
             print('Executando...')
 
