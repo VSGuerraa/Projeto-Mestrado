@@ -9,6 +9,7 @@ import numpy as np
 import ILP_ciente
 import ILP_nao_ciente
 import gerador_topologia
+import os
 
 
 @dataclass
@@ -921,28 +922,23 @@ def plot_Solutions_inv(nr_Simul,lista_Invalidos):
     plt.savefig('Grafico_Func_invalido.png')
     plt.show()
 
-def plot_ILP(dataset_ILP, dataset_std_ILP_ciente):
-    
+def plot_ILP_value(dataset_ILP_ciente, dataset_std_ILP_ciente, dataset_ILP_naociente, dataset_std_ILP_naociente):
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
     nodes = [5,10,15,20,25,30,35,40]
-    ax.errorbar(nodes, dataset_ILP, yerr=dataset_std_ILP_ciente, fmt='-o', color='tab:green')
+    
+    # Plot for ciente
+    ax.errorbar(nodes, dataset_ILP_ciente, yerr=dataset_std_ILP_ciente, fmt='-o', color='tab:green', label='Aware')
+    
+    # Plot for naociente
+    ax.errorbar(nodes, dataset_ILP_naociente, yerr=dataset_std_ILP_naociente, fmt='-o', color='tab:red', label='Unaware')
+    
     ax.grid() 
     ax.set_xlabel("Nodes") 
     ax.set_ylabel("Mean Value") 
+    ax.legend()  # Add a legend
+    
     plt.savefig('Grafico_ILP.png')
-    plt.show()
-    
-def plot_ILP_naociente(dataset_ILP, dataset_std_ILP_naociente):
-    
-    fig = plt.figure() 
-    ax = fig.add_subplot(111) 
-    nodes = [5,10,15,20,25,30,35,40]
-    ax.errorbar(nodes, dataset_ILP, yerr=dataset_std_ILP_naociente, fmt='-o', color='tab:red')
-    ax.grid() 
-    ax.set_xlabel("Nodes") 
-    ax.set_ylabel("Mean Value") 
-    plt.savefig('Grafico_ILP_nao_ciente.png')
     plt.show()
 
 def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
@@ -1015,8 +1011,8 @@ def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, use
             means2, std_devs2 = tuples2[j]
 
             # Plot bars for means and error bars for std_devs
-            ax.bar(topology_sizes[j] - width/2, means1, width, label=labels[0] if j == 0 else "", yerr=std_devs1, capsize=3)
-            ax.bar(topology_sizes[j] + width/2, means2, width, label=labels[1] if j == 0 else "", yerr=std_devs2, capsize=3)
+            ax.bar(topology_sizes[j] - width/2, means1, width, label=labels[0] if j == 0 else "", yerr=std_devs1, capsize=3, color='tab:orange')
+            ax.bar(topology_sizes[j] + width/2, means2, width, label=labels[1] if j == 0 else "", yerr=std_devs2, capsize=3, color='tab:blue')
 
         # Add some text for labels, title, and custom x-axis tick labels, etc.
         ax.set_xlabel('Topology Size')
@@ -1060,8 +1056,8 @@ def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, tot
             means2, std_devs2 = tuples2[j]
 
             # Plot bars for means and error bars for std_devs
-            ax.bar(topology_sizes[j] - width/2, means1, width, label=labels[0] if j == 0 else "", yerr=std_devs1, capsize=3)
-            ax.bar(topology_sizes[j] + width/2, means2, width, label=labels[1] if j == 0 else "", yerr=std_devs2, capsize=3)
+            ax.bar(topology_sizes[j] - width/2, means1, width, label=labels[0] if j == 0 else "", yerr=std_devs1, capsize=3, color='tab:orange')
+            ax.bar(topology_sizes[j] + width/2, means2, width, label=labels[1] if j == 0 else "", yerr=std_devs2, capsize=3, color='tab:blue')
 
         # Add some text for labels, title, and custom x-axis tick labels, etc.
         ax.set_xlabel('Topology Size')
@@ -1075,6 +1071,115 @@ def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, tot
         # Save and show the figure
         plt.savefig(f'Resources_Comparison_ILP_unaware_Bars_{labels[0]}_{labels[1]}.png')
         plt.show()
+
+def save_results_file(*datasets):
+    #check if json file exists:
+    if os.path.isfile('results.json'):
+        with open('results.json') as file:
+            results = json.load(file)
+    else:
+        results = {'aloc_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'valor_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'wrong_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'total_Value': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'index': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'req_Aloc': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'wrong_run': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'ILP_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'ILP_time_ciente': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'ILP_time_nao_ciente': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'ILP_used_throughput_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_throughput_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+                    'ILP_total_throughput_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_throughput_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_clb_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_clb_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_clb_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_clb_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_bram_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_bram_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_bram_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_bram_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_dsp_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_dsp_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_dsp_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_dsp_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_throughput_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_throughput_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_throughput_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_throughput_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_clb_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_clb_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_clb_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_clb_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_bram_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_bram_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_bram_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_bram_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_used_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_total_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}}
+        
+        
+
+    topology_size = [5, 10, 15, 20, 25, 30, 35, 40]
+    #append values to json file
+    for index, size in enumerate(topology_size):
+        results['aloc_Desv'][str(size)].append(datasets[0][index])
+        results['valor_Desv'][str(size)].append(datasets[1][index])
+        results['wrong_Desv'][str(size)].append(datasets[2][index])
+        results['total_Value'][str(size)].append(datasets[3][index])
+        results['index'][str(size)].append(datasets[-1])
+        results['req_Aloc'][str(size)].append(datasets[5][index])
+        results['wrong_run'][str(size)].append(datasets[6][index])
+        results['ILP_ciente_mean'][str(size)].append(datasets[7][index])
+        results['ILP_nao_ciente_mean'][str(size)].append(datasets[8][index])
+        results['ILP_ciente_std_dev'][str(size)].append(datasets[9][index])
+        results['ILP_nao_ciente_std_dev'][str(size)].append(datasets[10][index])
+        results['ILP_time_ciente'][str(size)].append(datasets[11][index])
+        results['ILP_time_nao_ciente'][str(size)].append(datasets[12][index])
+        results['ILP_used_throughput_ciente_mean'][str(size)].append(datasets[13][index][0])
+        results['ILP_used_throughput_ciente_std_dev'][str(size)].append(datasets[13][index][1])
+        results['ILP_total_throughput_ciente_mean'][str(size)].append(datasets[14][index][0])
+        results['ILP_total_throughput_ciente_std_dev'][str(size)].append(datasets[14][index][1])
+        results['ILP_used_clb_ciente_mean'][str(size)].append(datasets[15][index][0])
+        results['ILP_used_clb_ciente_std_dev'][str(size)].append(datasets[15][index][1])
+        results['ILP_total_clb_ciente_mean'][str(size)].append(datasets[16][index][0])
+        results['ILP_total_clb_ciente_std_dev'][str(size)].append(datasets[16][index][1])
+        results['ILP_used_bram_ciente_mean'][str(size)].append(datasets[17][index][0])
+        results['ILP_used_bram_ciente_std_dev'][str(size)].append(datasets[17][index][1])
+        results['ILP_total_bram_ciente_mean'][str(size)].append(datasets[18][index][0])
+        results['ILP_total_bram_ciente_std_dev'][str(size)].append(datasets[18][index][1])
+        results['ILP_used_dsp_ciente_mean'][str(size)].append(datasets[19][index][0])
+        results['ILP_used_dsp_ciente_std_dev'][str(size)].append(datasets[19][index][1])
+        results['ILP_total_dsp_ciente_mean'][str(size)].append(datasets[20][index][0])
+        results['ILP_total_dsp_ciente_std_dev'][str(size)].append(datasets[20][index][1])
+        results['ILP_used_throughput_nao_ciente_mean'][str(size)].append(datasets[21][index][0])
+        results['ILP_used_throughput_nao_ciente_std_dev'][str(size)].append(datasets[21][index][1])
+        results['ILP_total_throughput_nao_ciente_mean'][str(size)].append(datasets[22][index][0])
+        results['ILP_total_throughput_nao_ciente_std_dev'][str(size)].append(datasets[22][index][1])
+        results['ILP_used_clb_nao_ciente_mean'][str(size)].append(datasets[23][index][0])
+        results['ILP_used_clb_nao_ciente_std_dev'][str(size)].append(datasets[23][index][1])
+        results['ILP_total_clb_nao_ciente_mean'][str(size)].append(datasets[24][index][0])
+        results['ILP_total_clb_nao_ciente_std_dev'][str(size)].append(datasets[24][index][1])
+        results['ILP_used_bram_nao_ciente_mean'][str(size)].append(datasets[25][index][0])
+        results['ILP_used_bram_nao_ciente_std_dev'][str(size)].append(datasets[25][index][1])
+        results['ILP_total_bram_nao_ciente_mean'][str(size)].append(datasets[26][index][0])
+        results['ILP_total_bram_nao_ciente_std_dev'][str(size)].append(datasets[26][index][1])
+        results['ILP_used_dsp_nao_ciente_mean'][str(size)].append(datasets[27][index][0])
+        results['ILP_used_dsp_nao_ciente_std_dev'][str(size)].append(datasets[27][index][1])
+        results['ILP_total_dsp_nao_ciente_mean'][str(size)].append(datasets[28][index][0])
+        results['ILP_total_dsp_nao_ciente_std_dev'][str(size)].append(datasets[28][index][1])
+
+        
+
+
+        with open('results.json', 'w') as file:
+            json.dump(results, file, indent=4)
 
 def main():
 
@@ -1116,7 +1221,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=2
+            nr_Repeat=10
 
             print('Executando...')
 
@@ -1293,39 +1398,16 @@ def main():
                 dataset_ILP_used_dsp_nao_ciente.append([stats.mean(lista_used_dsp_ILP_nao_ciente),stats.pstdev(lista_used_dsp_ILP_nao_ciente)])
                 dataset_ILP_total_dsp_nao_ciente.append([stats.mean(lista_total_dsp_ILP_nao_ciente),stats.pstdev(lista_total_dsp_ILP_nao_ciente)])
                 
-                #Salva dados dataset em txt
-                with open("results.txt","w") as outfile:
-                    for result in dataset_index:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in dataset_req_Aloc:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in dataset_wrongrun:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in dataset_mean_ILP_ciente:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in dataset_ILP_time_ciente:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in dataset_mean_ILP_nao_ciente:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in dataset_ILP_time_nao_ciente:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in aloc_Desv:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in valor_Desv:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    for result in wrong_Desv:
-                        outfile.write(str(result))
-                        outfile.write('\n')
-                    
+            #Salva dados dataset em arquivo
+                
+            save_results_file(aloc_Desv, valor_Desv, wrong_Desv, total_value, dataset_index, dataset_req_Aloc, 
+                                dataset_wrongrun, dataset_mean_ILP_ciente, dataset_std_ILP_ciente, dataset_mean_ILP_nao_ciente, 
+                                dataset_std_ILP_nao_ciente, dataset_ILP_time_ciente, dataset_ILP_time_nao_ciente, dataset_ILP_used_throughput_ciente, 
+                                dataset_ILP_total_throughput_ciente, dataset_ILP_used_clb_ciente, dataset_ILP_total_clb_ciente, 
+                                dataset_ILP_used_bram_ciente, dataset_ILP_total_bram_ciente, dataset_ILP_used_dsp_ciente, dataset_ILP_total_dsp_ciente, 
+                                dataset_ILP_used_throughput_nao_ciente, dataset_ILP_total_throughput_nao_ciente, dataset_ILP_used_clb_nao_ciente, 
+                                dataset_ILP_total_clb_nao_ciente, dataset_ILP_used_bram_nao_ciente, dataset_ILP_total_bram_nao_ciente, 
+                                dataset_ILP_used_dsp_nao_ciente, dataset_ILP_total_dsp_nao_ciente, nr_Repeat)    
 
 
                 
@@ -1333,9 +1415,8 @@ def main():
             plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
             plot_Solutions_inv(nr_Repeat, lista_Invalidos)
             plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
-            plot_ILP(dataset_mean_ILP_ciente,dataset_std_ILP_ciente)
+            plot_ILP_value(dataset_mean_ILP_ciente,dataset_std_ILP_ciente,dataset_mean_ILP_nao_ciente,dataset_std_ILP_nao_ciente)
             plot_time_ILP(dataset_ILP_time_ciente, dataset_ILP_time_nao_ciente)
-            plot_ILP_naociente(dataset_mean_ILP_nao_ciente,dataset_std_ILP_nao_ciente)
             compare_datasets(dataset_mean_ILP_ciente, dataset_mean_ILP_nao_ciente,total_value)
             plot_resource_comparison_ILP(dataset_ILP_used_throughput_ciente, dataset_ILP_total_throughput_ciente, dataset_ILP_used_clb_ciente, dataset_ILP_total_clb_ciente, dataset_ILP_used_bram_ciente, dataset_ILP_total_bram_ciente, dataset_ILP_used_dsp_ciente, dataset_ILP_total_dsp_ciente)
             plot_resource_comparison_ILP_nao_ciente(dataset_ILP_used_throughput_nao_ciente, dataset_ILP_total_throughput_nao_ciente, dataset_ILP_used_clb_nao_ciente, dataset_ILP_total_clb_nao_ciente, dataset_ILP_used_bram_nao_ciente, dataset_ILP_total_bram_nao_ciente, dataset_ILP_used_dsp_nao_ciente, dataset_ILP_total_dsp_nao_ciente)    

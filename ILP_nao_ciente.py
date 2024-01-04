@@ -115,17 +115,7 @@ def throughput_capacity(graph):
     link_throughput = {}
     for source_node in graph:
         for dest_node in graph[source_node]['Throughput']:
-            link_throughput[(source_node, dest_node)] = graph[source_node]['Throughput'][dest_node]
-    
-    
-    counted_links = set()
-    total_throughput = 0
-
-    for link, throughput in link_throughput.items():
-        i, j = link
-        if (j, i) not in counted_links:
-            total_throughput += throughput
-            counted_links.add((i, j))
+            total_throughput+= graph[source_node]['Throughput'][dest_node]
 
     return total_throughput
 
