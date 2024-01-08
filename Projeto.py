@@ -1184,6 +1184,7 @@ def save_results_file(*datasets):
 def main():
 
     modo=None
+
     while  (modo != '2' and modo != '1'):
         
         modo=input("1- Testar unitario\n2- Teste em escala\n")
@@ -1221,7 +1222,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=10
+            nr_Repeat=100
 
             print('Executando...')
 
