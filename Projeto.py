@@ -519,9 +519,6 @@ def check_Wrong(aloc_Req,lista_Paths):
     
     with open("topologia_wrong.json") as file:
         topologia = json.load(file)
-    
-       
-    #fpga=[[30300,600,1920],[67200,1680,768],[134280,3780,1800]]
       
     aloc_W=[]
     
@@ -531,7 +528,7 @@ def check_Wrong(aloc_Req,lista_Paths):
         
         not_valid=True
         
-        for i_func in range(len(req[0].func)):
+        for idx_func in range(len(req[0].func)):
             func_valid=[]
             for id,device in enumerate(topologia):
                 
@@ -542,8 +539,8 @@ def check_Wrong(aloc_Req,lista_Paths):
                             continue
                     
                     
-                        min_Tile_clb=math.ceil(req[0].func[i_func].clb/60)
-                        min_Tile_bram=math.ceil(req[0].func[i_func].bram/12)
+                        min_Tile_clb=math.ceil(req[0].func[idx_func].clb/60)
+                        min_Tile_bram=math.ceil(req[0].func[idx_func].bram/12)
                     
                     
                         min_Clb=0
@@ -639,6 +636,7 @@ def check_Wrong(aloc_Req,lista_Paths):
                             
         if len(func_valid) != len(req[0].func): 
             aloc_W.append(req)
+            
     return aloc_W               
                                      
 def greedy(lista_Req,lista_Paths,node_List):
@@ -1122,8 +1120,9 @@ def save_results_file(*datasets):
                     'ILP_used_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
                     'ILP_used_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
                     'ILP_total_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}}
-        
+                    'ILP_total_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_compare_invalid_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+                    'ILP_compare_invalid_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}}
         
 
     topology_size = [5, 10, 15, 20, 25, 30, 35, 40]
@@ -1174,13 +1173,89 @@ def save_results_file(*datasets):
         results['ILP_used_dsp_nao_ciente_std_dev'][str(size)].append(datasets[27][index][1])
         results['ILP_total_dsp_nao_ciente_mean'][str(size)].append(datasets[28][index][0])
         results['ILP_total_dsp_nao_ciente_std_dev'][str(size)].append(datasets[28][index][1])
-
-        
+        results['ILP_compare_invalid_mean'][str(size)].append(datasets[29][index][0])
+        results['ILP_compare_invalid_std_dev'][str(size)].append(datasets[29][index][1])
 
 
         with open('results.json', 'w') as file:
             json.dump(results, file, indent=4)
-
+       
+def check_Wrong2(req_allocated,lista_Paths):
+    
+    with open("topologia_wrong.json") as file:
+        topologia = json.load(file)
+        
+    invalid_list=[]
+    valid=None
+    for req in req_allocated:
+        for path in sorted((list(dfs_caminhos(lista_Paths, req[0].init_node, req[0].out_node))), key=len): 
+            if valid==True:
+                break
+            for idx_func in range(len(req[0].func)):
+                if valid==True:
+                    break
+                for node in path:
+                    if valid==True:
+                        break
+                    for device in topologia:
+                        if valid==True:
+                            break
+                        if device[0]=="Nodo"+str(node):
+                            
+                            min_Tile_clb=math.ceil(req[0].func[idx_func].clb/60)
+                            min_Tile_bram=math.ceil(req[0].func[idx_func].bram/12)
+                        
+                        
+                            min_Clb=0
+                            min_Bram=0
+                            
+                            modelo=device[1]
+                            clb=device[2]
+                            bram=device[3]
+                            
+                            if modelo==1:
+                                total_lines=5
+                                total_columns=int((clb/60)/total_lines)
+                                min_Tile=5
+                            elif modelo==2:
+                                total_lines=8
+                                total_columns=int((clb/60)/total_lines)
+                                min_Tile=5
+                            elif modelo==3:
+                                total_lines=15
+                                total_columns=int((clb/60)/total_lines)
+                                min_Tile=2
+                                
+                        
+                            for coluna in range(1,total_columns+1):
+                                if valid==True:
+                                    break
+                                for linha in range(1,total_lines+1):
+                                    if min_Tile_clb<linha*coluna:
+                                        for _ in range(0,total_columns,min_Tile):            
+                                            min_Bram+=linha*coluna
+                                        if min_Bram>=bram:
+                                            valid=True
+                                            break
+                            
+                                        
+                            for coluna in range(1,total_columns+1):
+                                if valid==True:
+                                    break
+                                for linha in range(1,total_lines+1):
+                                    if min_Tile_bram<linha*coluna:
+                                        for _ in range(0,total_columns,min_Tile):            
+                                            min_Clb+=linha*min_Tile*coluna    
+                                        if min_Clb>=clb:
+                                            valid=True
+                                            break
+                            
+        if valid != True:
+            invalid_list.append(req[0])
+        valid=None
+                            
+    return invalid_list
+                            
 def main():
 
     modo=None
@@ -1189,7 +1264,7 @@ def main():
         
         modo=input("1- Testar unitario\n2- Teste em escala\n")
 
-        if modo == '1': #serve para debug ou analise de requisicoes especificas
+        if modo == '1': #serve para debug ou analises especificas
             
             nodos_G=int(input("Numero de nodos da rede:\n"))
             links_G=int(input("Numero de links da rede:\n"))
@@ -1201,10 +1276,21 @@ def main():
             res_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
             res_g=greedy(lista_Req,lista_Paths,lista_Nodos)
             
-            result_ILP_ciente,time_ILP_ciente,values_ILP = ILP_ciente.main()
+            result_ILP_ciente,time_ILP_ciente,values_ILP,req_allocated_ILP_aware = ILP_ciente.main()
             print("ILP ciente:",result_ILP_ciente)
+            _,_,_,req_allocated_ILP_unaware = ILP_nao_ciente.main()
             
-            #visualização apenas
+            for idx_req,req in enumerate(req_allocated_ILP_aware):
+                req_allocated_ILP_aware[idx_req] = lista_Req[req]
+            
+            for idx_req,req in enumerate(req_allocated_ILP_unaware):
+                req_allocated_ILP_unaware[idx_req][0] = lista_Req[req[0]]
+            
+            list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware,lista_Paths)
+            print(list_wrong_ILP_unaware)
+            
+            
+            '''#visualização apenas
             a=[]
             b=[]
             c=[]
@@ -1214,15 +1300,15 @@ def main():
             for j in res_g[1]:
                 b.append(j.id)
             print("G:",b)
-            j=check_Wrong(res_w[1],lista_Paths)
-            for i in j:
+            wrong=check_Wrong(res_w[1],lista_Paths)
+            for i in wrong:
                 c.append(i[0].id)
-            print("WW:",c)
+            print("WW:",c)'''
             
         elif modo=='2':
             
             
-            nr_Repeat=100
+            nr_Repeat=2
 
             print('Executando...')
 
@@ -1253,6 +1339,7 @@ def main():
             dataset_ILP_total_bram_nao_ciente=[]
             dataset_ILP_used_dsp_nao_ciente=[]
             dataset_ILP_total_dsp_nao_ciente=[]
+            dataset_compare_ILP_ratio=[]
 
             aloc_Desv=[]
             valor_Desv=[]
@@ -1290,6 +1377,7 @@ def main():
                 lista_total_dsp_ILP_nao_ciente=[]
                 valor_Final = []
                 total_value_inst=[]
+                lista_compare_ILP_ratio=[]
                 
                 for cont in range(nr_Repeat):
 
@@ -1345,7 +1433,7 @@ def main():
                         total_value_req+=req.price
                     total_value_inst.append(total_value_req)
 
-                    result_ILP_ciente,time_ILP_ciente, resources_model_ILP = ILP_ciente.main()
+                    result_ILP_ciente,time_ILP_ciente, resources_model_ILP, req_allocated_ILP_aware = ILP_ciente.main()
                     lista_result_ILP_ciente.append(result_ILP_ciente)
                     lista_time_ILP_ciente.append(time_ILP_ciente)
                     lista_used_throughput_ILP_ciente.append(resources_model_ILP[0])
@@ -1357,7 +1445,7 @@ def main():
                     lista_used_dsp_ILP_ciente.append(resources_model_ILP[6])
                     lista_total_dsp_ILP_ciente.append(resources_model_ILP[7])
 
-                    result_ILP_nao_ciente, time_ILP_nao_ciente, resources_model_ILP_nao_ciente = ILP_nao_ciente.main()
+                    result_ILP_nao_ciente, time_ILP_nao_ciente, resources_model_ILP_nao_ciente,req_allocated_ILP_unaware = ILP_nao_ciente.main()
                     lista_result_ILP_nao_ciente.append(result_ILP_nao_ciente)
                     lista_time_ILP_nao_ciente.append(time_ILP_nao_ciente)
                     lista_used_throughput_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[0])
@@ -1368,6 +1456,19 @@ def main():
                     lista_total_bram_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[5])
                     lista_used_dsp_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[6])
                     lista_total_dsp_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[7])
+                     
+                     
+                    for idx_req,req in enumerate(req_allocated_ILP_aware):
+                        req_allocated_ILP_aware[idx_req] = lista_Req[req]
+                    
+                    for idx_req,req in enumerate(req_allocated_ILP_unaware):
+                        req_allocated_ILP_unaware[idx_req][0] = lista_Req[req[0]]
+                    
+                    list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware,lista_Paths)
+                    if list_wrong_ILP_unaware==[]:
+                        lista_compare_ILP_ratio.append(0)
+                    else:
+                        lista_compare_ILP_ratio.append(len(list_wrong_ILP_unaware)/len(req_allocated_ILP_unaware))
                      
                 aloc_Desv.append(stats.stdev(req_Aloc_g))
                 valor_Desv.append(stats.pstdev(valor_Final))
@@ -1398,6 +1499,7 @@ def main():
                 dataset_ILP_total_bram_nao_ciente.append([stats.mean(lista_total_bram_ILP_nao_ciente),stats.pstdev(lista_total_bram_ILP_nao_ciente)])
                 dataset_ILP_used_dsp_nao_ciente.append([stats.mean(lista_used_dsp_ILP_nao_ciente),stats.pstdev(lista_used_dsp_ILP_nao_ciente)])
                 dataset_ILP_total_dsp_nao_ciente.append([stats.mean(lista_total_dsp_ILP_nao_ciente),stats.pstdev(lista_total_dsp_ILP_nao_ciente)])
+                dataset_compare_ILP_ratio.append([stats.mean(lista_compare_ILP_ratio),stats.pstdev(lista_compare_ILP_ratio)])
                 
             #Salva dados dataset em arquivo
                 
@@ -1408,7 +1510,7 @@ def main():
                                 dataset_ILP_used_bram_ciente, dataset_ILP_total_bram_ciente, dataset_ILP_used_dsp_ciente, dataset_ILP_total_dsp_ciente, 
                                 dataset_ILP_used_throughput_nao_ciente, dataset_ILP_total_throughput_nao_ciente, dataset_ILP_used_clb_nao_ciente, 
                                 dataset_ILP_total_clb_nao_ciente, dataset_ILP_used_bram_nao_ciente, dataset_ILP_total_bram_nao_ciente, 
-                                dataset_ILP_used_dsp_nao_ciente, dataset_ILP_total_dsp_nao_ciente, nr_Repeat)    
+                                dataset_ILP_used_dsp_nao_ciente, dataset_ILP_total_dsp_nao_ciente,dataset_compare_ILP_ratio, nr_Repeat)    
 
 
                 

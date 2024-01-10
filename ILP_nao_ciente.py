@@ -162,13 +162,13 @@ def set_constraints(graph, requisitions, paths, model, x, y, path_chosen):
 
         # Constraint: Each requisition must have a chosen path
         for func in range(num_functions):
-            model.addConstr(
+            '''model.addConstr(
                 y[req_idx] <= gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
                                         for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                         for node in path
                                         for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])),
                 name=f"req_allocation_if_{req_idx}_{func}"
-            )
+            )'''
 
         # Constraint: Each requisition must have a chosen path
         model.addConstr(
@@ -256,6 +256,29 @@ def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
                             
     return [throghput_used, clb_used, clb_total, bram_used, bram_total, dsp_used, dsp_total]
 
+def get_details(graph, requisitions, paths, model, x, y, path_chosen):
+        
+    req_allocated = []
+    
+    
+    for model_var in model.getVars():
+        if model_var.x > 0.8:
+            if model_var.varName.startswith('x'):
+                #print(model_var.varName, model_var.x)
+                node, set_idx, req_idx, func, path = model_var.varName.split('_')[1:]
+                path = tuple(path.split(','))
+                clb=graph[f"Nodo_{node}"]['Resources'][int(set_idx)][0]
+                if int(clb/110000)==1:
+                    modelo=3
+                elif int(clb/58000)==1:
+                    modelo=2
+                elif int(clb/22000)==1:
+                    modelo=1
+                    
+                req_allocated.append([int(req_idx),modelo,int(set_idx)])
+
+    return req_allocated
+
 def main():
         
         init_time = time.time()
@@ -268,14 +291,17 @@ def main():
         
         # Optimize model
         model.optimize()
-
+        
+        #get allocation details
+        req_allocated = get_details(graph, requisitions, paths, model, x, y, path_chosen)
+        
         values_model = show_resources_used(graph, requisitions, paths, model, x, y, path_chosen)
         values_model.insert(1, total_throughput)
         end_time=time.time()
         time_elapsed=end_time-init_time
               
        
-        return model.objVal,time_elapsed,values_model
+        return model.objVal,time_elapsed,values_model,req_allocated
 
 if __name__ == '__main__':
     main()

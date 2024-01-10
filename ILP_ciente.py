@@ -195,13 +195,13 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
         num_functions = len(req[4])
         # Constraint: If a path is chosen, then all functions must be allocated
         for func in range(num_functions):
-            model.addConstr(
+            '''model.addConstr(
                 y[req_idx] <= gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
                                         for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                         for node in path
                                         for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])),
                 name=f"req_allocation_if_{req_idx}_{func}"
-            )
+            )'''
 
         # Constraint: If a path is not chosen, then none of the functions can be allocated
         model.addConstr(
@@ -250,6 +250,9 @@ def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
                             
     return [throghput_used, clb_used, clb_total, bram_used, bram_total, dsp_used, dsp_total]
 
+
+        
+
 def main():
         
         init_time = time.time()
@@ -262,14 +265,19 @@ def main():
         
         # Optimize model
         model.optimize()
-
+        #get allocation details
+        req_allocated =[]
+        for req_idx, req in enumerate(requisitions):
+            if y[req_idx].x > 0.5:
+                req_allocated.append(req_idx)
+        
         values_model = show_resources_used(graph, requisitions, paths, model, x, y, path_chosen)
         values_model.insert(1, total_throughput)
         end_time=time.time()
         time_elapsed=end_time-init_time
     
        
-        return model.objVal,time_elapsed,values_model
+        return model.objVal,time_elapsed,values_model,req_allocated
 
 if __name__ == '__main__':
     main()
