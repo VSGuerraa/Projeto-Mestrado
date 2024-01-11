@@ -1308,7 +1308,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=2
+            nr_Repeat=10
 
             print('Executando...')
 
