@@ -1197,7 +1197,7 @@ def check_Wrong2(req_allocated,lista_Paths):
                 for node in path:
                     if valid==True:
                         break
-                    for device in topologia:
+                    for idx_device,device in enumerate(topologia):
                         if valid==True:
                             break
                         if device[0]=="Nodo"+str(node):
@@ -1215,39 +1215,42 @@ def check_Wrong2(req_allocated,lista_Paths):
                             
                             if modelo==1:
                                 total_lines=5
-                                total_columns=int((clb/60)/total_lines)
-                                min_Tile=5
+                                column_clb=int((clb/60)/total_lines)
+                                column_bram=int((bram/12)/total_lines)
+                                min_Tile=5+1
                             elif modelo==2:
                                 total_lines=8
-                                total_columns=int((clb/60)/total_lines)
-                                min_Tile=5
+                                column_clb=int((clb/60)/total_lines)
+                                column_bram=int((bram/12)/total_lines)
+                                min_Tile=5+1
                             elif modelo==3:
                                 total_lines=15
-                                total_columns=int((clb/60)/total_lines)
-                                min_Tile=2
+                                column_clb=int((clb/60)/total_lines)
+                                column_bram=int((bram/12)/total_lines)
+                                min_Tile=2+1
                                 
                         
-                            for coluna in range(1,total_columns+1):
+                            for coluna in range(1,column_clb+1):
                                 if valid==True:
                                     break
                                 for linha in range(1,total_lines+1):
-                                    if min_Tile_clb<linha*coluna:
-                                        for _ in range(0,total_columns,min_Tile):            
-                                            min_Bram+=linha*coluna
-                                        if min_Bram>=bram:
+                                    if min_Tile_clb<linha*coluna:           
+                                        min_Bram=linha*(column_clb/min_Tile)
+                                        if min_Bram>=min_Tile_bram:
                                             valid=True
+                                            topologia[idx_device][2]=clb-(linha*coluna*60)
                                             break
                             
                                         
-                            for coluna in range(1,total_columns+1):
+                            for coluna in range(1,column_bram+1):
                                 if valid==True:
                                     break
                                 for linha in range(1,total_lines+1):
-                                    if min_Tile_bram<linha*coluna:
-                                        for _ in range(0,total_columns,min_Tile):            
-                                            min_Clb+=linha*min_Tile*coluna    
-                                        if min_Clb>=clb:
+                                    if min_Tile_bram<linha*coluna:           
+                                        min_Clb=linha*(column_bram/min_Tile)   
+                                        if min_Clb>=min_Tile_clb:
                                             valid=True
+                                            topologia[idx_device][3]=bram-(linha*coluna*12)
                                             break
                             
         if valid != True:
@@ -1308,7 +1311,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=10
+            nr_Repeat=20
 
             print('Executando...')
 
