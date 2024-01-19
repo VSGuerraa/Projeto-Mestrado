@@ -159,11 +159,15 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
                 for set_idx, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
                     for func in range(len(req[4])):
                         for resource_idx in range(3):  
-                            if (req[4][func][resource_idx]>resources[resource_idx]):
-                                model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]==0)
+                            #if (req[4][func][resource_idx]>resources[resource_idx]):
+                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]*resources[resource_idx] <= 
+                                            graph[f"Nodo_{node}"]['Resources'][set_idx][resource_idx], 
+                                            f"ResourceConstraint_{req_idx}_{func}_{resource_idx}_{node}_{set_idx}_{tuple(path)}")
+                                
 
     # Constraint: Maximum Latency and Minimum Throughput Constraints
             
+                #for func in range(len(req[4])):
                         total_latency = 0
                         total_throughput = float('inf') 
                         
@@ -176,41 +180,45 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
                         if total_latency > req[2] or total_throughput < req[3]:
                             model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
                             
-    # Constraint: Only one path is chosen for each requisition
-    for req_idx, req in enumerate(requisitions):
-        model.addConstr(gp.quicksum(path_chosen[(req_idx, tuple(path))] for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)) == 1,
-                        f"PathSelection_{req_idx}")
-        
-
-    for req_idx, req in enumerate(requisitions):
-        model.addConstr(
-            gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
-                        for func in range(len(req[4]))
-                        for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
-                        for node in path
-                        for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])) <= 1, f"AllocationLimit_{req_idx}")
-    
-    
+    #Constraint: All functions must be allocated to allocated requisitions
     for req_idx, req in enumerate(requisitions):
         num_functions = len(req[4])
-        # Constraint: If a path is chosen, then all functions must be allocated
-        for func in range(num_functions):
-            '''model.addConstr(
-                y[req_idx] <= gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
-                                        for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
-                                        for node in path
-                                        for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])),
-                name=f"req_allocation_if_{req_idx}_{func}"
-            )'''
-
-        # Constraint: If a path is not chosen, then none of the functions can be allocated
         model.addConstr(
             y[req_idx] * num_functions <= gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
                                                     for func in range(num_functions)
                                                     for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                                     for node in path
                                                     for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])),
-            name=f"req_allocation_only_if_{req_idx}")
+            name=f"req_allocation_only_if_{req_idx}"
+        )
+        
+    #Constraint: Allocation Limit
+    for req_idx, req in enumerate(requisitions):
+        for func in range(len(req[4])):
+            
+                model.addConstr(
+                    gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
+                                for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
+                                for node in path
+                                for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])
+                    ) <= 1, f"AllocationLimit_{req_idx}"
+                )    
+                
+    # Constraint: Unique Allocation of node-set_idx pair
+    for i in range(len(graph)):
+        for set_idx, _ in enumerate(graph[f"Nodo_{i}"]["Resources"]) :  
+            try:
+                model.addConstr(
+                    gp.quicksum(x[node, set_idx, req_idx, func, tuple(path)]
+                                for req_idx, req in enumerate(requisitions)
+                                for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
+                                for func in range(len(req[4])) 
+                                for node in path
+                                if (node, set_idx, req_idx, func, tuple(path)) in x) <= 1,
+                    f"UniqueAllocationConstraint_node_{node}_set_idx_{set_idx}")
+            except KeyError:
+                continue
+
        
 def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
         

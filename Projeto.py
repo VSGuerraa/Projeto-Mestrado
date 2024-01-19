@@ -349,7 +349,7 @@ def set_value(func_list):
             total_value+=20
         elif func["implementacao"]["CLBs"]>5000 or func["implementacao"]["BRAM"]>120:
             total_value+=10
-        elif func["implementacao"]["CLBs"]>3000 or func["implementacao"]["BRAM"]>20:
+        else:
             total_value+=6
             
     return total_value
