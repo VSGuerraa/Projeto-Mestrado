@@ -28,7 +28,7 @@ def gerador_Topologia(nro_Nodos, nro_Links):
 
 
     fpga=[[30300,600,1920],[67200,1680,768],[134280,3780,1800]]
-    list_thro=[40,100,200,400]
+    list_thro=[100,200,400]
     
     fpga_P=[
                 {   "Modelo": 'P',
