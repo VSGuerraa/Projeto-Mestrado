@@ -196,7 +196,10 @@ def set_constraints(graph, requisitions, paths, model, x, y, path_chosen):
                                 total_throughput = link_throughput
 
                         if total_latency > req[2] or total_throughput < req[3]:
-                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
+                            try:
+                                model.addConstr(x[(path[i],set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
+                            except KeyError:
+                                continue
         
     #Constraint: Allocation Limit
     for req_idx, req in enumerate(requisitions):
@@ -263,9 +266,11 @@ def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
 
     for req_idx in reqs_allocated:
         for path in sorted((list(dfs_caminhos(paths, requisitions[req_idx][0], requisitions[req_idx][1]))), key=len):
-            if path_chosen[(req_idx, tuple(path))].x > 0.5:
+            for func in range(len(requisitions[req_idx][4])):
                 for i in range(len(path) - 1):
-                    throghput_used += graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
+                    for set_idx, resources in enumerate(graph[f"Nodo_{path[i]}"]['Resources']):
+                        if x[(path[i], set_idx, req_idx, func, tuple(path))].x > 0.5:
+                            throghput_used += graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
                     
                                 
     for req_idx, req in enumerate(requisitions):

@@ -924,6 +924,7 @@ def plot_ILP_value(dataset_ILP_ciente, dataset_std_ILP_ciente, dataset_ILP_naoci
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
     nodes = [5,10,15,20,25,30,35,40]
+    nodes = nodes[:len(dataset_ILP_ciente)]
     
     # Plot for ciente
     ax.errorbar(nodes, dataset_ILP_ciente, yerr=dataset_std_ILP_ciente, fmt='-o', color='tab:green', label='Aware')
@@ -941,10 +942,13 @@ def plot_ILP_value(dataset_ILP_ciente, dataset_std_ILP_ciente, dataset_ILP_naoci
 
 def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
     
+    topology_size = [5,10,15,20,25,30,35,40]
+    topology_size = topology_size[:len(dataset_ILP_time)]
+
     # Plot for dataset_ILP_time
     fig1 = plt.figure() 
     ax1 = fig1.add_subplot(111) 
-    ax1.plot([5,10,15,20,25,30,35,40], dataset_ILP_time, color='tab:green', label='Partition Awareness')
+    ax1.plot(topology_size, dataset_ILP_time, color='tab:green', label='Partition Awareness')
     ax1.grid() 
     ax1.set_xlabel("Nodes") 
     ax1.set_ylabel("Execution Time(s)") 
@@ -955,7 +959,7 @@ def plot_time_ILP(dataset_ILP_time, dataset_ILP_time_nao_ciente):
     # Plot for dataset_ILP_time_nao_ciente
     fig2 = plt.figure() 
     ax2 = fig2.add_subplot(111) 
-    ax2.plot([5,10,15,20,25,30,35,40], dataset_ILP_time_nao_ciente, color='tab:red', label='Partition Unawareness')
+    ax2.plot(topology_size, dataset_ILP_time_nao_ciente, color='tab:red', label='Partition Unawareness')
     ax2.grid() 
     ax2.set_xlabel("Nodes") 
     ax2.set_ylabel("Execution Time (s)") 
@@ -987,7 +991,7 @@ def plot_resource_comparison_ILP(used_thro, total_thro, used_clb, total_clb, use
 
     # Define topology sizes
     topology_sizes = np.array([5, 10, 15, 20, 25, 30, 35, 40])
-
+    topology_sizes = topology_sizes[:len(datasets[0])]
     # Iterate through the datasets
     for i in range(0, len(datasets), 2):
         # Extract mean and std_dev from tuples for each dataset
@@ -1032,7 +1036,7 @@ def plot_resource_comparison_ILP_nao_ciente(used_thro, total_thro, used_clb, tot
 
     # Define topology sizes
     topology_sizes = np.array([5, 10, 15, 20, 25, 30, 35, 40])
-
+    topology_sizes = topology_sizes[:len(datasets[0])]
     # Iterate through the datasets
     for i in range(0, len(datasets), 2):
         # Extract mean and std_dev from tuples for each dataset
@@ -1126,6 +1130,7 @@ def save_results_file(*datasets):
         
 
     topology_size = [5, 10, 15, 20, 25, 30, 35, 40]
+    topology_size = topology_size[:len(datasets[0])]
     #append values to json file
     for index, size in enumerate(topology_size):
         results['aloc_Desv'][str(size)].append(datasets[0][index])
@@ -1258,7 +1263,24 @@ def check_Wrong2(req_allocated,lista_Paths):
         valid=None
                             
     return invalid_list
-                            
+
+def plot_invalid_ratio(dataset_compare_ILP_ratio):
+    fig = plt.figure() 
+    ax = fig.add_subplot(111) 
+    nodes = [5,10,15,20,25,30,35,40]
+    nodes = nodes[:len(dataset_compare_ILP_ratio)]
+    
+    # Plot for ciente
+    ax.plot(nodes, dataset_compare_ILP_ratio, color='tab:green', label='Invalid\nTotal')
+    
+    ax.grid() 
+    ax.set_xlabel("Nodes") 
+    ax.set_ylabel("Invalid Ratio") 
+    ax.legend()  # Add a legend
+    
+    plt.savefig('Grafico_Invalid_Ratio.png')
+    plt.show()        
+
 def main():
 
     modo=None
@@ -1311,7 +1333,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=20
+            nr_Repeat=5
 
             print('Executando...')
 
@@ -1353,7 +1375,7 @@ def main():
             total_value=[]
             
             
-            for index in range (5,45,5):
+            for index in range (5,35,5):
                 
                 req_Aloc_g=[]
                 req_Aloc_w=[]
@@ -1389,7 +1411,7 @@ def main():
                     size=index
                     nodos_G=size
                     links_G=int(size*1.3)
-                    req=random.randint(int(size*1),int(size*2))
+                    req=random.randint(int(size*2),int(size*3))
                     
                     gerador_topologia.gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
@@ -1518,14 +1540,15 @@ def main():
 
                 
                
-            plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
-            plot_Solutions_inv(nr_Repeat, lista_Invalidos)
-            plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
+            #plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all,nr_Repeat,lista_Nodos_W)  
+            #plot_Solutions_inv(nr_Repeat, lista_Invalidos)
+            #plot_Func(aloc_Desv,wrong_Desv,dataset_index,dataset_req_Aloc,dataset_wrongrun)
             plot_ILP_value(dataset_mean_ILP_ciente,dataset_std_ILP_ciente,dataset_mean_ILP_nao_ciente,dataset_std_ILP_nao_ciente)
             plot_time_ILP(dataset_ILP_time_ciente, dataset_ILP_time_nao_ciente)
             compare_datasets(dataset_mean_ILP_ciente, dataset_mean_ILP_nao_ciente,total_value)
             plot_resource_comparison_ILP(dataset_ILP_used_throughput_ciente, dataset_ILP_total_throughput_ciente, dataset_ILP_used_clb_ciente, dataset_ILP_total_clb_ciente, dataset_ILP_used_bram_ciente, dataset_ILP_total_bram_ciente, dataset_ILP_used_dsp_ciente, dataset_ILP_total_dsp_ciente)
             plot_resource_comparison_ILP_nao_ciente(dataset_ILP_used_throughput_nao_ciente, dataset_ILP_total_throughput_nao_ciente, dataset_ILP_used_clb_nao_ciente, dataset_ILP_total_clb_nao_ciente, dataset_ILP_used_bram_nao_ciente, dataset_ILP_total_bram_nao_ciente, dataset_ILP_used_dsp_nao_ciente, dataset_ILP_total_dsp_nao_ciente)    
+            plot_invalid_ratio(dataset_compare_ILP_ratio)
 
             with open("Req_Alocadas.txt","w") as outfile:
                 for result in results_g[1]:

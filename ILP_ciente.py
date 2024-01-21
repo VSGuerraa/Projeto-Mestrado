@@ -166,20 +166,22 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
                                 
 
     # Constraint: Maximum Latency and Minimum Throughput Constraints
-            
-                #for func in range(len(req[4])):
-                        total_latency = 0
-                        total_throughput = float('inf') 
-                        
-                        for i in range(len(path) - 1):
-                            total_latency += graph[f"Nodo_{path[i]}"]['Latency'][f"Nodo_{path[i+1]}"]
-                            link_throughput = graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
-                            if link_throughput < total_throughput:
-                                total_throughput = link_throughput
+    for req_idx, req in enumerate(requisitions):
+        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):    
+            for set_idx, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
+                for func in range(len(req[4])):
+                    for i in range(len(path) - 1):   
+                        # Calculate total latency and minimum throughput for the path
+                        total_latency = sum(graph[f"Nodo_{path[i]}"]['Latency'][f"Nodo_{path[i+1]}"] for i in range(len(path) - 1))
+                        total_throughput = min(graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"] for i in range(len(path) - 1))
 
+                        # Check if total latency and throughput meet the requirements
                         if total_latency > req[2] or total_throughput < req[3]:
-                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
-                            
+                            try:
+                                model.addConstr(x[(path[i],set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
+                            except KeyError:
+                                continue
+                        
     #Constraint: All functions must be allocated to allocated requisitions
     for req_idx, req in enumerate(requisitions):
         num_functions = len(req[4])
@@ -205,21 +207,20 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
                 )    
                 
     # Constraint: Unique Allocation of node-set_idx pair
-    for i in range(len(graph)):
-        for set_idx, _ in enumerate(graph[f"Nodo_{i}"]["Resources"]) :  
+    for node in range(len(graph)):
+        for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"]) :  
             try:
                 model.addConstr(
                     gp.quicksum(x[node, set_idx, req_idx, func, tuple(path)]
                                 for req_idx, req in enumerate(requisitions)
                                 for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                 for func in range(len(req[4])) 
-                                for node in path
+                                #for node in path
                                 if (node, set_idx, req_idx, func, tuple(path)) in x) <= 1,
                     f"UniqueAllocationConstraint_node_{node}_set_idx_{set_idx}")
             except KeyError:
                 continue
-
-       
+     
 def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
         
     clb_used = 0
@@ -238,9 +239,12 @@ def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
 
     for req_idx in reqs_allocated:
         for path in sorted((list(dfs_caminhos(paths, requisitions[req_idx][0], requisitions[req_idx][1]))), key=len):
-            if path_chosen[(req_idx, tuple(path))].x > 0.5:
+            for func in range(len(requisitions[req_idx][4])):
                 for i in range(len(path) - 1):
-                    throghput_used += graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
+                    for set_idx, resources in enumerate(graph[f"Nodo_{path[i]}"]['Resources']):
+                        if x[(path[i], set_idx, req_idx, func, tuple(path))].x > 0.5:
+                            throghput_used += graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
+                    
                     
                                 
     for req_idx, req in enumerate(requisitions):
@@ -272,6 +276,11 @@ def main():
         set_constraints(graph, requisitions, paths, model, x,y, path_chosen)
         
         # Optimize model
+
+        limite_tempo = 30
+
+        # Configurar o limite de tempo no modelo
+        model.setParam(GRB.Param.TimeLimit, limite_tempo)
         model.optimize()
         #get allocation details
         req_allocated =[]
