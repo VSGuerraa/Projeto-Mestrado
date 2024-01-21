@@ -208,6 +208,43 @@ def set_constraints(graph, requisitions, paths, model, x, y, path_chosen):
                                 for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])
                     ) <= 1, f"AllocationLimit_{req_idx}")
 
+    #Constraint: To limit the sum of resources allocated in each partition to the total resources available in the partition:
+    for node,_ in enumerate(graph):
+        for set_idx, resources in enumerate(graph[f"Nodo_{node}"]["Resources"]):
+            try:
+                model.addConstr(
+                    gp.quicksum(x[node, set_idx, req_idx, func, tuple(path)] * req[4][func][0]
+                                for req_idx, req in enumerate(requisitions)
+                                for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
+                                for func in range(len(req[4]))
+                                #for node in path
+                                if (node,set_idx,req_idx,func,tuple(path)) in x) <= resources[0],
+                    f"ResourceCapacityConstraint_node_{node}_set_idx_{set_idx}_clb")
+            except:
+                continue
+            try:
+                model.addConstr(
+                    gp.quicksum(x[node, set_idx, req_idx, func, tuple(path)] * req[4][func][1]
+                                for req_idx, req in enumerate(requisitions)
+                                for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
+                                for func in range(len(req[4]))
+                                #for node in path
+                                if (node, set_idx, req_idx, func, tuple(path)) in x) <= graph[f"Nodo_{node}"]["Resources"][set_idx][1],
+                    f"ResourceCapacityConstraint_node_{node}_set_idx_{set_idx}_bram")
+            except:
+                continue
+            try:
+                model.addConstr(
+                    gp.quicksum(x[node, set_idx, req_idx, func, tuple(path)] * req[4][func][2]
+                                for req_idx, req in enumerate(requisitions)
+                                for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
+                                for func in range(len(req[4]))
+                                #for node in path
+                                if (node, set_idx, req_idx, func, tuple(path)) in x) <= graph[f"Nodo_{node}"]["Resources"][set_idx][2],
+                    f"ResourceCapacityConstraint_node_{node}_set_idx_{set_idx}_dsp")
+            except:
+                continue
+        
 def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
         
     clb_used = 0
