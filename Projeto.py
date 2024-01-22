@@ -1271,7 +1271,7 @@ def plot_invalid_ratio(dataset_compare_ILP_ratio):
     nodes = nodes[:len(dataset_compare_ILP_ratio)]
     
     # Plot for ciente
-    ax.plot(nodes, dataset_compare_ILP_ratio, color='tab:green', label='Invalid\nTotal')
+    ax.plot(nodes, dataset_compare_ILP_ratio[0], color='tab:green', label='Invalid\nTotal')
     
     ax.grid() 
     ax.set_xlabel("Nodes") 
@@ -1333,7 +1333,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=2
+            nr_Repeat=5
 
             print('Executando...')
 
@@ -1459,6 +1459,8 @@ def main():
                     total_value_inst.append(total_value_req)
 
                     result_ILP_ciente,time_ILP_ciente, resources_model_ILP, req_allocated_ILP_aware = ILP_ciente.main()
+                    if result_ILP_ciente == 0:
+                        continue
                     lista_result_ILP_ciente.append(result_ILP_ciente)
                     lista_time_ILP_ciente.append(time_ILP_ciente)
                     lista_used_throughput_ILP_ciente.append(resources_model_ILP[0])
@@ -1471,6 +1473,8 @@ def main():
                     lista_total_dsp_ILP_ciente.append(resources_model_ILP[7])
 
                     result_ILP_nao_ciente, time_ILP_nao_ciente, resources_model_ILP_nao_ciente,req_allocated_ILP_unaware = ILP_nao_ciente.main()
+                    if result_ILP_nao_ciente == 0:
+                        continue
                     lista_result_ILP_nao_ciente.append(result_ILP_nao_ciente)
                     lista_time_ILP_nao_ciente.append(time_ILP_nao_ciente)
                     lista_used_throughput_ILP_nao_ciente.append(resources_model_ILP_nao_ciente[0])
