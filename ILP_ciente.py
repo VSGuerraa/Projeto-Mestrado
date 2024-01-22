@@ -108,13 +108,11 @@ def monta_req():
 def throughput_capacity(graph):
     
     #Throughput Capacity
-    total_throughput = 0
-    link_throughput = {}
+    total_link_throughput = {}
     for source_node in graph:
         for dest_node in graph[source_node]['Throughput']:
-            total_throughput += graph[source_node]['Throughput'][dest_node]
-
-    return total_throughput
+            total_link_throughput[(source_node, dest_node)] = graph[source_node]['Throughput'][dest_node]
+    return total_link_throughput
         
 def monta_modelo(graph, requisitions, paths):
     
@@ -132,12 +130,6 @@ def monta_modelo(graph, requisitions, paths):
                 for node in path:
                     for set_idx, resources in enumerate(graph[f"Nodo_{node}"]["Resources"]):
                         x[(node, set_idx, req_idx, func, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"x_{node}_{set_idx}_{req_idx}_{func}_{path}")
-
-    # Decision variables to indicate whether a path is chosen for each requisition
-    path_chosen = {}
-    for req_idx, req in enumerate(requisitions):
-        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):
-            path_chosen[(req_idx, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"PathChosen_{req_idx}_{tuple(path)}")
                     
     y = {}
     for req_idx, req in enumerate(requisitions):
@@ -148,9 +140,9 @@ def monta_modelo(graph, requisitions, paths):
     model.setObjective(gp.quicksum(y[req_idx] * req[5] for req_idx, req in enumerate(requisitions)), GRB.MAXIMIZE)
 
     
-    return model,path_chosen,x,y
+    return model,x,y
     
-def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
+def set_constraints(graph, requisitions, paths, model, x, y):
     
     # Constraint: Resources
     for req_idx, req in enumerate(requisitions):
@@ -166,21 +158,18 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
                                 
 
     # Constraint: Maximum Latency and Minimum Throughput Constraints
-    for req_idx, req in enumerate(requisitions):
-        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):    
-            for set_idx, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
-                for func in range(len(req[4])):
-                    for i in range(len(path) - 1):   
-                        # Calculate total latency and minimum throughput for the path
-                        total_latency = sum(graph[f"Nodo_{path[i]}"]['Latency'][f"Nodo_{path[i+1]}"] for i in range(len(path) - 1))
-                        total_throughput = min(graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"] for i in range(len(path) - 1))
+                        total_latency = 0
+                        total_throughput = float('inf') 
+                        
+                        for i in range(len(path) - 1):
+                            total_latency += graph[f"Nodo_{path[i]}"]['Latency'][f"Nodo_{path[i+1]}"]
+                            link_throughput = graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
+                            if link_throughput < total_throughput:
+                                total_throughput = link_throughput
 
-                        # Check if total latency and throughput meet the requirements
                         if total_latency > req[2] or total_throughput < req[3]:
-                            try:
-                                model.addConstr(x[(path[i],set_idx, req_idx, func,tuple(path))]== 0, f"LatencyThroughputViolation_{req_idx}_{func}")
-                            except KeyError:
-                                continue
+                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]== 0, 
+                            f"LatencyThroughputViolation_{req_idx}_{func}")
                         
     #Constraint: All functions must be allocated to allocated requisitions
     for req_idx, req in enumerate(requisitions):
@@ -221,7 +210,7 @@ def set_constraints(graph, requisitions, paths, model, x, y,path_chosen):
             except KeyError:
                 continue
      
-def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
+def show_resources_used(graph, requisitions, paths, x, y):
         
     clb_used = 0
     bram_used = 0
@@ -260,27 +249,20 @@ def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
                             bram_used += resources[1]
                             dsp_used += resources[2]
                             
-    return [throghput_used, clb_used, clb_total, bram_used, bram_total, dsp_used, dsp_total]
-
-
-        
+    return [throghput_used, clb_used, clb_total, bram_used, bram_total, dsp_used, dsp_total]   
 
 def main():
         
         init_time = time.time()
         graph,paths = monta_grafo()
         requisitions = monta_req()
-        total_throughput = throughput_capacity(graph)
+        total_link_throughput = throughput_capacity(graph)
+        total_graph_throughput = sum(total_link_throughput.values())
         #link_throughput=throughput_capacity(graph)
-        model, path_chosen, x, y = monta_modelo(graph, requisitions, paths)
-        set_constraints(graph, requisitions, paths, model, x,y, path_chosen)
+        model, x, y = monta_modelo(graph, requisitions, paths)
+        set_constraints(graph, requisitions, paths, model, x,y)
         
-        # Optimize model
-
-        limite_tempo = 30
-
-        # Configurar o limite de tempo no modelo
-        model.setParam(GRB.Param.TimeLimit, limite_tempo)
+        model.setParam('TimeLimit', 5)
         model.optimize()
         #get allocation details
         req_allocated =[]
@@ -288,8 +270,8 @@ def main():
             if y[req_idx].x > 0.5:
                 req_allocated.append(req_idx)
         
-        values_model = show_resources_used(graph, requisitions, paths, model, x, y, path_chosen)
-        values_model.insert(1, total_throughput)
+        values_model = show_resources_used(graph, requisitions, paths, x, y)
+        values_model.insert(1, total_graph_throughput)
         end_time=time.time()
         time_elapsed=end_time-init_time
     

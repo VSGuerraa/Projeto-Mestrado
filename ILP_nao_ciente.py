@@ -111,13 +111,11 @@ def monta_req():
 def throughput_capacity(graph):
     
     #Throughput Capacity
-    total_throughput = 0
-    link_throughput = {}
+    total_link_throughput = {}
     for source_node in graph:
         for dest_node in graph[source_node]['Throughput']:
-            total_throughput+= graph[source_node]['Throughput'][dest_node]
-
-    return total_throughput
+            total_link_throughput[(source_node, dest_node)] = graph[source_node]['Throughput'][dest_node]
+    return total_link_throughput
 
 def monta_modelo(graph, requisitions, paths):
     
@@ -135,12 +133,6 @@ def monta_modelo(graph, requisitions, paths):
                 for node in path:
                     for set_idx, resources in enumerate(graph[f"Nodo_{node}"]["Resources"]):
                         x[(node, set_idx, req_idx, func, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"x_{node}_{set_idx}_{req_idx}_{func}_{path}")
-
-    # Decision variables to indicate whether a path is chosen for each requisition
-    path_chosen = {}
-    for req_idx, req in enumerate(requisitions):
-        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):
-            path_chosen[(req_idx, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"PathChosen_{req_idx}_{tuple(path)}")
                     
             
     y = {}
@@ -153,9 +145,9 @@ def monta_modelo(graph, requisitions, paths):
 
     
     
-    return model,path_chosen,x,y
+    return model,x,y
     
-def set_constraints(graph, requisitions, paths, model, x, y, path_chosen):
+def set_constraints(graph, requisitions, paths, model, x, y):
     
     #Constraint: All functions must be allocated to allocated requisitions
     for req_idx, req in enumerate(requisitions):
@@ -248,7 +240,7 @@ def set_constraints(graph, requisitions, paths, model, x, y, path_chosen):
             except:
                 continue
         
-def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
+def show_resources_used(graph, requisitions, paths, x, y):
         
     clb_used = 0
     bram_used = 0
@@ -288,7 +280,7 @@ def show_resources_used(graph, requisitions, paths, model, x, y, path_chosen):
                             
     return [throghput_used, clb_used, clb_total, bram_used, bram_total, dsp_used, dsp_total]
 
-def get_details(graph, requisitions, paths, model, x, y, path_chosen):
+def get_details(graph, model):
         
     req_allocated = []
     
@@ -316,19 +308,19 @@ def main():
         init_time = time.time()
         graph,paths = monta_grafo()
         requisitions = monta_req()
-        total_throughput = throughput_capacity(graph)
-        #link_throughput=throughput_capacity(graph)
-        model, path_chosen, x, y = monta_modelo(graph, requisitions, paths)
-        set_constraints(graph, requisitions, paths, model, x,y, path_chosen)
-        
+        total_link_throughput = throughput_capacity(graph)
+        total_graph_throughput = sum(total_link_throughput.values())
+        model, x, y = monta_modelo(graph, requisitions, paths)
+        set_constraints(graph, requisitions, paths, model, x,y)
+        model.setParam('TimeLimit', 5)
         # Optimize model
         model.optimize()
         
         #get allocation details
-        req_allocated = get_details(graph, requisitions, paths, model, x, y, path_chosen)
+        req_allocated = get_details(graph, model)
         
-        values_model = show_resources_used(graph, requisitions, paths, model, x, y, path_chosen)
-        values_model.insert(1, total_throughput)
+        values_model = show_resources_used(graph, requisitions, paths, x, y)
+        values_model.insert(1, total_graph_throughput)
         end_time=time.time()
         time_elapsed=end_time-init_time
               

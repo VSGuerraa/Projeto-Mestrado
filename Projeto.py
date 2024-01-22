@@ -1333,7 +1333,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=5
+            nr_Repeat=2
 
             print('Executando...')
 
@@ -1411,7 +1411,7 @@ def main():
                     size=index
                     nodos_G=size
                     links_G=int(size*1.3)
-                    req=random.randint(int(size*2),int(size*3))
+                    req=random.randint(int(size*4),int(size*7))
                     
                     gerador_topologia.gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
