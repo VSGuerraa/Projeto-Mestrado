@@ -3,6 +3,7 @@ import gurobipy as gp
 from gurobipy import GRB
 import json
 import time
+import ast
 
 def dfs_caminhos(grafo, inicio, fim):
     inicio = int(inicio.replace("Nodo_", ""))
@@ -112,10 +113,12 @@ def throughput_capacity(graph):
     
     #Throughput Capacity
     total_link_throughput = {}
+    total_graph_throughput = 0
     for source_node in graph:
         for dest_node in graph[source_node]['Throughput']:
             total_link_throughput[(source_node, dest_node)] = graph[source_node]['Throughput'][dest_node]
-    return total_link_throughput
+            total_graph_throughput += graph[source_node]['Throughput'][dest_node]
+    return total_link_throughput, total_graph_throughput
 
 def monta_modelo(graph, requisitions, paths):
     
@@ -147,7 +150,7 @@ def monta_modelo(graph, requisitions, paths):
     
     return model,x,y
     
-def set_constraints(graph, requisitions, paths, model, x, y):
+def set_constraints(graph, requisitions, paths, model, x, y, total_link_throughput):
     
     #Constraint: All functions must be allocated to allocated requisitions
     for req_idx, req in enumerate(requisitions):
@@ -239,8 +242,20 @@ def set_constraints(graph, requisitions, paths, model, x, y):
                     f"ResourceCapacityConstraint_node_{node}_set_idx_{set_idx}_dsp")
             except:
                 continue
+            
+    for source_node in graph:
+        for dest_node in graph[source_node]['Throughput']:
+            model.addConstr(gp.quicksum(x[(path[i], set_idx, req_idx, func, tuple(path))] * req[3] 
+                                        for req_idx, req in enumerate(requisitions)
+                                        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)
+                                        for func in range(len(req[4]))
+                                        for i in range(len(path)-1)
+                                        for set_idx, _ in enumerate(graph[f"Nodo_{path[i]}"]["Resources"])
+                                        if f"Nodo_{path[i]}" == source_node and f"Nodo_{path[i+1]}" == dest_node)
+                            <= total_link_throughput[(source_node, dest_node)],
+                            f"LinkThroughput_{source_node}_{dest_node}")
         
-def show_resources_used(graph, requisitions, paths, x, y):
+def show_resources_used(graph, requisitions, paths, x, y, model):
         
     clb_used = 0
     bram_used = 0
@@ -256,13 +271,23 @@ def show_resources_used(graph, requisitions, paths, x, y):
         if y[req_idx].x > 0.5:
             reqs_allocated.append(req_idx)
 
-    for req_idx in reqs_allocated:
-        for path in sorted((list(dfs_caminhos(paths, requisitions[req_idx][0], requisitions[req_idx][1]))), key=len):
-            for func in range(len(requisitions[req_idx][4])):
-                for i in range(len(path) - 1):
-                    for set_idx, resources in enumerate(graph[f"Nodo_{path[i]}"]['Resources']):
-                        if x[(path[i], set_idx, req_idx, func, tuple(path))].x > 0.5:
-                            throghput_used += graph[f"Nodo_{path[i]}"]['Throughput'][f"Nodo_{path[i+1]}"]
+    for i in range(len(graph)):
+        for link in graph[f"Nodo_{i}"]["Throughput"]:
+            
+            link=int(link.replace("Nodo_", ""))
+            for v in model.getVars():
+                if v.VarName.startswith(f"x_"):
+                    if v.x>0.5:
+                        path_str = "_".join(v.VarName.split("_")[5:])
+                        path = ast.literal_eval(path_str)
+                        
+                        for idx_node, node in enumerate(path):
+                            if node==i:
+                                try:
+                                    if path[idx_node+1]==link:
+                                        throghput_used+=requisitions[int(v.VarName.split("_")[3])][3]
+                                except:
+                                    continue
                     
                                 
     for req_idx, req in enumerate(requisitions):
@@ -299,7 +324,7 @@ def get_details(graph, model):
                 elif clb<30000:
                     modelo=1
                     
-                req_allocated.append([int(req_idx),modelo,int(set_idx)])
+                req_allocated.append([int(req_idx),int(func),modelo,int(node),int(set_idx)])
 
     return req_allocated
 
@@ -308,10 +333,9 @@ def main():
         init_time = time.time()
         graph,paths = monta_grafo()
         requisitions = monta_req()
-        total_link_throughput = throughput_capacity(graph)
-        total_graph_throughput = sum(total_link_throughput.values())
+        total_link_throughput, total_graph_throughput = throughput_capacity(graph)
         model, x, y = monta_modelo(graph, requisitions, paths)
-        set_constraints(graph, requisitions, paths, model, x,y)
+        set_constraints(graph, requisitions, paths, model, x,y, total_link_throughput)
         model.setParam('TimeLimit', 5)
         # Optimize model
         model.optimize()
@@ -319,8 +343,10 @@ def main():
         #get allocation details
         req_allocated = get_details(graph, model)
         
-        values_model = show_resources_used(graph, requisitions, paths, x, y)
+        values_model = show_resources_used(graph, requisitions, paths, x, y, model)
         values_model.insert(1, total_graph_throughput)
+        
+        
         end_time=time.time()
         time_elapsed=end_time-init_time
               

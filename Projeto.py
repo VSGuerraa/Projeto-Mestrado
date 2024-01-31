@@ -931,7 +931,7 @@ def plot_ILP_value(dataset_ILP_ciente, dataset_std_ILP_ciente, dataset_ILP_naoci
     
     # Plot for naociente
     ax.errorbar(nodes, dataset_ILP_naociente, yerr=dataset_std_ILP_naociente, fmt='-o', color='tab:red', label='Unaware')
-    
+    ax.set_ylim(bottom=0)  # Set the starting point of y-axis to 0
     ax.grid() 
     ax.set_xlabel("Nodes") 
     ax.set_ylabel("Mean Value") 
@@ -1185,7 +1185,7 @@ def save_results_file(*datasets):
         with open('results.json', 'w') as file:
             json.dump(results, file, indent=4)
        
-def check_Wrong2(req_allocated,lista_Paths):
+def check_Wrong2(req_allocated): #Funciona somente até 2 FPGAs por nodo
     
     with open("topologia_wrong.json") as file:
         topologia = json.load(file)
@@ -1193,93 +1193,97 @@ def check_Wrong2(req_allocated,lista_Paths):
     invalid_list=[]
     valid=None
     for req in req_allocated:
-        for path in sorted((list(dfs_caminhos(lista_Paths, req[0].init_node, req[0].out_node))), key=len): 
+        for idx_device,device in enumerate(topologia):
             if valid==True:
                 break
-            for idx_func in range(len(req[0].func)):
-                if valid==True:
-                    break
-                for node in path:
+            try:
+                if device[0]=="Nodo"+str(req[3]) and topologia[idx_device+1][0]=="Nodo"+str(req[3]) and req[4]==1:
+                    continue
+            
+                
+                min_Tile_clb=math.ceil(req[0].func[req[1]].clb/60)
+                min_Tile_bram=math.ceil(req[0].func[req[1]].bram/12)
+            
+            
+                min_Clb=0
+                min_Bram=0
+                
+                modelo=device[1]
+                clb=device[2]
+                bram=device[3]
+                
+                if modelo==1:
+                    total_lines=5
+                    column_clb=int((clb/60)/total_lines)
+                    column_bram=int((bram/12)/total_lines)
+                    min_Tile=5+1
+                elif modelo==2:
+                    total_lines=8
+                    column_clb=int((clb/60)/total_lines)
+                    column_bram=int((bram/12)/total_lines)
+                    min_Tile=5+1
+                elif modelo==3:
+                    total_lines=15
+                    column_clb=int((clb/60)/total_lines)
+                    column_bram=int((bram/12)/total_lines)
+                    min_Tile=2+1
+                    
+            
+                for coluna in range(1,column_clb+1):
                     if valid==True:
                         break
-                    for idx_device,device in enumerate(topologia):
-                        if valid==True:
-                            break
-                        if device[0]=="Nodo"+str(node):
+                    for linha in range(1,total_lines+1):
+                        if min_Tile_clb<linha*coluna:
+                                       
+                            min_Bram=linha*int(coluna/min_Tile)
+                            if min_Bram>=min_Tile_bram:
+                                valid=True
+                                topologia[idx_device][2]=clb-(linha*coluna*60)
+                                topologia[idx_device][3]=bram-(min_Bram*12)
+                                break
+                
                             
-                            min_Tile_clb=math.ceil(req[0].func[idx_func].clb/60)
-                            min_Tile_bram=math.ceil(req[0].func[idx_func].bram/12)
-                        
-                        
-                            min_Clb=0
-                            min_Bram=0
-                            
-                            modelo=device[1]
-                            clb=device[2]
-                            bram=device[3]
-                            
-                            if modelo==1:
-                                total_lines=5
-                                column_clb=int((clb/60)/total_lines)
-                                column_bram=int((bram/12)/total_lines)
-                                min_Tile=5+1
-                            elif modelo==2:
-                                total_lines=8
-                                column_clb=int((clb/60)/total_lines)
-                                column_bram=int((bram/12)/total_lines)
-                                min_Tile=5+1
-                            elif modelo==3:
-                                total_lines=15
-                                column_clb=int((clb/60)/total_lines)
-                                column_bram=int((bram/12)/total_lines)
-                                min_Tile=2+1
-                                
-                        
-                            for coluna in range(1,column_clb+1):
-                                if valid==True:
-                                    break
-                                for linha in range(1,total_lines+1):
-                                    if min_Tile_clb<linha*coluna:           
-                                        min_Bram=linha*(column_clb/min_Tile)
-                                        if min_Bram>=min_Tile_bram:
-                                            valid=True
-                                            topologia[idx_device][2]=clb-(linha*coluna*60)
-                                            break
-                            
-                                        
-                            for coluna in range(1,column_bram+1):
-                                if valid==True:
-                                    break
-                                for linha in range(1,total_lines+1):
-                                    if min_Tile_bram<linha*coluna:           
-                                        min_Clb=linha*(column_bram/min_Tile)   
-                                        if min_Clb>=min_Tile_clb:
-                                            valid=True
-                                            topologia[idx_device][3]=bram-(linha*coluna*12)
-                                            break
+                for coluna in range(1,column_bram+1):
+                    if valid==True:
+                        break
+                    for linha in range(1,total_lines+1):
+                        if min_Tile_bram<linha*coluna:           
+                            min_Clb=linha*int(coluna/min_Tile)   
+                            if min_Clb>=min_Tile_clb:
+                                valid=True
+                                topologia[idx_device][3]=bram-(linha*coluna*12)
+                                topologia[idx_device][2]=clb-(min_Clb*60)
+                                break
+            except:
+                continue
                             
         if valid != True:
-            invalid_list.append(req[0])
+            invalid_list.append(req[0].id)
         valid=None
+        
+        
                             
-    return invalid_list
+    return list(set(invalid_list))
 
 def plot_invalid_ratio(dataset_compare_ILP_ratio):
     fig = plt.figure() 
     ax = fig.add_subplot(111) 
-    nodes = [5,10,15,20,25,30,35,40]
-    nodes = nodes[:len(dataset_compare_ILP_ratio)]
-    
-    # Plot for ciente
-    ax.plot(nodes, dataset_compare_ILP_ratio[0], color='tab:green', label='Invalid\nTotal')
-    
+    nodes = list(range(len(dataset_compare_ILP_ratio)))  # Use the index as the node
+    mean_values = [val[0] for val in dataset_compare_ILP_ratio]
+    std_dev_values = [val[1] for val in dataset_compare_ILP_ratio]
+
+    # Plot with error bars
+    ax.errorbar(nodes, mean_values, yerr=std_dev_values, fmt='o', color='tab:green', ecolor='lightgray', elinewidth=3, capsize=0, label='Invalid\nTotal')
+
     ax.grid() 
     ax.set_xlabel("Nodes") 
     ax.set_ylabel("Invalid Ratio") 
     ax.legend()  # Add a legend
-    
+
+    ax.set_ylim(bottom=0)  # Set the starting point of y-axis to 0
+
     plt.savefig('Grafico_Invalid_Ratio.png')
-    plt.show()        
+    plt.show()
 
 def main():
 
@@ -1311,7 +1315,7 @@ def main():
             for idx_req,req in enumerate(req_allocated_ILP_unaware):
                 req_allocated_ILP_unaware[idx_req][0] = lista_Req[req[0]]
             
-            list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware,lista_Paths)
+            list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware)
             print(list_wrong_ILP_unaware)
             
             
@@ -1333,7 +1337,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=50
+            nr_Repeat=5
 
             print('Executando...')
 
@@ -1375,8 +1379,8 @@ def main():
             total_value=[]
             
             
-            for index in range (5,35,5):
-                
+            for index in range (5,25,5):
+                print(nr_Repeat,index)
                 req_Aloc_g=[]
                 req_Aloc_w=[]
                 nr_req_Aloc_W=[]
@@ -1493,7 +1497,7 @@ def main():
                     for idx_req,req in enumerate(req_allocated_ILP_unaware):
                         req_allocated_ILP_unaware[idx_req][0] = lista_Req[req[0]]
                     
-                    list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware,lista_Paths)
+                    list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware)
                     if list_wrong_ILP_unaware==[]:
                         lista_compare_ILP_ratio.append(0)
                     else:
