@@ -1273,8 +1273,8 @@ def plot_invalid_ratio(dataset_compare_ILP_ratio):
     std_dev_values = [val[1] for val in dataset_compare_ILP_ratio]
 
     # Plot with error bars
-    ax.errorbar(nodes, mean_values, yerr=std_dev_values, fmt='o', color='tab:green', ecolor='lightgray', elinewidth=3, capsize=0, label='Invalid\nTotal')
-
+    ax.errorbar(nodes, mean_values, yerr=std_dev_values, fmt='o', color='tab:green', ecolor='tab:green', elinewidth=3, capsize=0, label='Invalid\nTotal')
+    ax.plot(nodes, mean_values, color='tab:green', label='Invalid\nTotal')
     ax.grid() 
     ax.set_xlabel("Nodes") 
     ax.set_ylabel("Invalid Ratio") 
@@ -1337,7 +1337,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=5
+            nr_Repeat=20
 
             print('Executando...')
 
@@ -1379,7 +1379,7 @@ def main():
             total_value=[]
             
             
-            for index in range (5,25,5):
+            for index in range (5,35,5):
                 print(nr_Repeat,index)
                 req_Aloc_g=[]
                 req_Aloc_w=[]
@@ -1415,7 +1415,7 @@ def main():
                     size=index
                     nodos_G=size
                     links_G=int(size*1.3)
-                    req=random.randint(int(size*4),int(size*7))
+                    req=random.randint(int(size*5),int(size*8))
                     
                     gerador_topologia.gerador_Topologia(nodos_G, links_G)
                     gerador_Req(nodos_G,req)
