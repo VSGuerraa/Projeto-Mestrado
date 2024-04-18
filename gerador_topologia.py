@@ -56,12 +56,45 @@ def gerador_Topologia(nro_Nodos, nro_Links):
                         "BRAM": 40,
                         "DSP": 240
                     }
+                },
+                {
+                    "Modelo": 'P',
+                    
+                    "Part0": {
+                        "CLBs": 3360,
+                        "BRAM": 96,
+                        "DSP": 192
+                    },
+                    "Part1": {
+                        "CLBs": 5040,
+                        "BRAM": 144,
+                        "DSP": 288
+                    },
+                    "Part2": {
+                        "CLBs": 5400,
+                        "BRAM": 72,
+                        "DSP": 432
+                    },
+                    "Part3": {
+                        "CLBs": 5040,
+                        "BRAM": 108,
+                        "DSP": 216
+                    },
+                    "Part4": {
+                        "CLBs": 3360,
+                        "BRAM": 72,
+                        "DSP": 144
+                    },
+                    "Part5": {
+                        "CLBs": 2700,
+                        "BRAM": 36,
+                        "DSP": 216
+                    }
                 } 
             ]  
     fpga_M=[
-            {       "Modelo": 'M',
-             
-                    "Part0": {
+            {"Modelo": 'M',
+                "Part0": {
                         "CLBs": 19200,
                         "BRAM": 480,
                         "DSP": 192
@@ -92,59 +125,227 @@ def gerador_Topologia(nro_Nodos, nro_Links):
                         "BRAM": 72,
                         "DSP": 72
                     }
-            }             
-            ]
-    fpga_G=[
-        {           "Modelo": 'G',
-         
-                    "Part0": {
-                        "CLBs": 19800,
-                        "BRAM": 504,
-                        "DSP": 288
+            },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 10800,
+                        "BRAM": 240,
+                        "DSP": 96
                     },
                     "Part1": {
-                        "CLBs": 19080,
-                        "BRAM": 576,
-                        "DSP": 288
-                    },
-                    "Part2": {
-                        "CLBs": 22140,
-                        "BRAM": 540,
-                        "DSP": 216
-                    },
-                    
-                    "Part3": {
-                        "CLBs": 19440,
-                        "BRAM": 540,
-                        "DSP": 216
-                    },
-                    "Part4": {
-                        "CLBs": 10980,
+                        "CLBs": 10440,
                         "BRAM": 288,
                         "DSP": 144
                     },
+                    "Part2": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 144
+                    },
+                    "Part3": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 96,
+                    },
+                    "Part4": {
+                        "CLBs": 10440,
+                        "BRAM": 240,
+                        "DSP": 96
+                    },
                     "Part5": {
                         "CLBs": 10800,
-                        "BRAM": 360,
+                        "BRAM": 300,
                         "DSP": 144
                     },
                     "Part6": {
-                        "CLBs": 2940,
-                        "BRAM": 72,
-                        "DSP": 0
-                    },
-                    "Part7": {
-                        "CLBs": 2940,
-                        "BRAM": 72,
-                        "DSP": 0
-                    },
-                    "Part8": {
-                        "CLBs": 2940,
-                        "BRAM": 84,
-                        "DSP": 24
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 72
                     }
+                
+            },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                "Part1": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                "Part2": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 144
+                    },
+                "Part3": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                "Part4": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
+                "Part5": {
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    },
+                "Part6": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                "Part7": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    }     
+            }             
+            ]
+    fpga_G=[
+            {"Modelo": 'G',
+                "Part0": {
+                    "CLBs": 19800,
+                    "BRAM": 504,
+                    "DSP": 288
+                },
+                "Part1": {
+                    "CLBs": 19080,
+                    "BRAM": 576,
+                    "DSP": 288
+                },
+                "Part2": {
+                    "CLBs": 22140,
+                    "BRAM": 540,
+                    "DSP": 216
+                },
+                
+                "Part3": {
+                    "CLBs": 19440,
+                    "BRAM": 540,
+                    "DSP": 216
+                },
+                "Part4": {
+                    "CLBs": 10980,
+                    "BRAM": 288,
+                    "DSP": 144
+                },
+                "Part5": {
+                    "CLBs": 10800,
+                    "BRAM": 360,
+                    "DSP": 144
+                },
+                "Part6": {
+                    "CLBs": 2940,
+                    "BRAM": 72,
+                    "DSP": 0
+                },
+                "Part7": {
+                    "CLBs": 2940,
+                    "BRAM": 72,
+                    "DSP": 0
+                },
+                "Part8": {
+                    "CLBs": 2940,
+                    "BRAM": 84,
+                    "DSP": 24
+                }
+            },
+            {"Modelo": 'G',
+                "Part0": {
+                    "CLBs": 19800,
+                    "BRAM": 504,
+                    "DSP": 288
+                },
+                "Part1": {
+                    "CLBs": 19080,
+                    "BRAM": 576,
+                    "DSP": 288
+                },
+                "Part2": {
+                    "CLBs": 22140,
+                    "BRAM": 540,
+                    "DSP": 216
+                },
+                "Part3": {
+                    "CLBs": 19440,
+                    "BRAM": 540,
+                    "DSP": 216
+                },
+                "Part4": {
+                    "CLBs": 19080,
+                    "BRAM": 576,
+                    "DSP": 288
+                },
+                "Part5": {
+                    "CLBs": 19800,
+                    "BRAM": 504,
+                    "DSP": 288
+                },
+                "Part6": {
+                    "CLBs": 2940,
+                    "BRAM": 72,
+                    "DSP": 0
+                }
+            },
+            {"Modelo": 'G',
+                "Part0": {
+                    "CLBs": 19800,
+                    "BRAM": 504,
+                    "DSP": 288
+                },
+                "Part1": {
+                    "CLBs": 10800,
+                    "BRAM": 300,
+                    "DSP": 144
+                },
+                "Part2": {
+                    "CLBs": 10080,
+                    "BRAM": 144,
+                    "DSP": 72
+                },
+                "Part3": {
+                    "CLBs": 11280,
+                    "BRAM": 216,
+                    "DSP": 72
+                },
+                "Part4": {
+                    "CLBs": 10980,
+                    "BRAM": 288,
+                    "DSP": 144
+                },
+                "Part5": {
+                    "CLBs": 10800,
+                    "BRAM": 360,
+                    "DSP": 144
+                },
+                "Part6": {
+                     "CLBs": 10440,
+                    "BRAM": 240,
+                    "DSP": 96
+                },
+                "Part7": {
+                    "CLBs": 10800,
+                    "BRAM": 300,
+                    "DSP": 72
+                },
+                "Part8": {
+                    "CLBs": 10800,
+                    "BRAM": 360,
+                    "DSP": 144
+                },
+                "Part9": {
+                    "CLBs": 3060,
+                    "BRAM": 108,
+                    "DSP": 0
+                }
             }
-        ]
+            ]
                 
     size_Fgpa=[fpga_P,fpga_M,fpga_G]
 
