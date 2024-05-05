@@ -10,6 +10,7 @@ import ILP_ciente
 import ILP_nao_ciente
 import gerador_topologia
 import os
+import csv
 
 
 @dataclass
@@ -367,11 +368,11 @@ def wrong_Run(lista_Req,lista_Paths,lista_Nodos):
                 clb+=part.clb
                 bram+=part.bram
                 dsp+=part.dsp
-            if int(clb/110000)==1:
+            if int(clb>60000)==1:
                 modelo=3
-            elif int(clb/58000)==1:
+            elif int(60000>clb>30000)==1:
                 modelo=2
-            elif int(clb/22000)==1:
+            else:
                 modelo=1
             lista_Fpga.append([nodo_id,modelo,clb,bram,dsp])
             
@@ -1080,107 +1081,112 @@ def save_results_file(*datasets):
         with open('results.json') as file:
             results = json.load(file)
     else:
-        results = {'aloc_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'valor_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'wrong_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'total_Value': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'index': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'req_Aloc': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'wrong_run': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'ILP_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'ILP_time_ciente': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'ILP_time_nao_ciente': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'ILP_used_throughput_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_throughput_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
-                    'ILP_total_throughput_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_throughput_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_clb_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_clb_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_clb_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_clb_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_bram_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_bram_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_bram_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_bram_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_dsp_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_dsp_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_dsp_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_dsp_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_throughput_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_throughput_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_throughput_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_throughput_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_clb_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_clb_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_clb_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_clb_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_bram_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_bram_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_bram_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_bram_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_used_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_total_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_compare_invalid_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
-                    'ILP_compare_invalid_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}}
+        results = {
+            'aloc_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'valor_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'wrong_Desv': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'total_Value': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'index': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'req_Aloc': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'wrong_run': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'ILP_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'ILP_time_ciente': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'ILP_time_nao_ciente': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'ILP_used_throughput_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_throughput_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}, 
+            'ILP_total_throughput_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_throughput_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_clb_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_clb_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_clb_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_clb_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_bram_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_bram_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_bram_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_bram_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_dsp_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_dsp_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_dsp_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_dsp_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_throughput_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_throughput_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_throughput_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_throughput_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_clb_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_clb_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_clb_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_clb_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_bram_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_bram_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_bram_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_bram_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_used_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_dsp_nao_ciente_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_total_dsp_nao_ciente_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_compare_invalid_mean': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []},
+            'ILP_compare_invalid_std_dev': {'5': [], '10': [], '15': [], '20': [], '25': [], '30': [], '35': [], '40': []}
+            }
         
-
-    topology_size = [5, 10, 15, 20, 25, 30, 35, 40]
-    topology_size = topology_size[:len(datasets[0])]
-    #append values to json file
-    for index, size in enumerate(topology_size):
-        results['aloc_Desv'][str(size)].append(datasets[0][index])
-        results['valor_Desv'][str(size)].append(datasets[1][index])
-        results['wrong_Desv'][str(size)].append(datasets[2][index])
-        results['total_Value'][str(size)].append(datasets[3][index])
-        results['index'][str(size)].append(datasets[-1])
-        results['req_Aloc'][str(size)].append(datasets[5][index])
-        results['wrong_run'][str(size)].append(datasets[6][index])
-        results['ILP_ciente_mean'][str(size)].append(datasets[7][index])
-        results['ILP_nao_ciente_mean'][str(size)].append(datasets[8][index])
-        results['ILP_ciente_std_dev'][str(size)].append(datasets[9][index])
-        results['ILP_nao_ciente_std_dev'][str(size)].append(datasets[10][index])
-        results['ILP_time_ciente'][str(size)].append(datasets[11][index])
-        results['ILP_time_nao_ciente'][str(size)].append(datasets[12][index])
-        results['ILP_used_throughput_ciente_mean'][str(size)].append(datasets[13][index][0])
-        results['ILP_used_throughput_ciente_std_dev'][str(size)].append(datasets[13][index][1])
-        results['ILP_total_throughput_ciente_mean'][str(size)].append(datasets[14][index][0])
-        results['ILP_total_throughput_ciente_std_dev'][str(size)].append(datasets[14][index][1])
-        results['ILP_used_clb_ciente_mean'][str(size)].append(datasets[15][index][0])
-        results['ILP_used_clb_ciente_std_dev'][str(size)].append(datasets[15][index][1])
-        results['ILP_total_clb_ciente_mean'][str(size)].append(datasets[16][index][0])
-        results['ILP_total_clb_ciente_std_dev'][str(size)].append(datasets[16][index][1])
-        results['ILP_used_bram_ciente_mean'][str(size)].append(datasets[17][index][0])
-        results['ILP_used_bram_ciente_std_dev'][str(size)].append(datasets[17][index][1])
-        results['ILP_total_bram_ciente_mean'][str(size)].append(datasets[18][index][0])
-        results['ILP_total_bram_ciente_std_dev'][str(size)].append(datasets[18][index][1])
-        results['ILP_used_dsp_ciente_mean'][str(size)].append(datasets[19][index][0])
-        results['ILP_used_dsp_ciente_std_dev'][str(size)].append(datasets[19][index][1])
-        results['ILP_total_dsp_ciente_mean'][str(size)].append(datasets[20][index][0])
-        results['ILP_total_dsp_ciente_std_dev'][str(size)].append(datasets[20][index][1])
-        results['ILP_used_throughput_nao_ciente_mean'][str(size)].append(datasets[21][index][0])
-        results['ILP_used_throughput_nao_ciente_std_dev'][str(size)].append(datasets[21][index][1])
-        results['ILP_total_throughput_nao_ciente_mean'][str(size)].append(datasets[22][index][0])
-        results['ILP_total_throughput_nao_ciente_std_dev'][str(size)].append(datasets[22][index][1])
-        results['ILP_used_clb_nao_ciente_mean'][str(size)].append(datasets[23][index][0])
-        results['ILP_used_clb_nao_ciente_std_dev'][str(size)].append(datasets[23][index][1])
-        results['ILP_total_clb_nao_ciente_mean'][str(size)].append(datasets[24][index][0])
-        results['ILP_total_clb_nao_ciente_std_dev'][str(size)].append(datasets[24][index][1])
-        results['ILP_used_bram_nao_ciente_mean'][str(size)].append(datasets[25][index][0])
-        results['ILP_used_bram_nao_ciente_std_dev'][str(size)].append(datasets[25][index][1])
-        results['ILP_total_bram_nao_ciente_mean'][str(size)].append(datasets[26][index][0])
-        results['ILP_total_bram_nao_ciente_std_dev'][str(size)].append(datasets[26][index][1])
-        results['ILP_used_dsp_nao_ciente_mean'][str(size)].append(datasets[27][index][0])
-        results['ILP_used_dsp_nao_ciente_std_dev'][str(size)].append(datasets[27][index][1])
-        results['ILP_total_dsp_nao_ciente_mean'][str(size)].append(datasets[28][index][0])
-        results['ILP_total_dsp_nao_ciente_std_dev'][str(size)].append(datasets[28][index][1])
-        results['ILP_compare_invalid_mean'][str(size)].append(datasets[29][index][0])
-        results['ILP_compare_invalid_std_dev'][str(size)].append(datasets[29][index][1])
-
+    if len(datasets)== 5:
+            results['topologia_Fixa']=[f'Menor_{datasets[0]}, Media_{datasets[1]}, Maior_{datasets[2]}, Tamanho_{datasets[3]}, Repeat_{datasets[4]}']
+            with open('results.json', 'w') as file:
+                json.dump(results, file, indent=4)
+    else:
+        topology_size = [5, 10, 15, 20, 25, 30, 35, 40]
+        topology_size = topology_size[:len(datasets[0])]
+        #append values to json file
+        for index, size in enumerate(topology_size):
+            results['aloc_Desv'][str(size)].append(datasets[0][index])
+            results['valor_Desv'][str(size)].append(datasets[1][index])
+            results['wrong_Desv'][str(size)].append(datasets[2][index])
+            results['total_Value'][str(size)].append(datasets[3][index])
+            results['index'][str(size)].append(datasets[-1])
+            results['req_Aloc'][str(size)].append(datasets[5][index])
+            results['wrong_run'][str(size)].append(datasets[6][index])
+            results['ILP_ciente_mean'][str(size)].append(datasets[7][index])
+            results['ILP_nao_ciente_mean'][str(size)].append(datasets[8][index])
+            results['ILP_ciente_std_dev'][str(size)].append(datasets[9][index])
+            results['ILP_nao_ciente_std_dev'][str(size)].append(datasets[10][index])
+            results['ILP_time_ciente'][str(size)].append(datasets[11][index])
+            results['ILP_time_nao_ciente'][str(size)].append(datasets[12][index])
+            results['ILP_used_throughput_ciente_mean'][str(size)].append(datasets[13][index][0])
+            results['ILP_used_throughput_ciente_std_dev'][str(size)].append(datasets[13][index][1])
+            results['ILP_total_throughput_ciente_mean'][str(size)].append(datasets[14][index][0])
+            results['ILP_total_throughput_ciente_std_dev'][str(size)].append(datasets[14][index][1])
+            results['ILP_used_clb_ciente_mean'][str(size)].append(datasets[15][index][0])
+            results['ILP_used_clb_ciente_std_dev'][str(size)].append(datasets[15][index][1])
+            results['ILP_total_clb_ciente_mean'][str(size)].append(datasets[16][index][0])
+            results['ILP_total_clb_ciente_std_dev'][str(size)].append(datasets[16][index][1])
+            results['ILP_used_bram_ciente_mean'][str(size)].append(datasets[17][index][0])
+            results['ILP_used_bram_ciente_std_dev'][str(size)].append(datasets[17][index][1])
+            results['ILP_total_bram_ciente_mean'][str(size)].append(datasets[18][index][0])
+            results['ILP_total_bram_ciente_std_dev'][str(size)].append(datasets[18][index][1])
+            results['ILP_used_dsp_ciente_mean'][str(size)].append(datasets[19][index][0])
+            results['ILP_used_dsp_ciente_std_dev'][str(size)].append(datasets[19][index][1])
+            results['ILP_total_dsp_ciente_mean'][str(size)].append(datasets[20][index][0])
+            results['ILP_total_dsp_ciente_std_dev'][str(size)].append(datasets[20][index][1])
+            results['ILP_used_throughput_nao_ciente_mean'][str(size)].append(datasets[21][index][0])
+            results['ILP_used_throughput_nao_ciente_std_dev'][str(size)].append(datasets[21][index][1])
+            results['ILP_total_throughput_nao_ciente_mean'][str(size)].append(datasets[22][index][0])
+            results['ILP_total_throughput_nao_ciente_std_dev'][str(size)].append(datasets[22][index][1])
+            results['ILP_used_clb_nao_ciente_mean'][str(size)].append(datasets[23][index][0])
+            results['ILP_used_clb_nao_ciente_std_dev'][str(size)].append(datasets[23][index][1])
+            results['ILP_total_clb_nao_ciente_mean'][str(size)].append(datasets[24][index][0])
+            results['ILP_total_clb_nao_ciente_std_dev'][str(size)].append(datasets[24][index][1])
+            results['ILP_used_bram_nao_ciente_mean'][str(size)].append(datasets[25][index][0])
+            results['ILP_used_bram_nao_ciente_std_dev'][str(size)].append(datasets[25][index][1])
+            results['ILP_total_bram_nao_ciente_mean'][str(size)].append(datasets[26][index][0])
+            results['ILP_total_bram_nao_ciente_std_dev'][str(size)].append(datasets[26][index][1])
+            results['ILP_used_dsp_nao_ciente_mean'][str(size)].append(datasets[27][index][0])
+            results['ILP_used_dsp_nao_ciente_std_dev'][str(size)].append(datasets[27][index][1])
+            results['ILP_total_dsp_nao_ciente_mean'][str(size)].append(datasets[28][index][0])
+            results['ILP_total_dsp_nao_ciente_std_dev'][str(size)].append(datasets[28][index][1])
+            results['ILP_compare_invalid_mean'][str(size)].append(datasets[29][index][0])
+            results['ILP_compare_invalid_std_dev'][str(size)].append(datasets[29][index][1])
 
         with open('results.json', 'w') as file:
             json.dump(results, file, indent=4)
@@ -1289,9 +1295,9 @@ def main():
 
     modo=None
 
-    while  (modo != '2' and modo != '1'):
+    while  (modo != '1' and modo != '2' and modo != '3'):
         
-        modo=input("1- Testar unitario\n2- Teste em escala\n")
+        modo=input("1- Testar unitario\n2- Teste em escala\n3- Teste em escala com topologia fixa\n")
 
         if modo == '1': #serve para debug ou analises especificas
             
@@ -1337,7 +1343,7 @@ def main():
         elif modo=='2':
             
             
-            nr_Repeat=2
+            nr_Repeat=100
 
             print('Executando...')
 
@@ -1378,9 +1384,17 @@ def main():
             lista_Nodos_W=[]
             total_value=[]
             
+            if modo=='2':
+                menorTopologia=5
+                maiorTopologia=40
+                step=5
+            elif modo=='3':
+                menorTopologia=20
+                maiorTopologia=menorTopologia
+                step=5
             
-            for index in range (5,35,5):
-                print(nr_Repeat,index)
+            for index in range (menorTopologia,maiorTopologia+1,step):
+                
                 req_Aloc_g=[]
                 req_Aloc_w=[]
                 nr_req_Aloc_W=[]
@@ -1409,7 +1423,7 @@ def main():
                 lista_compare_ILP_ratio=[]
                 
                 for cont in range(nr_Repeat):
-
+                    print(cont,index)
                     total_value_req=0
 
                     size=index
@@ -1502,6 +1516,14 @@ def main():
                         lista_compare_ILP_ratio.append(0)
                     else:
                         lista_compare_ILP_ratio.append(len(list_wrong_ILP_unaware)/len(req_allocated_ILP_unaware))
+                
+                if modo=='3':
+                    maiorValorAtingido=max(lista_result_ILP_ciente)
+                    menorValorAtingido=min(lista_result_ILP_ciente)
+                    
+                    save_results_file(menorValorAtingido, stats.mean(lista_result_ILP_ciente), maiorValorAtingido, menorTopologia, nr_Repeat)
+                
+                
                      
                 aloc_Desv.append(stats.stdev(req_Aloc_g))
                 valor_Desv.append(stats.pstdev(valor_Final))
@@ -1567,8 +1589,71 @@ def main():
                 for result in results_w[1]:
                     outfile.write(str(result))
                     outfile.write('\n')
-
         
+        elif modo=='3':
+            
+            nr_Repeat=100
+            
+            size = 20
+            nodos_G = size
+            links_G = int(size*1.3)
+            req = random.randint(int(size*5),int(size*8))
+            base_graph = gerador_topologia.gerador_Topologia(nodos_G, links_G)
+            gerador_Req(nodos_G,req)
+            lista_Paths,lista_Nodos=ler_Topologia()
+            lista_Req=ler_Requisicoes()
+            
+            for index in range(nr_Repeat):
+                gerador_topologia.gerador_Topologia(nodos_G, links_G, base_graph)
+                print(index)
+                csv_data = []
+                
+                result_ILP_ciente,time_ILP_ciente, resources_model_ILP, req_allocated_ILP_aware = ILP_ciente.main()
+                if result_ILP_ciente == 0:
+                    continue              
+
+                with open('topologia.json', 'r') as json_file:
+                    data = json.load(json_file)
+
+                for node, node_data in data.items():
+                    #csv_row = [node]
+                    resource = node_data['FPGA']
+                    csv_row.append(resource)
+                    link = node_data['Links']
+                    csv_row.append(link)
+                   
+                with open('data.csv', 'a+', newline='') as csv_file:
+                    writer = csv.writer(csv_file)
+                    
+                    '''headers = ["Node", "FPGA", "Links","Value_ILP_ciente","Time_ILP_ciente",
+                            "Used_Throughput_ILP_ciente","Total_Throughput_ILP_ciente","Used_CLB_ILP_ciente",
+                            "Total_CLB_ILP_ciente","Used_BRAM_ILP_ciente","Total_BRAM_ILP_ciente",
+                            "Used_DSP_ILP_ciente","Total_DSP_ILP_ciente", "Used_Part", "Total_Part", "Req_allocated"]'''
+                    #writer.writerow(headers)
+                    csv_row.append(result_ILP_ciente)
+                    csv_row.append(time_ILP_ciente)
+                    csv_row.append(resources_model_ILP[0])
+                    csv_row.append(resources_model_ILP[1])
+                    csv_row.append(resources_model_ILP[2])
+                    csv_row.append(resources_model_ILP[3])
+                    csv_row.append(resources_model_ILP[4])
+                    csv_row.append(resources_model_ILP[5])
+                    csv_row.append(resources_model_ILP[6])
+                    csv_row.append(resources_model_ILP[7])
+                    csv_row.append(resources_model_ILP[8])
+                    csv_row.append(resources_model_ILP[9])
+                    csv_row.append(req_allocated_ILP_aware)
+                                        
+                    writer.writerow(csv_row)
+                    
+            with open('requisicoes.json', 'r') as json_file:
+                    data = json.load(json_file)  
+                    
+            for req, req_data in data.items():
+                csv_row = [req]
+                resource = req_data['FPGA']
+                csv_row.append(resource)
+                writer.writerows(csv_row)
         else:
             print("Modo inválido")
 

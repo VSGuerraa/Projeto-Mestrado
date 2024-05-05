@@ -8,7 +8,7 @@ import ast
 def dfs_caminhos(grafo, inicio, fim):
     inicio = int(inicio.replace("Nodo_", ""))
     fim = int(fim.replace("Nodo_", ""))
-    
+
     pilha = [(inicio, [inicio])]
     while pilha:
         vertice, caminho = pilha.pop()
@@ -131,8 +131,8 @@ def monta_modelo(graph, requisitions, paths):
         for path in path_Ord:
             for func in range(len(req[4])):
                 for node in path:
-                    for set_idx, resources in enumerate(graph[f"Nodo_{node}"]["Resources"]):
-                        x[(node, set_idx, req_idx, func, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"x_{node}_{set_idx}_{req_idx}_{func}_{path}")
+                    for part, resources in enumerate(graph[f"Nodo_{node}"]["Resources"]):
+                        x[(node, part, req_idx, func, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"x_{node}_{part}_{req_idx}_{func}_{path}")
                     
     y = {}
     for req_idx, req in enumerate(requisitions):
@@ -151,13 +151,15 @@ def set_constraints(graph, requisitions, paths, model, x, y, total_link_throughp
     for req_idx, req in enumerate(requisitions):
         for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):    
             for node in path:
-                for set_idx, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
+                for part, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
                     for func in range(len(req[4])):
                         for resource_idx in range(3):  
-                            #if (req[4][func][resource_idx]>resources[resource_idx]):
-                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]*resources[resource_idx] <= 
-                                            graph[f"Nodo_{node}"]['Resources'][set_idx][resource_idx], 
-                                            f"ResourceConstraint_{req_idx}_{func}_{resource_idx}_{node}_{set_idx}_{tuple(path)}")
+                            if resources[resource_idx] == 0:
+                                model.addConstr(x[(node, part, req_idx, func,tuple(path))]== 0, f"ResourceConstraint_{req_idx}_{func}_{resource_idx}_{node}_{part}_{tuple(path)}")
+                            else:
+                                model.addConstr(x[(node,part, req_idx, func,tuple(path))]*resources[resource_idx] <= 
+                                                graph[f"Nodo_{node}"]['Resources'][part][resource_idx], 
+                                                f"ResourceConstraint_{req_idx}_{func}_{resource_idx}_{node}_{part}_{tuple(path)}")
                                 
 
     # Constraint: Maximum Latency and Minimum Throughput Constraints
@@ -171,18 +173,18 @@ def set_constraints(graph, requisitions, paths, model, x, y, total_link_throughp
                                 total_throughput = link_throughput
 
                         if total_latency > req[2] or total_throughput < req[3]:
-                            model.addConstr(x[(node,set_idx, req_idx, func,tuple(path))]== 0, 
+                            model.addConstr(x[(node,part, req_idx, func,tuple(path))]== 0, 
                             f"LatencyThroughputViolation_{req_idx}_{func}")
                         
     #Constraint: All functions must be allocated to allocated requisitions
     for req_idx, req in enumerate(requisitions):
         num_functions = len(req[4])
         model.addConstr(
-            y[req_idx] * num_functions <= gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
+            y[req_idx] * num_functions <= gp.quicksum(x[(node, part, req_idx, func, tuple(path))]
                                                     for func in range(num_functions)
                                                     for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                                     for node in path
-                                                    for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])),
+                                                    for part, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])),
             name=f"req_allocation_only_if_{req_idx}"
         )
         
@@ -191,37 +193,37 @@ def set_constraints(graph, requisitions, paths, model, x, y, total_link_throughp
         for func in range(len(req[4])):
             
                 model.addConstr(
-                    gp.quicksum(x[(node, set_idx, req_idx, func, tuple(path))]
+                    gp.quicksum(x[(node, part, req_idx, func, tuple(path))]
                                 for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                 for node in path
-                                for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])
+                                for part, _ in enumerate(graph[f"Nodo_{node}"]["Resources"])
                     ) <= 1, f"AllocationLimit_{req_idx}"
                 )    
                 
-    # Constraint: Unique Allocation of node-set_idx pair
+    # Constraint: Unique Allocation of node-part pair
     for node in range(len(graph)):
-        for set_idx, _ in enumerate(graph[f"Nodo_{node}"]["Resources"]) :  
+        for part, _ in enumerate(graph[f"Nodo_{node}"]["Resources"]) :  
             try:
                 model.addConstr(
-                    gp.quicksum(x[node, set_idx, req_idx, func, tuple(path)]
+                    gp.quicksum(x[node, part, req_idx, func, tuple(path)]
                                 for req_idx, req in enumerate(requisitions)
                                 for path in sorted(list(dfs_caminhos(paths, req[0], req[1])), key=len)
                                 for func in range(len(req[4])) 
                                 #for node in path
-                                if (node, set_idx, req_idx, func, tuple(path)) in x) <= 1,
-                    f"UniqueAllocationConstraint_node_{node}_set_idx_{set_idx}")
+                                if (node, part, req_idx, func, tuple(path)) in x) <= 1,
+                    f"UniqueAllocationConstraint_node_{node}_part_{part}")
             except KeyError:
                 continue
             
             
     for source_node in graph:
         for dest_node in graph[source_node]['Throughput']:
-            model.addConstr(gp.quicksum(x[(path[i], set_idx, req_idx, func, tuple(path))] * req[3] 
+            model.addConstr(gp.quicksum(x[(path[i], part, req_idx, func, tuple(path))] * req[3] 
                                         for req_idx, req in enumerate(requisitions)
                                         for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len)
                                         for func in range(len(req[4]))
                                         for i in range(len(path)-1)
-                                        for set_idx, _ in enumerate(graph[f"Nodo_{path[i]}"]["Resources"])
+                                        for part, _ in enumerate(graph[f"Nodo_{path[i]}"]["Resources"])
                                         if f"Nodo_{path[i]}" == source_node and f"Nodo_{path[i+1]}" == dest_node)
                             <= total_link_throughput[(source_node, dest_node)],
                             f"LinkThroughput_{source_node}_{dest_node}")
@@ -261,22 +263,41 @@ def show_resources_used(graph, requisitions, paths, x, y, model):
                                 except:
                                     continue
         
-                                
-    for req_idx, req in enumerate(requisitions):
-        for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):
-            for node in path:
-                for set_idx, resources in enumerate(graph[f"Nodo_{node}"]['Resources']):
-                    clb_total += resources[0]
-                    bram_total += resources[1]
-                    dsp_total += resources[2]
-                    for func in range(len(req[4])):
-                        if x[(node,set_idx, req_idx, func,tuple(path))].x > 0.5:
-                            clb_used += resources[0]
-                            bram_used += resources[1]
-                            dsp_used += resources[2]
+    for i in range(len(graph)):
+        for part in graph[f"Nodo_{i}"]["Resources"]:
+            clb_total += part[0]
+            bram_total += part[1]
+            dsp_total += part[2]
+            
+    for v in model.getVars():
+        if v.VarName.startswith(f"x_"):
+            if v.x>0.5:
+                node = int(v.VarName.split("_")[1])
+                part = int(v.VarName.split("_")[2])
+                clb_used += graph[f"Nodo_{node}"]["Resources"][part][0]
+                bram_used += graph[f"Nodo_{node}"]["Resources"][part][1]
+                dsp_used += graph[f"Nodo_{node}"]["Resources"][part][2]
+                   
                             
     return [throghput_used, clb_used, clb_total, bram_used, bram_total, dsp_used, dsp_total]   
 
+def part_used(graph, model):
+
+    #sum how much parts are used
+    partitions = 0
+    for v in model.getVars():
+        if v.VarName.startswith(f"x_"):
+            if v.x>0.5:
+                partitions += 1 
+
+    #sum total part in the graph
+    total_parts = 0
+    for i in range(len(graph)):
+        total_parts += len(graph[f"Nodo_{i}"]["Resources"])
+    
+    return partitions, total_parts
+    
+    
 def main():
         
         init_time = time.time()
@@ -293,9 +314,11 @@ def main():
         for req_idx, req in enumerate(requisitions):
             if y[req_idx].x > 0.5:
                 req_allocated.append(req_idx)
-        
+        used_parts, total_parts = part_used(graph, model)
         values_model = show_resources_used(graph, requisitions, paths, x, y, model)
         values_model.insert(1, total_graph_throughput)
+        values_model.append(used_parts)
+        values_model.append(total_parts)
         end_time=time.time()
         time_elapsed=end_time-init_time
     
