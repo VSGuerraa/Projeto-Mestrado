@@ -3,7 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 import sys
-import numpy as np
 
 def gerador_Topologia(nro_Nodos, nro_Links, G=None):
     
@@ -23,7 +22,7 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None):
     
     subax1 = plt.subplot(121)
     nx.draw_circular(G, with_labels=True, font_weight='bold')
-    
+
     plt.savefig('Grafo.png')
     #plt.show() 
     subax1.clear()

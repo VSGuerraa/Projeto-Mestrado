@@ -11,6 +11,7 @@ import ILP_nao_ciente
 import gerador_topologia
 import os
 import csv
+import pickle
 
 
 @dataclass
@@ -1592,68 +1593,73 @@ def main():
         
         elif modo=='3':
             
-            nr_Repeat=100
+            graphs = []
+            for _ in range(10): 
             
-            size = 20
-            nodos_G = size
-            links_G = int(size*1.3)
-            req = random.randint(int(size*5),int(size*8))
-            base_graph = gerador_topologia.gerador_Topologia(nodos_G, links_G)
-            gerador_Req(nodos_G,req)
-            lista_Paths,lista_Nodos=ler_Topologia()
-            lista_Req=ler_Requisicoes()
-            
-            for index in range(nr_Repeat):
-                gerador_topologia.gerador_Topologia(nodos_G, links_G, base_graph)
-                print(index)
-                csv_data = []
+                nr_Repeat=100
                 
-                result_ILP_ciente,time_ILP_ciente, resources_model_ILP, req_allocated_ILP_aware = ILP_ciente.main()
-                if result_ILP_ciente == 0:
-                    continue              
+                size = 20
+                nodos_G = size
+                links_G = int(size*1.3)
+                req = random.randint(int(size*5),int(size*8))
+                base_graph = gerador_topologia.gerador_Topologia(nodos_G, links_G)
+                gerador_Req(nodos_G,req)
+                graphs.append(base_graph)
+                
+                for index in range(nr_Repeat):
+                    gerador_topologia.gerador_Topologia(nodos_G, links_G, base_graph)
+                    print(index)
+                    csv_row = []
+                    
+                    result_ILP_ciente,time_ILP_ciente, resources_model_ILP, req_allocated_ILP_aware = ILP_ciente.main()
+                    if result_ILP_ciente == 0:
+                        continue              
 
-                with open('topologia.json', 'r') as json_file:
-                    data = json.load(json_file)
+                    with open('topologia.json', 'r') as json_file:
+                        data = json.load(json_file)
 
-                for node, node_data in data.items():
-                    #csv_row = [node]
-                    resource = node_data['FPGA']
-                    csv_row.append(resource)
-                    link = node_data['Links']
-                    csv_row.append(link)
-                   
+                    for node, node_data in data.items():
+                        resource = node_data['FPGA']
+                        csv_row.append(resource) 
+                        link = node_data['Links']
+                        csv_row.append(link)
+                    
+                    with open('data.csv', 'a+', newline='') as csv_file:
+                        writer = csv.writer(csv_file)
+                        
+                        '''headers = ["Node", "FPGA", "Links","Value_ILP_ciente","Time_ILP_ciente",
+                                "Used_Throughput_ILP_ciente","Total_Throughput_ILP_ciente","Used_CLB_ILP_ciente",
+                                "Total_CLB_ILP_ciente","Used_BRAM_ILP_ciente","Total_BRAM_ILP_ciente",
+                                "Used_DSP_ILP_ciente","Total_DSP_ILP_ciente", "Used_Part", "Total_Part", "Req_allocated"]'''
+                        #writer.writerow(headers)
+                        csv_row.append(result_ILP_ciente)
+                        csv_row.append(time_ILP_ciente)
+                        csv_row.append(resources_model_ILP[0])
+                        csv_row.append(resources_model_ILP[1])
+                        csv_row.append(resources_model_ILP[2])
+                        csv_row.append(resources_model_ILP[3])
+                        csv_row.append(resources_model_ILP[4])
+                        csv_row.append(resources_model_ILP[5])
+                        csv_row.append(resources_model_ILP[6])
+                        csv_row.append(resources_model_ILP[7])
+                        csv_row.append(resources_model_ILP[8])
+                        csv_row.append(resources_model_ILP[9])
+                        csv_row.append(req_allocated_ILP_aware)
+                                            
+                        writer.writerow(csv_row)
+                        
+                with open('requisicoes.json', 'r') as json_file:
+                    data = json.load(json_file)  
+                    csv_row = []
+                    for req, req_data in data.items():
+                        csv_row.append(req_data)
+                        
                 with open('data.csv', 'a+', newline='') as csv_file:
                     writer = csv.writer(csv_file)
-                    
-                    '''headers = ["Node", "FPGA", "Links","Value_ILP_ciente","Time_ILP_ciente",
-                            "Used_Throughput_ILP_ciente","Total_Throughput_ILP_ciente","Used_CLB_ILP_ciente",
-                            "Total_CLB_ILP_ciente","Used_BRAM_ILP_ciente","Total_BRAM_ILP_ciente",
-                            "Used_DSP_ILP_ciente","Total_DSP_ILP_ciente", "Used_Part", "Total_Part", "Req_allocated"]'''
-                    #writer.writerow(headers)
-                    csv_row.append(result_ILP_ciente)
-                    csv_row.append(time_ILP_ciente)
-                    csv_row.append(resources_model_ILP[0])
-                    csv_row.append(resources_model_ILP[1])
-                    csv_row.append(resources_model_ILP[2])
-                    csv_row.append(resources_model_ILP[3])
-                    csv_row.append(resources_model_ILP[4])
-                    csv_row.append(resources_model_ILP[5])
-                    csv_row.append(resources_model_ILP[6])
-                    csv_row.append(resources_model_ILP[7])
-                    csv_row.append(resources_model_ILP[8])
-                    csv_row.append(resources_model_ILP[9])
-                    csv_row.append(req_allocated_ILP_aware)
-                                        
                     writer.writerow(csv_row)
                     
-            with open('requisicoes.json', 'r') as json_file:
-                    data = json.load(json_file)  
-                    
-            for req, req_data in data.items():
-                csv_row = [req]
-                resource = req_data['FPGA']
-                csv_row.append(resource)
-                writer.writerows(csv_row)
+            with open("graphs.pkl", "wb") as f:
+                pickle.dump(graphs, f)
         else:
             print("Modo inválido")
 
