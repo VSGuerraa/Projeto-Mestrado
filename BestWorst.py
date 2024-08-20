@@ -21,7 +21,6 @@ def scrumble_positioning(graph):
     return graph
 
 def scrumble_partitioning(graph):
-    sortingNodes = []
     
     fpga_P=[
                 {   "Modelo": 'P',

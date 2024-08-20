@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import random
 import sys
 
-def gerador_Topologia(nro_Nodos, nro_Links, G=None):
+def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
     
     if G is None:
         G = nx.gnm_random_graph(nro_Nodos, nro_Links)
@@ -16,9 +16,9 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None):
     degrees = dict(G.degree())
     max_degree = max(degrees.values())
     max_FGPA = int(nro_Nodos/4)
-    nroMax_FPGA_P = 2
-    nroMax_FPGA_M = 2
-    nroMax_FPGA_G = 1
+    nroMax_FPGA_P = 0
+    nroMax_FPGA_M = max_FGPA
+    nroMax_FPGA_G = 0
     
     subax1 = plt.subplot(121)
     nx.draw_circular(G, with_labels=True, font_weight='bold')
@@ -351,6 +351,7 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None):
                 
     size_Fgpa=[fpga_P,fpga_M,fpga_G]
 
+
     for node in range(nro_Nodos):
         lista_Fpga=[]
         lista_Links=[]
@@ -403,26 +404,25 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None):
         if nro_fpga!=0:
             lista_Part=[]
             for device in range(nro_fpga):
-                sort_Fpga = None
-                while sort_Fpga != 0:
-                    sort_Fpga=random.choice(range(len(fpga)))  
-                    if sort_Fpga == 0 and nroMax_FPGA_P != 0:
-                        lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
-                        nroMax_FPGA_P = nroMax_FPGA_P - 1
-                        sort_Fpga = 0
-                    elif sort_Fpga == 1 and nroMax_FPGA_M != 0:
-                        lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
-                        nroMax_FPGA_M = nroMax_FPGA_M - 1
-                        sort_Fpga = 0
-                    elif sort_Fpga == 2 and nroMax_FPGA_G != 0:
-                        lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
-                        nroMax_FPGA_G = nroMax_FPGA_G - 1
-                        sort_Fpga = 0
+                sort_Fpga = random.choice([1])  
+                if sort_Fpga == 0 and nroMax_FPGA_P != 0:
+                    lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
+                    nroMax_FPGA_P = nroMax_FPGA_P - 1
+                elif sort_Fpga == 1 and nroMax_FPGA_M != 0:
+                    lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
+                    nroMax_FPGA_M = nroMax_FPGA_M - 1
+                elif sort_Fpga == 2 and nroMax_FPGA_G != 0:
+                    lista_Part.append(random.choice(size_Fgpa[sort_Fpga]))
+                    nroMax_FPGA_G = nroMax_FPGA_G - 1
             lista_Fpga.append(lista_Part)
         topologia_rede.update({"Nodo"+str(node): {"FPGA": lista_Fpga, "Links": lista_Links}})
         
     with open ("topologia.json","w") as outfile:
         json.dump(topologia_rede, outfile, indent=4)
+        
+    if initial:
+        with open ("topologia_initial.json","w") as outfile:
+            json.dump(topologia_rede, outfile, indent=4)
     
     return G
               
@@ -442,6 +442,11 @@ def obter_entrada_dentro_intervalo(mensagem, minimo, maximo):
         else:
             print(f"O valor deve estar entre {minimo} e {maximo}.")  
                 
+def shift_topology(graph):
+    nodes = len(graph.nodes)
+    
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 3:
         dados = json.loads(sys.argv[2])  # Converte o argumento de string JSON para um objeto Python

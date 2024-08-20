@@ -18,14 +18,15 @@ def dfs_caminhos(grafo, inicio, fim):
             else:
                 pilha.append((proximo, caminho + [proximo]))
                 
-def monta_grafo():
+def monta_grafo(topology=None):
     
-    #Nodos
-
-    #file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
-    with open("topologia.json") as file:
-        topologia = json.load(file)
-
+    if topology == True:
+        with open("topologia_bestvalue.json") as file:
+            topologia = json.load(file)
+            
+    else:
+        with open("topologia.json") as file:
+            topologia = json.load(file)
 
     nodos=[]
     graph={}
@@ -296,18 +297,18 @@ def part_used(graph, model):
         total_parts += len(graph[f"Nodo_{i}"]["Resources"])
     
     return partitions, total_parts
-    
-    
-def main():
+        
+def main(topology=None):
         
         init_time = time.time()
-        graph,paths = monta_grafo()
+        graph,paths = monta_grafo(topology)
         requisitions = monta_req()
         total_link_throughput, total_graph_throughput = throughput_capacity(graph)
         model, x, y = monta_modelo(graph, requisitions, paths)
         set_constraints(graph, requisitions, paths, model, x,y, total_link_throughput)
         
         model.setParam('TimeLimit', 5)
+        model.setParam('OutputFlag', 0)
         model.optimize()
         #get allocation details
         req_allocated =[]

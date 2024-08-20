@@ -223,6 +223,12 @@ def gerador_Req(nro_Nodos,nro_Req):
         aux=funcao[rand_fun]["implementacao"]
         valor=set_value(func_list)
         
+        min_Throughput=[]
+        for function in func_list:
+            min_Throughput.append(function["implementacao"]["Throughput"])
+        
+        
+        
 
         lat=check_Lat(rand_nodo_S,rand_nodo_D,lista_Caminhos, lista_Nodos)            
         
@@ -231,7 +237,7 @@ def gerador_Req(nro_Nodos,nro_Req):
             "Nodo_S": rand_nodo_S,
             "Nodo_D": rand_nodo_D,
             "max_Lat": int(lat*1.3),
-            "min_T": aux["Throughput"],
+            "min_T": min(min_Throughput),
             "function_chain": func_list,
             "valor": valor
             }
@@ -641,9 +647,11 @@ def check_Wrong(aloc_Req,lista_Paths):
             
     return aloc_W               
                                      
-def greedy(lista_Req,lista_Paths,node_List):
+def greedy():
     aloc_Req=[]
     cash=0
+    lista_Paths,node_List=ler_Topologia()
+    lista_Req=ler_Requisicoes()
     for req in lista_Req:
         path=list(dfs_caminhos(lista_Paths,req.init_node,req.out_node))
         path_Ord=sorted(path,key=len)
@@ -711,7 +719,7 @@ def greedy(lista_Req,lista_Paths,node_List):
                 for l in (node_List[nodo_I].link):
                     if int(l.nodo_d)==nodo_F:
                         l.min_T=thro
-        #cash+=req.price
+            cash+=req.price
 
     #ratio=len(aloc_Req)/len(lista_Req)
     
@@ -738,7 +746,6 @@ def plot_Func(aloc_Desv,valor_Desv,dataset_index,dataset_req_Aloc,dataset_wrongr
 
 def plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all, nr_Simul,lista_Wrong_run):
     
-    
     #quebra a lista de req inv em lista de listas com tamanho de acordo com nr de simulaçoes por tamanho de rede
     result = [lista_Invalidos[i:i+nr_Simul] for i in range(0, len(lista_Invalidos), nr_Simul)]
     lista_Nodos= [lista_Nodos_all[i:i+nr_Simul] for i in range(0, len(lista_Nodos_all), nr_Simul)]
@@ -755,13 +762,9 @@ def plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all, nr_Simul,lista_Wrong_ru
     total=[0,0,0]
     nodos=[nodo_5,nodo_10,nodo_15,nodo_20,nodo_25,nodo_30,nodo_35,nodo_40,total]
   
-    
-
     KU040_Total=[]
     KU095_Total=[]
     VU190_Total=[]
-    
-    
     
     for i in range(len(lista_Req)):
         for j in range(len(lista_Req[i])):
@@ -774,10 +777,6 @@ def plot_Invalidos_fpga(lista_Invalidos,lista_Nodos_all, nr_Simul,lista_Wrong_ru
                             
                             if req==requisition[0]:
                                 lista_Req[i][j].remove(req)
-    
-    
-    
-    
     
     for step in lista_Nodos:
         KU040=0
@@ -1310,7 +1309,7 @@ def main():
             lista_Paths,lista_Nodos=ler_Topologia()
             lista_Req=ler_Requisicoes()
             res_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
-            res_g=greedy(lista_Req,lista_Paths,lista_Nodos)
+            res_g=greedy()
             
             result_ILP_ciente,time_ILP_ciente,values_ILP,req_allocated_ILP_aware = ILP_ciente.main()
             print("ILP ciente:",result_ILP_ciente)
@@ -1324,22 +1323,6 @@ def main():
             
             list_wrong_ILP_unaware=check_Wrong2(req_allocated_ILP_unaware)
             print(list_wrong_ILP_unaware)
-            
-            
-            '''#visualização apenas
-            a=[]
-            b=[]
-            c=[]
-            for i in res_w[1]:
-                a.append(i[0].id)
-            print("W:",a)
-            for j in res_g[1]:
-                b.append(j.id)
-            print("G:",b)
-            wrong=check_Wrong(res_w[1],lista_Paths)
-            for i in wrong:
-                c.append(i[0].id)
-            print("WW:",c)'''
             
         elif modo=='2':
             
@@ -1439,7 +1422,7 @@ def main():
                     lista_Nodos_aux=copy.deepcopy(lista_Nodos)
                     
                     lista_Req=ler_Requisicoes()
-                    results_g=greedy(lista_Req,lista_Paths,lista_Nodos)
+                    results_g=greedy()
                     lista_Nodos=copy.deepcopy(lista_Nodos_aux)
                     
                     results_w=wrong_Run(lista_Req,lista_Paths,lista_Nodos)
@@ -1607,8 +1590,8 @@ def main():
                 graphs.append(base_graph)
                 
                 for index in range(nr_Repeat):
-                    gerador_topologia.gerador_Topologia(nodos_G, links_G, base_graph)
-                    print(index)
+                    gerador_topologia.gerador_Topologia(nodos_G, links_G)
+                    gerador_Req(nodos_G,req)
                     csv_row = []
                     
                     result_ILP_ciente,time_ILP_ciente, resources_model_ILP, req_allocated_ILP_aware = ILP_ciente.main()
@@ -1624,7 +1607,7 @@ def main():
                         link = node_data['Links']
                         csv_row.append(link)
                     
-                    with open('data.csv', 'a+', newline='') as csv_file:
+                    with open('data_random_ilp.csv', 'a+', newline='') as csv_file:
                         writer = csv.writer(csv_file)
                         
                         '''headers = ["Node", "FPGA", "Links","Value_ILP_ciente","Time_ILP_ciente",
