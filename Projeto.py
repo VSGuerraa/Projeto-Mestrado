@@ -230,13 +230,13 @@ def gerador_Req(nro_Nodos,nro_Req):
         
         
 
-        lat=check_Lat(rand_nodo_S,rand_nodo_D,lista_Caminhos, lista_Nodos)            
+        lat=random.randint(800,3500)           
         
         requisicoes[index] = {
             "Id": index,
             "Nodo_S": rand_nodo_S,
             "Nodo_D": rand_nodo_D,
-            "max_Lat": int(lat*1.3),
+            "max_Lat": lat,
             "min_T": min(min_Throughput),
             "function_chain": func_list,
             "valor": valor
