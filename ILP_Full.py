@@ -261,7 +261,7 @@ def main():
     latencia_link = total_link_latency       # latência de cada link (i,j)
     throughput_link = total_link_throughput     # vazão de cada link (i,j)
     fpga_max_por_nodo = 1       # número máximo de FPGAs por nodo
-    fpga_max_total = len(nodes) // 5  # número total máximo de FPGAs permitidos na rede
+    fpga_max_total = len(nodes) // 4  # número total máximo de FPGAs permitidos na rede
 
     # Variáveis de decisão
 
@@ -411,8 +411,13 @@ def main():
     #Restrição 12: Apenas um particionamento por nodo
 
     for n in nodes:
-        model.addConstr(gp.quicksum(w.get((n, p_idx),0) for p_idx in last ) <= node_fpga[n], name=f"particao_nodo_{n}")
-        
+        model.addConstr(gp.quicksum(w.get((n, p_idx),0) for p_idx in last ) <= 1, name=f"particao_nodo_{n}")
+    
+    #Restrição 13: Somente W com node_fpga
+
+    for n in nodes:
+        for p_idx in range(len(particoes)):
+            model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")    
         
     model.setParam("OutputFlag", 0)  # Suppress all output
 

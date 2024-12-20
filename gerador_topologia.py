@@ -15,7 +15,7 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
     
     degrees = dict(G.degree())
     max_degree = max(degrees.values())
-    max_FGPA = int(nro_Nodos/3)
+    max_FGPA = nro_Nodos//4
     nroMax_FPGA_P = 0
     nroMax_FPGA_M = max_FGPA
     nroMax_FPGA_G = 0

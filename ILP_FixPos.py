@@ -415,11 +415,17 @@ def main():
     #Restrição 12: Apenas um particionamento por nodo
 
     for n in nodes:
-        model.addConstr(gp.quicksum(w.get((n, p_idx),0) for p_idx in last ) <= node_fpga[n], name=f"particao_nodo_{n}")
-        
-    #Restrição 13: Força FPGA em determinados nodos
+        model.addConstr(gp.quicksum(w.get((n, p_idx),0) for p_idx in last ) <= 1, name=f"particao_nodo_{n}")
+    
+    #Restrição 13: Somente W com node_fpga
+
+    for n in nodes:
+        for p_idx in range(len(particoes)):
+            model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")
+            
+    #Restrição 14: Força FPGA em determinados nodos
     for n in nodes_fpga:
-        model.addConstr(node_fpga[n] == 1, name=f"nodo_fpga_{n}")
+        model.addConstr(node_fpga[n] <= 1, name=f"nodo_fpga_{n}")
         
     model.setParam("OutputFlag", 0)  # Suppress all output
 
