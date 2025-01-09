@@ -24,8 +24,8 @@ def main():
                     
     #Nodos
 
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
-    with open(file_path) as file:
+    
+    with open("topologia.json") as file:
         topologia = json.load(file)
 
 
@@ -61,8 +61,8 @@ def main():
         
         #Requisições
         
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\requisicoes.json"
-    with open(file_path) as file:
+    
+    with open("requisicoes.json") as file:
         requisicoes = json.load(file)
         
         
@@ -222,7 +222,7 @@ def main():
         
     #Particionamento dos FPGAs
     lista_particionamento=[]
-    for i in range(len(graph) // 5 ):
+    for i in range(len(graph) // 4 ):
         lista_particionamento.append(random.randint(0, len(lista_fpgas)-1))   
 
     # Criar o modelo
@@ -419,7 +419,7 @@ def main():
 
     for n in nodes:
         for p_idx in range(len(particoes)):
-            model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")    
+            model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")
             
     #Restrição 14: Determinar particionamento
 
@@ -436,8 +436,7 @@ def main():
     end_time = time.time()
     execution_time = end_time - init_time
 
-    print(f"Tempo de execução: {execution_time:.2f}")
-    print(f"Valor da função objetivo: {model.objVal}")
+    return model, execution_time
     
 if __name__ == "__main__":
     main()

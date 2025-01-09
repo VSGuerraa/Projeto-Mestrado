@@ -6,7 +6,7 @@ import ast
 import time
 
 def main():
-        
+    
     init_time = time.time()
 
     #Paths
@@ -25,8 +25,7 @@ def main():
                     
     #Nodos
 
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\topologia.json"
-    with open(file_path) as file:
+    with open("topologia.json") as file:
         topologia = json.load(file)
 
 
@@ -62,8 +61,8 @@ def main():
         
         #Requisições
         
-    file_path= r"C:\Users\victo\Documents\GitHub\Projeto-Mestrado\requisicoes.json"
-    with open(file_path) as file:
+
+    with open("requisicoes.json") as file:
         requisicoes = json.load(file)
         
         
@@ -412,13 +411,13 @@ def main():
 
     for n in nodes:
         model.addConstr(gp.quicksum(w.get((n, p_idx),0) for p_idx in last ) <= 1, name=f"particao_nodo_{n}")
-    
+        
     #Restrição 13: Somente W com node_fpga
 
     for n in nodes:
         for p_idx in range(len(particoes)):
-            model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")    
-        
+            model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")   
+            
     model.setParam("OutputFlag", 0)  # Suppress all output
 
     # Otimizar o modelo
@@ -427,8 +426,7 @@ def main():
     end_time = time.time()
     execution_time = end_time - init_time
 
-    print(f"Tempo de execução: {execution_time:.2f}")
-    print(f"Valor da função objetivo: {model.objVal}")
-    
+    return model, execution_time
+
 if __name__ == "__main__":
     main()
