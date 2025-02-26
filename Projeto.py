@@ -183,7 +183,7 @@ def gerador_Req(nro_Nodos,nro_Req):
     ] #descricao de valores de diferentes implementacoes de funcoes
 
 
-    nro_Func=random.randint(9,12) #Restringe numero de funcoes na simulacao
+    nro_Func=random.randint(12,12) #Restringe numero de funcoes na simulacao
     
     for func in range (nro_Func):
         sort_Func=random.randint(0,len(implementacoes)-1)
@@ -224,20 +224,19 @@ def gerador_Req(nro_Nodos,nro_Req):
         valor=set_value(func_list)
         
         min_Throughput=[]
+        max_lat=[]
         for function in func_list:
             min_Throughput.append(function["implementacao"]["Throughput"])
+            max_lat.append(function["implementacao"]["Lat"])
         
-        
-        
-
-        lat=random.randint(800,3500)           
+        #lat=random.randint(800,3500)           
         
         requisicoes[index] = {
             "Id": index,
             "Nodo_S": rand_nodo_S,
             "Nodo_D": rand_nodo_D,
-            "max_Lat": lat,
-            "min_T": min(min_Throughput),
+            "max_Lat": int(sum(max_lat) + check_Lat(rand_nodo_S,rand_nodo_D,lista_Caminhos,lista_Nodos) * random.uniform(1.1,2)),
+            "min_T": max(min_Throughput),
             "function_chain": func_list,
             "valor": valor
             }

@@ -29,7 +29,7 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
     list_edges=list(G.edges)
     topologia_rede={}
     fpga=[]
-    fpga=[[30300,600,1920],[67200,1680,768],[134280,3780,1800]]
+    #fpga=[[30300,600,1920],[67200,1680,768],[134280,3780,1800]]
     list_thro=[100,200,400]
     
     fpga_P=[
@@ -59,9 +59,7 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
                         "DSP": 240
                     }
                 },
-                {
-                    "Modelo": 'P',
-                    
+                {   "Modelo": 'P',
                     "Part0": {
                         "CLBs": 3360,
                         "BRAM": 96,
@@ -207,7 +205,111 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
                         "BRAM": 144,
                         "DSP": 72
                     }     
-            }             
+            },
+            {"Modelo": "M",
+                "Part0": {
+                        "CLBs": 16800,
+                        "BRAM": 432,
+                        "DSP": 192
+                    },
+                "Part1": {
+                        "CLBs": 13440,
+                        "BRAM": 336,
+                        "DSP": 192
+                    },
+                "Part2": {
+                        "CLBs": 12960,
+                        "BRAM": 336,
+                        "DSP": 96
+                    },
+                "Part3": {
+                        "CLBs": 16800,
+                        "BRAM": 432,
+                        "DSP": 192
+                    }
+            },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part1": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part2": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part3": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part4": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part5": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part6": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part7": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part8": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part9": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part10": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part11": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part12": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part13": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part14": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part15": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    }
+            }
             ]
     fpga_G=[
             {"Modelo": 'G',
@@ -351,7 +453,6 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
                 
     size_Fgpa=[fpga_P,fpga_M,fpga_G]
 
-
     for node in range(nro_Nodos):
         lista_Fpga=[]
         lista_Links=[]
@@ -366,7 +467,7 @@ def gerador_Topologia(nro_Nodos, nro_Links, G=None, initial=False):
 
         for index in range(len(lista_Links)):
             thro=random.choice(list_thro)
-            lat= random.randint(20,200)
+            lat= random.randint(10,800)
             if lista_Links[index] < node:
                 for links in topologia_rede[f"Nodo{lista_Links[index]}"]["Links"]:
                     nodo_D=next(iter(links))

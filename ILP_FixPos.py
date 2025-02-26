@@ -105,120 +105,224 @@ def main():
             #Lista FPGAs
 
     fpga_M=[
-                {"Modelo": 'M',
-                    "Part0": {
-                            "CLBs": 19200,
-                            "BRAM": 480,
-                            "DSP": 192
-                        },
-                        "Part1": {
-                            "CLBs": 20160,
-                            "BRAM": 480,
-                            "DSP": 192
-                        },
-                        "Part2": {
-                            "CLBs": 10440,
-                            "BRAM": 288,
-                            "DSP": 144
-                        },
-                        
-                        "Part3": {
-                            "CLBs": 3060,
-                            "BRAM": 108,
-                            "DSP": 0
-                        },
-                        "Part4": {
-                            "CLBs": 3060,
-                            "BRAM": 144,
-                            "DSP": 72
-                        },
-                        "Part5": {
-                            "CLBs": 3060,
-                            "BRAM": 72,
-                            "DSP": 72
-                        }
-                },
-                {"Modelo": 'M',
-                    "Part0": {
-                            "CLBs": 10800,
-                            "BRAM": 240,
-                            "DSP": 96
-                        },
-                        "Part1": {
-                            "CLBs": 10440,
-                            "BRAM": 288,
-                            "DSP": 144
-                        },
-                        "Part2": {
-                            "CLBs": 10800,
-                            "BRAM": 300,
-                            "DSP": 144
-                        },
-                        "Part3": {
-                            "CLBs": 10800,
-                            "BRAM": 300,
-                            "DSP": 96,
-                        },
-                        "Part4": {
-                            "CLBs": 10440,
-                            "BRAM": 240,
-                            "DSP": 96
-                        },
-                        "Part5": {
-                            "CLBs": 10800,
-                            "BRAM": 300,
-                            "DSP": 144
-                        },
-                        "Part6": {
-                            "CLBs": 10800,
-                            "BRAM": 300,
-                            "DSP": 72
-                        }
-                    
-                },
-                {"Modelo": 'M',
-                    "Part0": {
-                            "CLBs": 20160,
-                            "BRAM": 480,
-                            "DSP": 192
-                        },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 19200,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
                     "Part1": {
-                            "CLBs": 10440,
-                            "BRAM": 288,
-                            "DSP": 144
-                        },
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
                     "Part2": {
-                            "CLBs": 10800,
-                            "BRAM": 300,
-                            "DSP": 144
-                        },
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                    
                     "Part3": {
-                            "CLBs": 3060,
-                            "BRAM": 108,
-                            "DSP": 0
-                        },
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
                     "Part4": {
-                            "CLBs": 3060,
-                            "BRAM": 144,
-                            "DSP": 72
-                        },
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
                     "Part5": {
-                            "CLBs": 3060,
-                            "BRAM": 72,
-                            "DSP": 72
-                        },
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    }
+            },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 10800,
+                        "BRAM": 240,
+                        "DSP": 96
+                    },
+                    "Part1": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                    "Part2": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 144
+                    },
+                    "Part3": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 96,
+                    },
+                    "Part4": {
+                        "CLBs": 10440,
+                        "BRAM": 240,
+                        "DSP": 96
+                    },
+                    "Part5": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 144
+                    },
                     "Part6": {
-                            "CLBs": 3060,
-                            "BRAM": 108,
-                            "DSP": 0
-                        },
-                    "Part7": {
-                            "CLBs": 3060,
-                            "BRAM": 144,
-                            "DSP": 72
-                        }     
-                }             
-                ]
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 72
+                    }
+                
+            },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                "Part1": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                "Part2": {
+                        "CLBs": 10800,
+                        "BRAM": 300,
+                        "DSP": 144
+                    },
+                "Part3": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                "Part4": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
+                "Part5": {
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    },
+                "Part6": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                "Part7": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    }     
+            },
+            {"Modelo": "M",
+                "Part0": {
+                        "CLBs": 16800,
+                        "BRAM": 432,
+                        "DSP": 192
+                    },
+                "Part1": {
+                        "CLBs": 13440,
+                        "BRAM": 336,
+                        "DSP": 192
+                    },
+                "Part2": {
+                        "CLBs": 12960,
+                        "BRAM": 336,
+                        "DSP": 96
+                    },
+                "Part3": {
+                        "CLBs": 16800,
+                        "BRAM": 432,
+                        "DSP": 192
+                    }
+            },
+            {"Modelo": 'M',
+                "Part0": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part1": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part2": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part3": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part4": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part5": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part6": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part7": {
+                        "CLBs": 3360,
+                        "BRAM": 84,
+                        "DSP": 48
+                    },
+                "Part8": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part9": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part10": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part11": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part12": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part13": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part14": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    },
+                "Part15": {
+                        "CLBs": 3240,
+                        "BRAM": 84,
+                        "DSP": 24
+                    }
+            }
+            ]
     lista_fpgas=[]
 
     for fpga in fpga_M:
@@ -235,6 +339,10 @@ def main():
     particoes = []  # Lista de partições
     links = []  # Lista de links
 
+    x = {}  
+    y = {}  
+    z = {}
+
     for fpga_idx, fpga in enumerate(lista_fpgas):
             for part in fpga.values():
                 if type(part)==str:
@@ -245,12 +353,12 @@ def main():
         for dest_node in graph[source_node]['Throughput']:
             links.append((source_node, dest_node))
 
-    for req in requisitions:
+    for req_idx, req in enumerate(requisitions):
         for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):
             caminhos.append(tuple(path))
-            
-    x = {}  
-    y = {}     
+
+            z[(req_idx, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"z_{req_idx}_{tuple(path)}")
+               
     for req_idx, req in enumerate(requisitions):
         y[req_idx] = model.addVar(vtype=GRB.BINARY, name=f"y_{req_idx}")
         for path in sorted((list(dfs_caminhos(paths, req[0], req[1]))), key=len):
@@ -301,12 +409,21 @@ def main():
             
     # Restrição 3: Apenas um caminho é escolhido para alocar a requisição
     for req_idx, r in enumerate(requisitions):
-        for k in dfs_caminhos(paths, r[0], r[1]):  # Iterate through paths
-            model.addConstr(gp.quicksum( x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0)
-                                        for f in r[4]
-                                        for n in k
-                                        for p_idx in range(len(particoes))) == y[req_idx]*len(r[4]),
-                name=f"single_path_req_{req_idx}_path_{k}")
+        possible_paths = list(dfs_caminhos(paths, r[0], r[1]))
+
+        model.addConstr(gp.quicksum(z[req_idx, tuple(k)] for k in possible_paths) == y[req_idx], name=f"single_path_req_{req_idx}")
+
+        for k in possible_paths:
+            model.addConstr(
+                gp.quicksum(
+                    x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)), 0)
+                    for f in r[4]
+                    for n in k
+                    for p_idx in range(len(particoes))
+                ) == len(r[4]) * z[req_idx, tuple(k)],
+                name=f"single_path_req_{req_idx}"
+            )
+
 
 
     # Restrição 4: Uso de partição única por função
@@ -426,14 +543,18 @@ def main():
         model.addConstr(node_fpga[n] <= 1, name=f"nodo_fpga_{n}")
                 
     model.setParam("OutputFlag", 0)  # Suppress all output
+    model.setParam("TimeLimit", 300)  # Set time limit to 5 minutes
+
+    part_time = time.time()
 
     # Otimizar o modelo
     model.optimize()
 
     end_time = time.time()
+    mount_time = part_time - init_time
     execution_time = end_time - init_time
 
-    return model, execution_time
+    return model, execution_time, mount_time
     
 if __name__ == "__main__":
     main()
