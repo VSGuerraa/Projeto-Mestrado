@@ -257,7 +257,7 @@ def main(nro_Nodos=None, nro_Req=None):
     
     for index in range (nro_Req):
         
-        rand_nro_fun=random.randint(1,3) #tamanho da SFC
+        rand_nro_fun=random.randint(2,3) #tamanho da SFC
         func_list=[]
         while rand_nro_fun != 0:
             rand_nro_fun -= 1

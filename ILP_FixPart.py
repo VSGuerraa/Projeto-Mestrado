@@ -412,18 +412,16 @@ def main():
     for req_idx, r in enumerate(requisitions):
         possible_paths = list(dfs_caminhos(paths, r[0], r[1]))
 
-        model.addConstr(gp.quicksum(z[req_idx, tuple(k)] for k in possible_paths) == y[req_idx], name=f"single_path_req_{req_idx}")
+        # Garante que apenas um caminho seja escolhido para a requisição
+        model.addConstr(gp.quicksum(z[req_idx, tuple(k)] for k in possible_paths) == y[req_idx], 
+                        name=f"single_path_req_{req_idx}")
 
-        for k in possible_paths:
-            model.addConstr(
-                gp.quicksum(
-                    x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)), 0)
-                    for f in r[4]
-                    for n in k
-                    for p_idx in range(len(particoes))
-                ) == len(r[4]) * z[req_idx, tuple(k)],
-                name=f"single_path_req_{req_idx}"
-            )
+        for f in r[4]:  # Iterar sobre as funções da requisição
+            for p_idx, p in enumerate(particoes):
+                for k in possible_paths:
+                    for n in k:
+                        model.addConstr(x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)), 0) <= z[req_idx, tuple(k)],
+                                    name=f"implication_x_{req_idx}_{f}_Nodo_{n}_{p_idx}_{k}")
 
 
 
@@ -449,38 +447,34 @@ def main():
         
     # Restrição 6: Latência no caminho
     for req_idx, r in enumerate(requisitions):
-        for k in list(dfs_caminhos(paths, r[0], r[1])):   
-            lat_path = gp.quicksum(latencia_link[f'Nodo_{i}', f'Nodo_{j}'] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
-                                        for f in r[4]
-                                        for n in k
-                                        for p_idx in range(len(particoes))
-                                        for i, j in zip(k, k[1:]))
-            lat_run = gp.quicksum(r[6][f_idx] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
-                                    for f_idx, f in enumerate(r[4])
+        possible_paths = dfs_caminhos(paths, r[0], r[1])
+        lat_path = gp.quicksum(latencia_link[f'Nodo_{i}', f'Nodo_{j}'] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
+                                    for f in r[4]
+                                    for k in possible_paths
                                     for n in k
-                                    for p_idx in range(len(particoes)))
-            model.addConstr((lat_path + lat_run) <= r[2], 
-                            name=f"latencia_caminho_{k}")
+                                    for p_idx in range(len(particoes))
+                                    for i, j in zip(k, k[1:]))
+        lat_run = gp.quicksum(r[6][f_idx] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
+                                for f_idx, f in enumerate(r[4])
+                                for k in possible_paths
+                                for n in k
+                                for p_idx in range(len(particoes)))
+        model.addConstr((lat_path + lat_run) <= r[2], 
+                        name=f"latencia_caminho_{k}")
             
     # Restrição 7: Limitação de recursos computacionais
-    for n in nodes:
-        for p_idx, part in enumerate(particoes):
-                for req_idx, r in enumerate(requisitions):
-                    sum_clb = gp.quicksum(f[0] * x.get((req_idx, tuple(f), n, p_idx-1, tuple(k)),0)
-                                                for f in r[4] 
-                                                for k in dfs_caminhos(paths, r[0], r[1])
-                                                ) <= part[0]
-                    sum_bram = gp.quicksum(f[1] * x.get((req_idx, tuple(f), n, p_idx-1, tuple(k)),0)
-                                                for f in r[4] 
-                                                for k in dfs_caminhos(paths, r[0], r[1])
-                                                ) <= part[1]
-                    sum_dsp = gp.quicksum(f[2] * x.get((req_idx, tuple(f), n, p_idx-1, tuple(k)),0)
-                                                for f in r[4] 
-                                                for k in dfs_caminhos(paths, r[0], r[1])
-                                                ) <= part[2]
-                    model.addConstr(sum_clb, name=f"capacidade_clb_{n}_{p_idx-1}_{req_idx}")
-                    model.addConstr(sum_bram, name=f"capacidade_bram_{n}_{p_idx-1}_{req_idx}")
-                    model.addConstr(sum_dsp, name=f"capacidade_dsp_{n}_{p_idx-1}_{req_idx}")
+    for req_idx, r in enumerate(requisitions):
+        possible_paths = dfs_caminhos(paths, r[0], r[1])
+        for k in possible_paths:
+            for n in nodes:
+                for p_idx, part in enumerate(particoes):
+                    for f in r[4]:
+                        clb = (x.get((req_idx, tuple(f), n, p_idx, tuple(k)),0) * f[0]) <= part[0]
+                        bram = (x.get((req_idx, tuple(f), n, p_idx, tuple(k)),0) * f[1]) <= part[1]
+                        dsp = (x.get((req_idx, tuple(f), n, p_idx, tuple(k)),0) * f[2]) <= part[2]
+                        model.addConstr(clb, name=f"capacidade_clb_{n}_{p_idx}_{req_idx}")
+                        model.addConstr(bram, name=f"capacidade_bram_{n}_{p_idx}_{req_idx}")
+                        model.addConstr(dsp, name=f"capacidade_dsp_{n}_{p_idx}_{req_idx}")
                     
     # Restrição 8: Se X é alocado, nodo_fpga é 1
     for n in nodes:
@@ -547,7 +541,7 @@ def main():
                             name=f"particionamento_{count}")
                 
     model.setParam("OutputFlag", 0)  # Suppress all output
-    model.setParam("TimeLimit", 300)  # Set time limit to 5 minutes
+    #model.setParam("TimeLimit", 300)  # Set time limit to 5 minutes
 
     part_time = time.time()
 

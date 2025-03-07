@@ -5,6 +5,7 @@ import ILP_FixPos
 import ILP_FixPart
 
 count = 0
+
 for nro_nodos in range(10, 21, 5):
     
 
@@ -13,7 +14,7 @@ for nro_nodos in range(10, 21, 5):
     stop = False
     
 
-    for i in range(100):
+    for i in range(1):
         
         gerador_topologia.gerador_Topologia(nro_nodos,int(nro_nodos*1.3))
         gerador_req.main()
