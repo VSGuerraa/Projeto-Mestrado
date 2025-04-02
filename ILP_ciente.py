@@ -307,8 +307,10 @@ def main(topology=None):
         model, x, y = monta_modelo(graph, requisitions, paths)
         set_constraints(graph, requisitions, paths, model, x,y, total_link_throughput)
         
-        model.setParam('TimeLimit', 5)
         model.setParam('OutputFlag', 0)
+        model.setParam('TimeLimit', 3600)
+        
+        execution_time = time.time() - init_time
         model.optimize()
         #get allocation details
         req_allocated =[]
@@ -321,10 +323,10 @@ def main(topology=None):
         values_model.append(used_parts)
         values_model.append(total_parts)
         end_time=time.time()
-        time_elapsed=end_time-init_time
+        execution_time=end_time-init_time
     
-       
-        return model.objVal,time_elapsed,values_model,req_allocated
+        print("Result:", model.ObjVal)
+        return model,execution_time,execution_time
 
 if __name__ == '__main__':
     main()

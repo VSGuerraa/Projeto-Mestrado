@@ -3,7 +3,7 @@ import gurobipy as gp
 from gurobipy import GRB
 import json
 import time
-
+import random
 
 def main():
     
@@ -388,6 +388,12 @@ def main():
     # Função Objetivo: Maximizar o valor das requisições alocadas
     model.setObjective(gp.quicksum(y[req_idx] * r[5] for req_idx, r in enumerate(requisitions)), GRB.MAXIMIZE)
 
+    # Define posicionamento aleatório das FPGAs
+    lista_nodos = random.sample(list(graph.keys()), min(fpga_max_total, len(graph.keys())))
+
+    for nodo_rand in lista_nodos:
+        model.addConstr(node_fpga[nodo_rand] == 1, name=f"node_fpga_{nodo_rand}")
+
 
     # Restrição 1: Alocação completa da requisição
     for req_idx, r in enumerate(requisitions):
@@ -533,9 +539,36 @@ def main():
     #Restrição 14: Força FPGA em determinados nodos
     for n in nodes_fpga:
         model.addConstr(node_fpga[n] <= 1, name=f"nodo_fpga_{n}")
+
+    #Restrição 15: As funções são alocadas em ordem
+
+    for req_idx, r in enumerate(requisitions):
+        if len(r[4]) > 1:
+            possible_paths = dfs_caminhos(paths, r[0], r[1])
+
+            for path in possible_paths:
+                index_nodo = {n: n_idx for n_idx, n in enumerate(path)}  # Mapeia cada nó para seu índice no caminho
+
+            for func_idx in range(len(r[4]) - 1):  # Percorre índices das funções dentro da requisição
+                f_i = tuple(r[4][func_idx])        # Convertendo lista de recursos em tupla (para chave da variável)
+                f_j = tuple(r[4][func_idx + 1])    # Função seguinte na requisição
+                model.addConstr(
+                    gp.quicksum(
+                        index_nodo[n] * x.get((req_idx, f_i, f'Nodo_{n}', p_idx, tuple(k)), 0) * z.get((req_idx, tuple(k)), 0)
+                        for p_idx in range(len(particoes))
+                        for k in possible_paths
+                        for n in k
+                    ) <= gp.quicksum(
+                        index_nodo[n] * x.get((req_idx, f_j, f'Nodo_{n}', p_idx, tuple(k)), 0) * z[req_idx, tuple(k)]
+                        for k in possible_paths
+                        for n in k
+                        for p_idx in range(len(particoes))
+                    ),
+                    name=f"order_req_{req_idx}_path_{tuple(k)}_func_{func_idx}_to_{func_idx + 1}"
+                )           
                 
     model.setParam("OutputFlag", 0)  # Suppress all output
-    #model.setParam("TimeLimit", 300)  # Set time limit to 5 minutes
+    model.setParam("TimeLimit", 3600)  # Set time limit to 1 hour
 
     part_time = time.time()
 

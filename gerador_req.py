@@ -123,7 +123,38 @@ def dfs_caminhos(grafo, inicio, fim):
             else:
                 pilha.append((proximo, caminho + [proximo]))
 
-def main(nro_Nodos=None, nro_Req=None):
+def select_func(batch, size):
+
+    func_S = [0,7,9,10,12]
+    func_M = [1,2,3,4,6,8,11]
+    func_L = [5,13]
+    func_list = [func_S, func_M, func_L]
+
+    
+    if size == 0: #Small functions
+        y = (1/3) - (1/12)*batch
+        probabilities = [1-2*y, y, y]
+        func = random.choices(func_list, weights=probabilities, k=1)
+        filtered_implementacoes = func[0]
+    elif size == 1: #Medium functions
+        y = (1/3) - (1/12)*batch
+        probabilities = [y, 1-2*y, y]
+        func = random.choices(func_list, weights=probabilities, k=1)
+        filtered_implementacoes = func[0]
+    elif size == 2: #Large functions
+        y = (1/3) - (1/12)*batch
+        probabilities = [y, y, 1-2*y]
+        func = random.choices(func_list, weights=probabilities, k=1)
+        filtered_implementacoes = func[0]
+    else:
+        probabilities = [1/3, 1/3, 1/3]
+        func = random.choices(func_list, weights=probabilities, k=1)
+        filtered_implementacoes = func[0]
+
+    return random.choice(filtered_implementacoes)
+        
+
+def main(nro_Nodos=None, nro_Req=None, size=None, batch=0):
 
     
     lista_Caminhos,lista_Nodos=ler_Topologia()
@@ -238,35 +269,36 @@ def main(nro_Nodos=None, nro_Req=None):
     ] #descricao de valores de diferentes implementacoes de funcoes
 
 
-    nro_Func=random.randint(12,12) #Restringe numero de funcoes na simulacao
     
-    for func in range (nro_Func):
-        sort_Func=random.randint(0,len(implementacoes)-1)
-        if implementacoes[sort_Func]["nome"][0]=='F':
+    for func in range (len(implementacoes)):
+        
+        if implementacoes[func]["nome"][0]=='F':
             nome='Firewall'
-        elif implementacoes[sort_Func]["nome"][0]=='D':
+        elif implementacoes[func]["nome"][0]=='D':
             nome='Deep Packet Inspection'
-        elif implementacoes[sort_Func]["nome"][0]=='A':
+        elif implementacoes[func]["nome"][0]=='A':
             nome='Advanced Encryption Standard'
+
+        implementacoes[func]["CLBs"]=int(implementacoes[func]["CLBs"]*1.25) 
+        #considera que apenas 80% das clb são de fato utilizadas
         funcao[func] = {
             "Nome": nome,
-            "implementacao": implementacoes[sort_Func]
+            "implementacao": implementacoes[func]
             }
-        implementacoes[sort_Func]["CLBs"]=int(implementacoes[sort_Func]["CLBs"]*1.25) 
-        #considera que apenas 80% das clb são de fato utilizadas
+        
     
     for index in range (nro_Req):
         
-        rand_nro_fun=random.randint(2,3) #tamanho da SFC
+        rand_nro_fun=random.randint(1,3) #tamanho da SFC
         func_list=[]
         while rand_nro_fun != 0:
             rand_nro_fun -= 1
-            rand_fun=random.randint(0,nro_Func-1)
+            rand_fun = select_func(batch, size)
             if not func_list:
                 func_list.append(funcao[rand_fun])
             else:
                 while func_list[-1]["Nome"]==funcao[rand_fun]["Nome"]:
-                    rand_fun=random.randint(0,nro_Func-1)
+                    rand_fun = select_func(batch, size)
                 func_list.append(funcao[rand_fun])
         
         rand_nodo_S=random.randint(0,(nro_Nodos-1))
@@ -275,7 +307,7 @@ def main(nro_Nodos=None, nro_Req=None):
         while rand_nodo_S==rand_nodo_D:
             rand_nodo_D=random.randint(0,nro_Nodos-1)
         
-        aux=funcao[rand_fun]["implementacao"]
+        #aux=funcao[rand_fun]["implementacao"]
         valor=set_value(func_list)
         
         min_Throughput=[]

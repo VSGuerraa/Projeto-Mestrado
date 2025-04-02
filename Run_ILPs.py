@@ -2,13 +2,13 @@ import ILP_Full
 import ILP_FixPos
 import ILP_FixPart
 import gerador_topologia
-import Projeto
+import gerador_req
 import csv
 import json
 import gurobipy as gp
 
 nro_topologias = 10
-nro_replicas = 10
+nro_replicas = 15
     
 for nro_nodos in range(10, 31, 5):
     
@@ -16,8 +16,7 @@ for nro_nodos in range(10, 31, 5):
         
         topologia_inicial = gerador_topologia.gerador_Topologia(nro_nodos,int(nro_nodos*1.3))
 
-        
-        Projeto.gerador_Req(nro_nodos, nro_nodos * 10)
+        gerador_req.main()
         
         result, total_time, mount_time = ILP_Full.main()
         
@@ -26,12 +25,12 @@ for nro_nodos in range(10, 31, 5):
         aloc = []
         
         for v in result.getVars():
-            if v.X >0.5:
+            if v.X > 0.5:
                 aloc.append(v.VarName)
                 
         with open('ILP_Compare.csv', 'a+', newline='') as csv_file:
             writer = csv.writer(csv_file)        
-            writer.writerow(['Full', result.ObjVal, total_time, mount_time, aloc])
+            writer.writerow(['Full', result.ObjVal, result.ObjBound, total_time, mount_time, aloc])
             
         
         for rep in range(nro_replicas):
@@ -41,11 +40,11 @@ for nro_nodos in range(10, 31, 5):
             result, total_time, mount_time = ILP_FixPos.main()
             aloc = []
             for v in result.getVars():
-                if v.X >0.5:
+                if v.X > 0.5:
                     aloc.append(v.VarName)
             with open('ILP_Compare.csv', 'a+', newline='') as csv_file:
                 writer = csv.writer(csv_file)
-                writer.writerow(['FixPos', result.ObjVal, total_time, mount_time, aloc])
+                writer.writerow(['FixPos', result.ObjVal, result.ObjBound, total_time, mount_time, aloc])
             
             result, total_time, mount_time = ILP_FixPart.main()
             aloc = []
@@ -54,7 +53,7 @@ for nro_nodos in range(10, 31, 5):
                     aloc.append(v.VarName)
             with open('ILP_Compare.csv', 'a+', newline='') as csv_file:
                 writer = csv.writer(csv_file)
-                writer.writerow(['FixPart', result.ObjVal, total_time, mount_time, aloc])
+                writer.writerow(['FixPart', result.ObjVal, result.ObjBound, total_time, mount_time, aloc])
         
         with open('topologia.json', 'r') as json_file:
             topologia = json.load(json_file)

@@ -532,16 +532,50 @@ def main():
     for n in nodes:
         for p_idx in range(len(particoes)):
             model.addConstr(w.get((n, p_idx),0) <= node_fpga[n], name=f"w_node_fpga_{n}_{p_idx}")
-            
-    #Restrição 14: Determinar particionamento
 
-    for count in set(lista_particionamento):
-        for p_idx in last:
-            model.addConstr(gp.quicksum(w.get((n, p_idx),0) for n in nodes ) <= lista_particionamento.count(count), 
-                            name=f"particionamento_{count}")
+    # Restrição 14: Uma FPGA por nodo
+    for n in nodes:
+        model.addConstr(node_fpga[n] <= 1, name=f"nodo_fpga_{n}")     
+
+    #Restrição 15: Determinar particionamento
+
+    count = set(lista_particionamento)
+    filtered_last = [last[i] for i in count if i < len(last)]
+
+    for idx, val in enumerate(count):
+        p_idx = filtered_last[idx]
+        model.addConstr(gp.quicksum(w.get((n, p_idx),0) for n in nodes ) >= lista_particionamento.count(val), 
+                        name=f"particionamento_{count}")
+        
+    #Restrição 16: As funções são alocadas em ordem
+
+    for req_idx, r in enumerate(requisitions):
+        if len(r[4]) > 1:
+            possible_paths = dfs_caminhos(paths, r[0], r[1])
+
+            for path in possible_paths:
+                index_nodo = {n: n_idx for n_idx, n in enumerate(path)}  # Mapeia cada nó para seu índice no caminho
+
+            for func_idx in range(len(r[4]) - 1):  # Percorre índices das funções dentro da requisição
+                f_i = tuple(r[4][func_idx])        # Convertendo lista de recursos em tupla (para chave da variável)
+                f_j = tuple(r[4][func_idx + 1])    # Função seguinte na requisição
+                model.addConstr(
+                    gp.quicksum(
+                        index_nodo[n] * x.get((req_idx, f_i, f'Nodo_{n}', p_idx, tuple(k)), 0) * z.get((req_idx, tuple(k)), 0)
+                        for p_idx in range(len(particoes))
+                        for k in possible_paths
+                        for n in k
+                    ) <= gp.quicksum(
+                        index_nodo[n] * x.get((req_idx, f_j, f'Nodo_{n}', p_idx, tuple(k)), 0) * z[req_idx, tuple(k)]
+                        for k in possible_paths
+                        for n in k
+                        for p_idx in range(len(particoes))
+                    ),
+                    name=f"order_req_{req_idx}_path_{tuple(k)}_func_{func_idx}_to_{func_idx + 1}"
+                )       
                 
     model.setParam("OutputFlag", 0)  # Suppress all output
-    #model.setParam("TimeLimit", 300)  # Set time limit to 5 minutes
+    model.setParam("TimeLimit", 3600)  # Set time limit to 1 hour
 
     part_time = time.time()
 
