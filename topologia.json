@@ -1,102 +1,377 @@
 {
     "Nodo0": {
-        "FPGA": {},
+        "FPGA": [
+            [
+                {
+                    "Modelo": "M",
+                    "Part0": {
+                        "CLBs": 19200,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part1": {
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part2": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                    "Part3": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                    "Part4": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
+                    "Part5": {
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    }
+                }
+            ]
+        ],
         "Links": [
             {
-                "9": {
-                    "Lat": 702,
+                "23": {
+                    "Lat": 704,
+                    "Throughput": 100
+                }
+            },
+            {
+                "17": {
+                    "Lat": 97,
                     "Throughput": 400
+                }
+            },
+            {
+                "6": {
+                    "Lat": 350,
+                    "Throughput": 100
+                }
+            },
+            {
+                "15": {
+                    "Lat": 144,
+                    "Throughput": 200
                 }
             }
         ]
     },
     "Nodo1": {
-        "FPGA": {},
+        "FPGA": [
+            [
+                {
+                    "Modelo": "M",
+                    "Part0": {
+                        "CLBs": 19200,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part1": {
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part2": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                    "Part3": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                    "Part4": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
+                    "Part5": {
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    }
+                }
+            ]
+        ],
         "Links": [
             {
-                "6": {
-                    "Lat": 206,
+                "2": {
+                    "Lat": 476,
                     "Throughput": 100
                 }
             },
             {
                 "4": {
-                    "Lat": 409,
+                    "Lat": 114,
                     "Throughput": 400
-                }
-            },
-            {
-                "5": {
-                    "Lat": 462,
-                    "Throughput": 100
                 }
             }
         ]
     },
     "Nodo2": {
-        "FPGA": {},
+        "FPGA": [],
         "Links": [
             {
+                "1": {
+                    "Lat": 476,
+                    "Throughput": 100
+                }
+            },
+            {
                 "7": {
-                    "Lat": 574,
+                    "Lat": 455,
                     "Throughput": 200
                 }
             },
             {
-                "9": {
-                    "Lat": 454,
-                    "Throughput": 200
-                }
-            },
-            {
-                "6": {
-                    "Lat": 246,
-                    "Throughput": 400
-                }
-            },
-            {
-                "5": {
-                    "Lat": 143,
+                "22": {
+                    "Lat": 771,
                     "Throughput": 400
                 }
             }
         ]
     },
     "Nodo3": {
-        "FPGA": {},
+        "FPGA": [],
         "Links": [
             {
-                "9": {
-                    "Lat": 762,
+                "17": {
+                    "Lat": 495,
+                    "Throughput": 400
+                }
+            },
+            {
+                "21": {
+                    "Lat": 228,
+                    "Throughput": 200
+                }
+            },
+            {
+                "14": {
+                    "Lat": 574,
                     "Throughput": 100
                 }
             }
         ]
     },
     "Nodo4": {
-        "FPGA": {},
+        "FPGA": [],
         "Links": [
             {
                 "1": {
-                    "Lat": 409,
+                    "Lat": 114,
                     "Throughput": 400
-                }
-            },
-            {
-                "5": {
-                    "Lat": 342,
-                    "Throughput": 100
-                }
-            },
-            {
-                "9": {
-                    "Lat": 469,
-                    "Throughput": 200
                 }
             }
         ]
     },
     "Nodo5": {
+        "FPGA": [],
+        "Links": [
+            {
+                "8": {
+                    "Lat": 306,
+                    "Throughput": 200
+                }
+            },
+            {
+                "6": {
+                    "Lat": 518,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo6": {
+        "FPGA": [],
+        "Links": [
+            {
+                "0": {
+                    "Lat": 350,
+                    "Throughput": 100
+                }
+            },
+            {
+                "5": {
+                    "Lat": 518,
+                    "Throughput": 400
+                }
+            },
+            {
+                "12": {
+                    "Lat": 92,
+                    "Throughput": 200
+                }
+            },
+            {
+                "18": {
+                    "Lat": 279,
+                    "Throughput": 400
+                }
+            },
+            {
+                "23": {
+                    "Lat": 693,
+                    "Throughput": 100
+                }
+            },
+            {
+                "15": {
+                    "Lat": 159,
+                    "Throughput": 100
+                }
+            }
+        ]
+    },
+    "Nodo7": {
+        "FPGA": [],
+        "Links": [
+            {
+                "2": {
+                    "Lat": 455,
+                    "Throughput": 200
+                }
+            },
+            {
+                "12": {
+                    "Lat": 709,
+                    "Throughput": 100
+                }
+            },
+            {
+                "8": {
+                    "Lat": 667,
+                    "Throughput": 200
+                }
+            }
+        ]
+    },
+    "Nodo8": {
+        "FPGA": [
+            [
+                {
+                    "Modelo": "M",
+                    "Part0": {
+                        "CLBs": 19200,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part1": {
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part2": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                    "Part3": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                    "Part4": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
+                    "Part5": {
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    }
+                }
+            ]
+        ],
+        "Links": [
+            {
+                "5": {
+                    "Lat": 306,
+                    "Throughput": 200
+                }
+            },
+            {
+                "7": {
+                    "Lat": 667,
+                    "Throughput": 200
+                }
+            },
+            {
+                "19": {
+                    "Lat": 193,
+                    "Throughput": 400
+                }
+            },
+            {
+                "10": {
+                    "Lat": 81,
+                    "Throughput": 100
+                }
+            }
+        ]
+    },
+    "Nodo9": {
+        "FPGA": [],
+        "Links": [
+            {
+                "11": {
+                    "Lat": 260,
+                    "Throughput": 400
+                }
+            },
+            {
+                "12": {
+                    "Lat": 95,
+                    "Throughput": 100
+                }
+            }
+        ]
+    },
+    "Nodo10": {
+        "FPGA": [],
+        "Links": [
+            {
+                "8": {
+                    "Lat": 81,
+                    "Throughput": 100
+                }
+            },
+            {
+                "12": {
+                    "Lat": 126,
+                    "Throughput": 100
+                }
+            }
+        ]
+    },
+    "Nodo11": {
+        "FPGA": [],
+        "Links": [
+            {
+                "9": {
+                    "Lat": 260,
+                    "Throughput": 400
+                }
+            },
+            {
+                "22": {
+                    "Lat": 307,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo12": {
         "FPGA": [
             [
                 {
@@ -141,83 +416,114 @@
         ],
         "Links": [
             {
-                "1": {
-                    "Lat": 462,
-                    "Throughput": 100
-                }
-            },
-            {
-                "2": {
-                    "Lat": 143,
-                    "Throughput": 400
-                }
-            },
-            {
-                "4": {
-                    "Lat": 342,
-                    "Throughput": 100
-                }
-            },
-            {
                 "6": {
-                    "Lat": 638,
-                    "Throughput": 100
-                }
-            }
-        ]
-    },
-    "Nodo6": {
-        "FPGA": {},
-        "Links": [
-            {
-                "1": {
-                    "Lat": 206,
-                    "Throughput": 100
-                }
-            },
-            {
-                "2": {
-                    "Lat": 246,
-                    "Throughput": 400
-                }
-            },
-            {
-                "5": {
-                    "Lat": 638,
-                    "Throughput": 100
-                }
-            }
-        ]
-    },
-    "Nodo7": {
-        "FPGA": {},
-        "Links": [
-            {
-                "2": {
-                    "Lat": 574,
+                    "Lat": 92,
                     "Throughput": 200
                 }
             },
             {
-                "8": {
-                    "Lat": 230,
+                "7": {
+                    "Lat": 709,
+                    "Throughput": 100
+                }
+            },
+            {
+                "9": {
+                    "Lat": 95,
+                    "Throughput": 100
+                }
+            },
+            {
+                "10": {
+                    "Lat": 126,
+                    "Throughput": 100
+                }
+            },
+            {
+                "14": {
+                    "Lat": 242,
                     "Throughput": 400
                 }
             }
         ]
     },
-    "Nodo8": {
-        "FPGA": {},
+    "Nodo13": {
+        "FPGA": [],
         "Links": [
             {
-                "7": {
-                    "Lat": 230,
-                    "Throughput": 400
+                "23": {
+                    "Lat": 508,
+                    "Throughput": 200
                 }
             }
         ]
     },
-    "Nodo9": {
+    "Nodo14": {
+        "FPGA": [
+            [
+                {
+                    "Modelo": "M",
+                    "Part0": {
+                        "CLBs": 19200,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part1": {
+                        "CLBs": 20160,
+                        "BRAM": 480,
+                        "DSP": 192
+                    },
+                    "Part2": {
+                        "CLBs": 10440,
+                        "BRAM": 288,
+                        "DSP": 144
+                    },
+                    "Part3": {
+                        "CLBs": 3060,
+                        "BRAM": 108,
+                        "DSP": 0
+                    },
+                    "Part4": {
+                        "CLBs": 3060,
+                        "BRAM": 144,
+                        "DSP": 72
+                    },
+                    "Part5": {
+                        "CLBs": 3060,
+                        "BRAM": 72,
+                        "DSP": 72
+                    }
+                }
+            ]
+        ],
+        "Links": [
+            {
+                "3": {
+                    "Lat": 574,
+                    "Throughput": 100
+                }
+            },
+            {
+                "12": {
+                    "Lat": 242,
+                    "Throughput": 400
+                }
+            },
+            {
+                "19": {
+                    "Lat": 479,
+                    "Throughput": 200
+                }
+            },
+            {
+                "16": {
+                    "Lat": 419,
+                    "Throughput": 200
+                }
+            }
+        ]
+    },
+    "Nodo15": {
         "FPGA": [
             [
                 {
@@ -248,26 +554,167 @@
         "Links": [
             {
                 "0": {
-                    "Lat": 702,
+                    "Lat": 144,
+                    "Throughput": 200
+                }
+            },
+            {
+                "6": {
+                    "Lat": 159,
+                    "Throughput": 100
+                }
+            }
+        ]
+    },
+    "Nodo16": {
+        "FPGA": [],
+        "Links": [
+            {
+                "14": {
+                    "Lat": 419,
+                    "Throughput": 200
+                }
+            },
+            {
+                "24": {
+                    "Lat": 560,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo17": {
+        "FPGA": [],
+        "Links": [
+            {
+                "0": {
+                    "Lat": 97,
                     "Throughput": 400
                 }
             },
             {
-                "2": {
-                    "Lat": 454,
+                "3": {
+                    "Lat": 495,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo18": {
+        "FPGA": [],
+        "Links": [
+            {
+                "6": {
+                    "Lat": 279,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo19": {
+        "FPGA": [],
+        "Links": [
+            {
+                "8": {
+                    "Lat": 193,
+                    "Throughput": 400
+                }
+            },
+            {
+                "14": {
+                    "Lat": 479,
                     "Throughput": 200
                 }
             },
             {
-                "3": {
-                    "Lat": 762,
+                "20": {
+                    "Lat": 756,
+                    "Throughput": 100
+                }
+            }
+        ]
+    },
+    "Nodo20": {
+        "FPGA": [],
+        "Links": [
+            {
+                "19": {
+                    "Lat": 756,
                     "Throughput": 100
                 }
             },
             {
-                "4": {
-                    "Lat": 469,
+                "24": {
+                    "Lat": 609,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo21": {
+        "FPGA": [],
+        "Links": [
+            {
+                "3": {
+                    "Lat": 228,
                     "Throughput": 200
+                }
+            }
+        ]
+    },
+    "Nodo22": {
+        "FPGA": [],
+        "Links": [
+            {
+                "2": {
+                    "Lat": 771,
+                    "Throughput": 400
+                }
+            },
+            {
+                "11": {
+                    "Lat": 307,
+                    "Throughput": 400
+                }
+            }
+        ]
+    },
+    "Nodo23": {
+        "FPGA": [],
+        "Links": [
+            {
+                "0": {
+                    "Lat": 704,
+                    "Throughput": 100
+                }
+            },
+            {
+                "6": {
+                    "Lat": 693,
+                    "Throughput": 100
+                }
+            },
+            {
+                "13": {
+                    "Lat": 508,
+                    "Throughput": 200
+                }
+            }
+        ]
+    },
+    "Nodo24": {
+        "FPGA": [],
+        "Links": [
+            {
+                "16": {
+                    "Lat": 560,
+                    "Throughput": 400
+                }
+            },
+            {
+                "20": {
+                    "Lat": 609,
+                    "Throughput": 400
                 }
             }
         ]

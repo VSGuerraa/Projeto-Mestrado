@@ -5,7 +5,7 @@ import json
 import time
 import random
 
-def main():
+def main(lista_nodos = None):
     
     init_time = time.time()
 
@@ -55,24 +55,19 @@ def main():
         paths.append(links_const)
         
         if value["FPGA"] != []:
-            for i in range(len(value["FPGA"])):
-                nodes_fpga.append(f'Nodo_{index}')
+            nodes_fpga.append(f'Nodo_{index}')
         
         graph[f"Nodo_{index}"]={
-                        "Resources": [(0,0,0)],
-                        "Latency": list_Lat,
-                        "Throughput": list_Throughput}
+                "Resources": [(0,0,0)],
+                "Latency": list_Lat,
+                "Throughput": list_Throughput}
         
-        
-        #Requisições
+    #Requisições
         
     with open("requisicoes.json") as file:
         requisicoes = json.load(file)
         
-        
     requisitions=[]
-
-
 
     for a,val in enumerate(requisicoes.values()):
         nodo_S=val["Nodo_S"]
@@ -368,10 +363,10 @@ def main():
                         x[(req_idx, tuple(func), f'Nodo_{node}', part_idx, tuple(path))] = model.addVar(vtype=GRB.BINARY, name=f"x_R{req_idx}_F{tuple(func)}_N{node}_P{part_idx}_K{tuple(path)}")
 
     # Parâmetros do modelo
-    latencia_link = total_link_latency       # latência de cada link (i,j)
+    latencia_link = total_link_latency          # latência de cada link (i,j)
     throughput_link = total_link_throughput     # vazão de cada link (i,j)
-    fpga_max_por_nodo = 1       # número máximo de FPGAs por nodo
-    fpga_max_total = len(nodes_fpga)  # número total máximo de FPGAs permitidos na rede
+    fpga_max_por_nodo = 1                       # número máximo de FPGAs por nodo
+    fpga_max_total = len(nodes_fpga)            # número total máximo de FPGAs permitidos na rede
 
     # Variáveis de decisão
 
@@ -388,8 +383,10 @@ def main():
     # Função Objetivo: Maximizar o valor das requisições alocadas
     model.setObjective(gp.quicksum(y[req_idx] * r[5] for req_idx, r in enumerate(requisitions)), GRB.MAXIMIZE)
 
-    # Define posicionamento aleatório das FPGAs
-    lista_nodos = random.sample(list(graph.keys()), min(fpga_max_total, len(graph.keys())))
+    if lista_nodos is None:
+        # Define posicionamento aleatório das FPGAs
+        lista_nodos = random.sample(list(graph.keys()), min(fpga_max_total, len(graph.keys())))
+
 
     for nodo_rand in lista_nodos:
         model.addConstr(node_fpga[nodo_rand] == 1, name=f"node_fpga_{nodo_rand}")
@@ -397,21 +394,25 @@ def main():
 
     # Restrição 1: Alocação completa da requisição
     for req_idx, r in enumerate(requisitions):
+        possible_paths = list(dfs_caminhos(paths, r[0], r[1]))
         for f in r[4]:
             func_aloc = gp.quicksum(x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0)
-                                    for k in (list(dfs_caminhos(paths, r[0], r[1]))) 
+                                    for k in possible_paths 
                                     for n in k 
                                     for p_idx in range(len(particoes)))
             model.addConstr(y[req_idx] <= func_aloc, name=f"alocacao_completa_{r}")
-            
+
     # Restrição 2: Função alocada somente uma vez
+            
     for req_idx, r in enumerate(requisitions):
+        possible_paths = list(dfs_caminhos(paths, r[0], r[1]))
         for f_idx, f in enumerate(r[4]):
-            qtd_func_aloc = gp.quicksum(x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
-                                        for k in list(dfs_caminhos(paths, r[0], r[1]))
-                                        for n in k
-                                        for p_idx in range(len(particoes)))
+            qtd_func_aloc = gp.quicksum(x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)), 0) 
+                                    for k in possible_paths  
+                                    for n in k
+                                    for p_idx in range(len(particoes)))
             model.addConstr(qtd_func_aloc <= 1, name=f"funcao_alocada_{req_idx}_{f_idx}")
+
             
     # Restrição 3: Apenas um caminho é escolhido para alocar a requisição
     for req_idx, r in enumerate(requisitions):
@@ -451,33 +452,44 @@ def main():
     # Restrição 6: Latência no caminho
     for req_idx, r in enumerate(requisitions):
         possible_paths = dfs_caminhos(paths, r[0], r[1])
-        lat_path = gp.quicksum(latencia_link[f'Nodo_{i}', f'Nodo_{j}'] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
-                                    for f in r[4]
-                                    for k in possible_paths
+        for k in possible_paths:
+            lat_path = gp.quicksum(latencia_link[f'Nodo_{i}', f'Nodo_{j}'] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
+                                        for f in r[4]
+                                        for n in k
+                                        for p_idx in range(len(particoes))
+                                        for i, j in zip(k, k[1:]))
+            lat_run = gp.quicksum(r[6][f_idx] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
+                                    for f_idx, f in enumerate(r[4])
                                     for n in k
-                                    for p_idx in range(len(particoes))
-                                    for i, j in zip(k, k[1:]))
-        lat_run = gp.quicksum(r[6][f_idx] * x.get((req_idx, tuple(f), f'Nodo_{n}', p_idx, tuple(k)),0) 
-                                for f_idx, f in enumerate(r[4])
-                                for k in possible_paths
-                                for n in k
-                                for p_idx in range(len(particoes)))
-        model.addConstr((lat_path + lat_run) <= r[2], 
-                        name=f"latencia_caminho_{k}")
+                                    for p_idx in range(len(particoes)))
+            model.addConstr((lat_path + lat_run) <= r[2] * z[req_idx, tuple(k)], 
+                            name=f"latencia_requisicao_{req_idx}_caminho_{k}")
             
     # Restrição 7: Limitação de recursos computacionais
-    for req_idx, r in enumerate(requisitions):
-        possible_paths = dfs_caminhos(paths, r[0], r[1])
-        for k in possible_paths:
-            for n in nodes:
-                for p_idx, part in enumerate(particoes):
-                    for f in r[4]:
-                        clb = (x.get((req_idx, tuple(f), n, p_idx, tuple(k)),0) * f[0]) <= part[0]
-                        bram = (x.get((req_idx, tuple(f), n, p_idx, tuple(k)),0) * f[1]) <= part[1]
-                        dsp = (x.get((req_idx, tuple(f), n, p_idx, tuple(k)),0) * f[2]) <= part[2]
-                        model.addConstr(clb, name=f"capacidade_clb_{n}_{p_idx}_{req_idx}")
-                        model.addConstr(bram, name=f"capacidade_bram_{n}_{p_idx}_{req_idx}")
-                        model.addConstr(dsp, name=f"capacidade_dsp_{n}_{p_idx}_{req_idx}")
+    for n in nodes:
+        for p_idx, part in enumerate(particoes):
+            clb_total = gp.quicksum(
+                x.get((req_idx, tuple(f), n, p_idx, tuple(k)), 0) * f[0]
+                for req_idx, r in enumerate(requisitions)
+                for f in r[4]
+                for k in dfs_caminhos(paths, r[0], r[1])
+            )
+            bram_total = gp.quicksum(
+                x.get((req_idx, tuple(f), n, p_idx, tuple(k)), 0) * f[1]
+                for req_idx, r in enumerate(requisitions)
+                for f in r[4]
+                for k in dfs_caminhos(paths, r[0], r[1])
+            )
+            dsp_total = gp.quicksum(
+                x.get((req_idx, tuple(f), n, p_idx, tuple(k)), 0) * f[2]
+                for req_idx, r in enumerate(requisitions)
+                for f in r[4]
+                for k in dfs_caminhos(paths, r[0], r[1])
+            )
+
+            model.addConstr(clb_total <= part[0], name=f"limite_clb_{n}_{p_idx}")
+            model.addConstr(bram_total <= part[1], name=f"limite_bram_{n}_{p_idx}")
+            model.addConstr(dsp_total <= part[2], name=f"limite_dsp_{n}_{p_idx}")
                     
     # Restrição 8: Se X é alocado, nodo_fpga é 1
     for n in nodes:
@@ -574,6 +586,8 @@ def main():
 
     # Otimizar o modelo
     model.optimize()
+
+    print("Resultados:", model.ObjVal)
 
     end_time = time.time()
     mount_time = part_time - init_time

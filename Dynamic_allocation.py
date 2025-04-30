@@ -2,10 +2,11 @@ import gerador_topologia
 import gerador_req  
 import ILP_Full
 import ILP_FixPos
-import ILP_ciente
+import ILP_Aloc_Req
 import csv
 import json
-import gurobipy 
+import gurobipy
+
 
 def adjust_topology(model):
 
@@ -448,7 +449,7 @@ def adjust_topology(model):
         topologia = json.load(file)
 
     for node in topologia:
-        topologia[node]['FPGA'] = {}
+        topologia[node]['FPGA'] = []
 
     for node, partition in nodes_wFPGA:
         for index,value in enumerate(partitions):
@@ -458,14 +459,20 @@ def adjust_topology(model):
     with open("topologia.json", "w") as file:
         json.dump(topologia, file, indent=4)
 
+    return_nodes_wFPGA = []
+
+    for fpga in nodes_wFPGA:
+        return_nodes_wFPGA.append(f"Nodo_{fpga[0]}")
+
+    return return_nodes_wFPGA
+
 def main():
 
-    for nro_nodos in range(10, 25, 5):
+    for nro_nodos in range(25, 30, 5):
         
 
         nro_req = nro_nodos*10
         result = 0
-        stop = False
         batches = 5
         
 
@@ -499,15 +506,15 @@ def main():
                 writer = csv.writer(csv_file)
                 writer.writerow(csv_row)
 
-            adjust_topology(result)
+            lista_nodos = adjust_topology(result)
 
-            for batch in range(batches):
+            for size in range(0, 4):
 
-                for size in range(0, 3):    
+                for batch in range(batches):  
                     
                     gerador_req.main(nro_nodos, nro_req, size, batch)
         
-                    result, total_time, mount_time = ILP_FixPos.main()
+                    result, total_time, mount_time = ILP_FixPos.main(lista_nodos)
                     aloc = []
                     for v in result.getVars():
                         if v.X > 0.5:
@@ -517,7 +524,7 @@ def main():
                         writer = csv.writer(csv_file)
                         writer.writerow([f'Change partition_{batch} + new batch', result.ObjVal, result.ObjBound, total_time, mount_time, f"Size_function_target{size}",aloc])
                     
-                    result, total_time, mount_time = ILP_ciente.main()
+                    result, total_time, mount_time = ILP_Aloc_Req.main()
                     aloc = []
                     for v in result.getVars():
                         if v.X >0.5:
@@ -537,6 +544,8 @@ def main():
                         writer = csv.writer(csv_file)
                         writer.writerow(csv_row)
 
+                    
+
             with open('topologia.json', 'r') as json_file:
                     topologia = json.load(json_file)
                     csv_row = []
@@ -546,7 +555,7 @@ def main():
                         link = node_data['Links']
                         csv_row.append(link)
                 
-            with open('ILP_Compare.csv', 'a+', newline='') as csv_file:
+            with open('Dynamic_alocation_compare.csv', 'a+', newline='') as csv_file:
                 writer = csv.writer(csv_file)
                 writer.writerow(csv_row)
 
