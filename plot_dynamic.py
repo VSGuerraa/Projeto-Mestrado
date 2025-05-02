@@ -80,11 +80,12 @@ def main():
         ax.set_ylim(-max_diff * 0.2, max_diff * 1.2)  # ±20% margin around local max diff
 
     axs[-1].set_xlabel("Batch")
-    axs[0].legend(loc='upper right', bbox_to_anchor=(1.2, 1), ncol=1)
+    axs[0].legend(loc='upper right', bbox_to_anchor=(1.3, 1.02), ncol=1)
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig("Images/Dynamic_alocation_compare.pdf",format='pdf')
     plt.show()
-    plt.savefig("Images/Dynamic_alocation_compare.pdf", dpi=300, bbox_inches='tight',format='pdf')
+    
 
 
 

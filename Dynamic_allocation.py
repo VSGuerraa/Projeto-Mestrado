@@ -476,7 +476,7 @@ def main():
         batches = 5
         
 
-        for top in range(10):
+        for top in range(4):
             
             gerador_topologia.gerador_Topologia(nro_nodos,int(nro_nodos*1.3))
 
