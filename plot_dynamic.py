@@ -84,6 +84,7 @@ def main():
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.show()
+    plt.savefig("Images/Dynamic_alocation_compare.pdf", dpi=300, bbox_inches='tight',format='pdf')
 
 
 
