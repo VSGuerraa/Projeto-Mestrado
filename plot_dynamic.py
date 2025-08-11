@@ -49,10 +49,12 @@ def main():
     dataset_full = np.array(tamanho_topologia_full).reshape(n_topos, n_repeats)
     
     fig, axs = plt.subplots(3, 1, figsize=(10, 14), sharex=True)
-    fig.suptitle("Percentage Difference per Batch between ILPs", fontsize=16)
+    fig.suptitle("Percentage Difference per Batch between ILPs", fontsize=20)
 
     colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red']
     labels = ['Small Functions', 'Medium Functions', 'Large Functions', 'Equal Functions']
+
+    total =[]
 
     for topo_idx in range(n_topos):
         ax = axs[topo_idx]
@@ -68,23 +70,27 @@ def main():
                                     (means_part - means_aloc) / means_aloc * 100,
                                     0)
             diff_percent = np.insert(diff_percent, 0, 0)
+
+            total.append(diff_percent)
             
             max_diff = max(max_diff, np.max(np.abs(diff_percent)))  # track for axis scaling
 
             ax.plot(range(1, n_batches+2), diff_percent, '-o', color=colors[size_idx], label=labels[size_idx])
 
-        ax.set_title(f"Topology {(topo_idx+2)*5}")
-        ax.set_ylabel("Δ (%)")
+        ax.set_title(f"Topology {(topo_idx+2)*5}", fontsize=16)
+        ax.set_ylabel("Δ (%)", fontsize=16)
         ax.set_xticks(range(1, n_batches+2))
         ax.axhline(0, color='gray', linestyle='--', linewidth=1)
         ax.set_ylim(-max_diff * 0.2, max_diff * 1.2)  # ±20% margin around local max diff
 
-    axs[-1].set_xlabel("Batch")
-    axs[0].legend(loc='upper right', bbox_to_anchor=(1.3, 1.02), ncol=1)
+    axs[-1].set_xlabel("Batch", fontsize=16)
+    axs[0].legend(loc='upper left', bbox_to_anchor=(0, 1), ncol=1, fontsize=16)
 
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig("Images/Dynamic_alocation_compare.pdf",format='pdf')
     plt.show()
+
+    #print(sum(sum(total))/48)
     
 
 

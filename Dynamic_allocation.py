@@ -473,10 +473,10 @@ def main():
 
         nro_req = nro_nodos*10
         result = 0
-        batches = 5
+        batches = 4
         
 
-        for top in range(4):
+        for top in range(3):
             
             gerador_topologia.gerador_Topologia(nro_nodos,int(nro_nodos*1.3))
 

@@ -10,7 +10,7 @@ import gurobipy as gp
 nro_topologias = 10
 nro_replicas = 15
     
-for nro_nodos in range(10, 31, 5):
+for nro_nodos in range(25, 30, 5):
     
     for top in range(nro_topologias):
         

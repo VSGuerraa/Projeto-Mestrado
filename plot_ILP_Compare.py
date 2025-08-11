@@ -2,6 +2,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import statistics as st
+from matplotlib import gridspec
 
 
 
@@ -54,29 +55,48 @@ def extract_data(data_raw):
     return plot_full, plot_fixpos, plot_fixpart
 
 def plot_data(plot_full, plot_fixpos, plot_fixpart):
-    #Extracting means and standard deviations and ploting 3 different figures each 10 times
-
-    means_fixpos = [x[0] for x in plot_fixpos]
-    std_dev_fixpos = [x[1] for x in plot_fixpos]
-    means_fixpart = [x[0] for x in plot_fixpart]
-    std_dev_fixpart = [x[1] for x in plot_fixpart]
-    means_full = plot_full
-
-    for idx in range(10,31,10):
-        indexes = list(range(1, 11))
-        x = np.arange(len(indexes))  # the label locations
-        width = 0.25  # the width of the bars
-        plt.bar(x - width, means_full[(idx-10):idx], width, label='Full', color='tab:green', capsize=2)
-        plt.bar(x, means_fixpos[(idx-10):idx], width, yerr=std_dev_fixpos[(idx-10):idx], label='FixPos', color='tab:blue', capsize=2)
-        plt.bar(x + width, means_fixpart[(idx-10):idx], width, yerr=std_dev_fixpart[(idx-10):idx], label='FixPart', color='tab:orange', capsize=2)
+    # Separando os dados em grupos de 10 para cada topologia
+    def group(data, size=10):
+        return [data[i*size:(i+1)*size] for i in range(3)]
     
+    full_groups = group(plot_full)
+    fixpos_means_groups = group([x[0] for x in plot_fixpos])
+    fixpart_means_groups = group([x[0] for x in plot_fixpart])
 
-        plt.xticks(x, indexes)
-        plt.legend(fontsize=12)
-        plt.ylabel("Values", fontsize=12)
-        plt.tick_params(axis='y', labelsize=12)
-        plt.ylim(bottom=0) 
-        plt.show()
+    # Cálculo das médias e desvios padrão por topologia
+    means_full = [np.mean(g) for g in full_groups]
+    std_full = [np.std(g, ddof=0) for g in full_groups]
+
+    means_fixpos = [np.mean(g) for g in fixpos_means_groups]
+    std_fixpos = [np.std(g, ddof=0) for g in fixpos_means_groups]
+
+    means_fixpart = [np.mean(g) for g in fixpart_means_groups]
+    std_fixpart = [np.std(g, ddof=0) for g in fixpart_means_groups]
+
+    # Dados para o gráfico
+    labels = ['10 Nodes', '15 Nodes', '20 Nodes']
+    x = np.arange(len(labels))
+    width = 0.25
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - width, means_full, width, label='Flex', color='tab:green', capsize=5, edgecolor='black')
+    ax.bar(x, means_fixpos, width, label='FixPos', color='tab:blue', capsize=5, edgecolor='black')
+    ax.bar(x + width, means_fixpart, width, label='FixPart', color='tab:orange', capsize=5, edgecolor='black')
+
+    ax.set_ylabel('Objective Value', fontsize=18)
+    ax.set_xlabel('Topology Size', fontsize=16)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=16)
+    ax.tick_params(axis='y', labelsize=16)
+    ax.legend(fontsize=16, loc='upper left')
+    ax.set_ylim(0, 1.2 * max(means_full + means_fixpos + means_fixpart))
+
+    #ax.set_title('Average ILP Objective Value per Topology', fontsize=20)
+
+    plt.tight_layout()
+    plt.savefig('ILP_Compare_Mean.pdf', format='pdf', bbox_inches='tight')
+    plt.show()
+
         
 def main():
     # Read data from CSV

@@ -61,7 +61,7 @@
             "CLBs": 19007,
             "BRAM": 36,
             "DSPs": 0,
-            "Lat": 1790,
+            "Lat": 2525,
             "Throughput": 14.4
         }
     },
@@ -72,7 +72,7 @@
             "CLBs": 6442,
             "BRAM": 407,
             "DSPs": 0,
-            "Lat": 2372,
+            "Lat": 1964,
             "Throughput": 40
         }
     },
@@ -83,7 +83,7 @@
             "CLBs": 891,
             "BRAM": 96,
             "DSPs": 0,
-            "Lat": 1979,
+            "Lat": 1486,
             "Throughput": 40
         }
     },
@@ -94,7 +94,7 @@
             "CLBs": 7560,
             "BRAM": 399,
             "DSPs": 0,
-            "Lat": 1656,
+            "Lat": 2735,
             "Throughput": 102.6
         }
     },
@@ -103,9 +103,9 @@
         "implementacao": {
             "nome": "AES0",
             "CLBs": 3165,
-            "BRAM": 3,
+            "BRAM": 4,
             "DSPs": 0,
-            "Lat": 11,
+            "Lat": 2,
             "Throughput": 49.38
         }
     },
@@ -113,7 +113,7 @@
         "Nome": "Advanced Encryption Standard",
         "implementacao": {
             "nome": "AES1",
-            "CLBs": 3455,
+            "CLBs": 3670,
             "BRAM": 2,
             "DSPs": 0,
             "Lat": 21,
@@ -125,7 +125,7 @@
         "implementacao": {
             "nome": "AES2",
             "CLBs": 5118,
-            "BRAM": 5,
+            "BRAM": 1,
             "DSPs": 0,
             "Lat": 2,
             "Throughput": 59.3
@@ -136,9 +136,9 @@
         "implementacao": {
             "nome": "AES3",
             "CLBs": 2542,
-            "BRAM": 4,
+            "BRAM": 1,
             "DSPs": 0,
-            "Lat": 12,
+            "Lat": 13,
             "Throughput": 45
         }
     },
@@ -149,7 +149,7 @@
             "CLBs": 11951,
             "BRAM": 450,
             "DSPs": 0,
-            "Lat": 3,
+            "Lat": 19,
             "Throughput": 119.3
         }
     }
